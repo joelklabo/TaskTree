@@ -37,7 +37,7 @@ jobs:
 
       - name: Sync deps
         working-directory: backend
-        run: uv sync --dev
+        run: uv sync --extra dev
 
       - name: Lint backend
         working-directory: backend
