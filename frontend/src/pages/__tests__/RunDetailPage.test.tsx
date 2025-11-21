@@ -57,9 +57,9 @@ describe("RunDetailPage", () => {
     render(<RunDetailPage runRef={{ sessionId: "sess-123", traceId: "trace-123" }} />);
 
     expect(await screen.findByText(/Trace events/)).toBeInTheDocument();
-    expect(screen.getByText("s1")).toBeInTheDocument();
-    expect(screen.getByText("agent")).toBeInTheDocument();
-    expect(screen.getByText(/Session/)).toBeInTheDocument();
+    expect(await screen.findByText("s1")).toBeInTheDocument();
+    expect(await screen.findByText("agent")).toBeInTheDocument();
+    expect(screen.getAllByText("Session summary").length).toBeGreaterThan(0);
     const artifactsTab = screen.getByRole("button", { name: "Artifacts" });
     fireEvent.click(artifactsTab);
     const artifactLink = await screen.findByRole("link", { name: /logs\/steps trace.txt/i });

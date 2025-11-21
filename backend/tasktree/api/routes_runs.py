@@ -53,6 +53,20 @@ def run(req: RunRequest, x_trace: str | None = Header(default=None)) -> dict[str
         trace_exit_code = (
             0 if all(step.result.status == StepStatus.SUCCESS for step in session.steps) else 1
         )
+        final_label = next(
+            (s.result.label for s in reversed(session.steps) if s.result.label), None
+        )
+        status_label = "success" if trace_exit_code == 0 else "failure"
+        trace_run.update_meta(
+            {
+                "flow_name": session.flow_name,
+                "flow_version": session.flow_version,
+                "label": final_label
+                or (session.steps[-1].result.status.value if session.steps else None),
+                "status": status_label,
+                "session_id": session.session_id,
+            }
+        )
         trace_run.write_meta_end(trace_exit_code)
         os.environ.pop("TASKTREE_TRACE_ROOT", None)
         os.environ.pop("TASKTREE_RUN_ID", None)

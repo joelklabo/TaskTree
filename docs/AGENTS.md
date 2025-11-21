@@ -7,7 +7,8 @@ TaskTree treats agents as plugins: small, focused Python classes that turn conte
 3. Capture traces/artifacts when running flows (via the trace wrapper) to keep runs reproducible.
 4. Document the change immediately (README, docs/, comments where needed).
 5. Commit early and often with clear messages.
-6. If you cannot add a test/trace (e.g., missing infra), document the gap in the PR/commit message and add a TODO to backfill.
+6. Run `make test` (backend + frontend + Playwright e2e) on every change—no skipping e2e even for docs-only or “tiny” edits.
+7. If you cannot add a test/trace (e.g., missing infra), document the gap in the PR/commit message and add a TODO to backfill.
 
 Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make ci`, then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
 
@@ -112,7 +113,7 @@ Agents are subject to `config/constitution.yaml`.
 2. Write/adjust tests (pytest, integration, or golden trace) to capture expected behavior.
 3. Run tests to see them fail.
 4. Implement the smallest change in the agent or prompts.
-5. Run `make lint test` (or narrower targets) and `ruff format`/`prettier` as needed.
+5. Run `make lint test` (or narrower targets) and `ruff format`/`prettier` as needed. `make test` **always** runs backend pytest and frontend Vitest + Playwright e2e; do not skip e2e.
 6. Generate/update traces with `uv run -m tasktree.agents.trace.record ...` when flows are run.
 7. Update docs/README with what changed and why; attach artifacts where useful.
 8. Commit with a concise message. Commit early and often.
@@ -221,7 +222,7 @@ Agents can write artifacts via `tasktree.tracing.Tracer.artifact_path`.
 | Dev servers | `make dev-backend` | `make dev-frontend` | — | `make dev` (both) |
 | Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
 
-Notes: `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For E2E only: `make test-e2e` (frontend Playwright).
+Notes: `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (mandatory on every change). `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For e2e-only reruns: `make test-e2e` (frontend Playwright).
 
 ### Agent docs (naming + guardrail)
 - Agent guides live in `agents/tasktree-*-agent.md` (one file per agent area).

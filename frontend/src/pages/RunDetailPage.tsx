@@ -28,6 +28,7 @@ export default function RunDetailPage({ runRef }: Props) {
   const [traceMissing, setTraceMissing] = React.useState(false);
   const [artifactsMissing, setArtifactsMissing] = React.useState(false);
   const [expandedRaw, setExpandedRaw] = React.useState<Record<string, boolean>>({});
+  const [sessionRawOpen, setSessionRawOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (!runRef.traceId) {
@@ -166,7 +167,7 @@ export default function RunDetailPage({ runRef }: Props) {
                 <div className="space-y-3 p-3">
                   {sessionRecords.length > 0 && (
                     <div className="space-y-1 rounded-md border bg-slate-50 p-3">
-                      <div className="text-sm font-semibold text-slate-700">Session</div>
+                      <div className="text-sm font-semibold text-slate-700">Session summary</div>
                       <div className="grid gap-1 text-xs text-slate-700 sm:grid-cols-2">
                         <div>
                           <span className="font-semibold">Flow:</span>{" "}
@@ -245,21 +246,34 @@ export default function RunDetailPage({ runRef }: Props) {
                   )}
                   {sessionRecords.length > 0 && (
                     <div className="space-y-2">
-                      <div className="text-sm font-semibold text-slate-700">
-                        Raw session records
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-semibold text-slate-700">Session raw</div>
+                        <button
+                          type="button"
+                          className="text-xs text-primary underline"
+                          onClick={() => setSessionRawOpen((prev) => !prev)}
+                        >
+                          {sessionRawOpen ? "Hide session raw" : "Show session raw"}
+                        </button>
                       </div>
-                      <ScrollArea className="max-h-[240px] rounded border">
-                        <div className="divide-y">
-                          {sessionRecords.map((rec, idx) => (
-                            <pre
-                              key={idx}
-                              className="whitespace-pre-wrap px-4 py-3 text-sm text-foreground"
-                            >
-                              {JSON.stringify(rec, null, 2)}
-                            </pre>
-                          ))}
-                        </div>
-                      </ScrollArea>
+                      {sessionRawOpen ? (
+                        <ScrollArea className="max-h-[240px] rounded border">
+                          <div className="divide-y">
+                            {sessionRecords.map((rec, idx) => (
+                              <pre
+                                key={idx}
+                                className="whitespace-pre-wrap px-4 py-3 text-sm text-foreground"
+                              >
+                                {JSON.stringify(rec, null, 2)}
+                              </pre>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Expand to inspect raw session JSON.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

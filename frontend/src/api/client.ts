@@ -24,10 +24,22 @@ export type TraceMeta = {
   cwd?: string;
   start_time?: string;
   end_time?: string;
+  flow_name?: string;
+  flow_version?: string;
+  label?: string | null;
+  status?: string;
+  exit_code?: number;
 };
 
 export type ArtifactInfo = { path: string; size: number };
-export type Constitution = Record<string, unknown>;
+export type Constitution = {
+  task_states?: {
+    states?: string[];
+    transitions?: Record<string, Record<string, string>>;
+  };
+  ownership?: Record<string, string>;
+  protected?: string[];
+};
 
 const api = axios.create({
   baseURL: "/api",

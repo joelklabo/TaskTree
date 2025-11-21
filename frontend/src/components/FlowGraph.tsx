@@ -22,7 +22,14 @@ type Props = {
 
 export default function FlowGraph({ flow }: Props) {
   if (!flow) return null;
-  type FlowNodeData = { label: string };
+  if (!flow.steps || flow.steps.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed bg-white p-4 text-sm text-muted-foreground">
+        No steps defined for this flow yet.
+      </div>
+    );
+  }
+  type FlowNodeData = { label: string; badge?: string };
   type FlowEdgeData = { label?: string };
   type FlowElements = Array<Node<FlowNodeData> | Edge<FlowEdgeData>>;
 
@@ -31,52 +38,63 @@ export default function FlowGraph({ flow }: Props) {
 
   nodes.push({
     id: "start",
-    data: { label: "start" },
-    position: { x: 50, y: 50 },
+    data: { label: "Start", badge: "start" },
+    position: { x: 50, y: 80 },
     sourcePosition: Position.Right,
+    style: { border: "1px solid #cbd5e1", padding: 10, borderRadius: 10, background: "#ecfeff" },
   });
 
+  const stepIds = flow.steps.map((step) => step.id);
+
   flow.steps.forEach((step, idx: number) => {
+    const x = 190 * (idx + 1);
+    const y = 80 + (idx % 2) * 120;
     nodes.push({
       id: step.id,
-      data: { label: `${step.id} (${step.agent})` },
-      position: { x: 180 * (idx + 1), y: 120 },
+      data: { label: `${step.id} (${step.agent})`, badge: "step" },
+      position: { x, y },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
-      style: { border: "1px solid #cbd5e1", padding: 8, borderRadius: 6, background: "#fff" },
+      style: { border: "1px solid #cbd5e1", padding: 10, borderRadius: 10, background: "#fff" },
     });
 
     Object.entries(step.transitions || {}).forEach(([event, target]) => {
-      if (target !== "end") {
-        edges.push({
-          id: `${step.id}-${event}-${target}`,
-          source: step.id,
-          target,
-          label: event,
-          animated: true,
-        });
-      }
+      const targetId = target === "end" ? "end" : target;
+      edges.push({
+        id: `${step.id}-${event}-${targetId}`,
+        source: step.id,
+        target: targetId,
+        label: event,
+        animated: true,
+      });
     });
   });
 
   nodes.push({
     id: "end",
-    data: { label: "end" },
-    position: { x: 150 * (flow.steps.length + 1), y: 100 },
+    data: { label: "End", badge: "end" },
+    position: { x: 200 * (flow.steps.length + 1 || 2), y: 100 },
     targetPosition: Position.Left,
+    style: { border: "1px solid #cbd5e1", padding: 10, borderRadius: 10, background: "#fef9c3" },
   });
 
+  const startTargetId = stepIds.includes(flow.start) ? flow.start : stepIds[0] || "end";
+
   edges.push({
-    id: `start-${flow.start}`,
+    id: `start-${startTargetId}`,
     source: "start",
-    target: flow.start,
+    target: startTargetId,
     label: "start",
     animated: true,
   });
 
   const elements: FlowElements = [...nodes, ...edges];
 
-  const reactFlowProps = { elements, fitView: true };
+  const reactFlowProps = {
+    elements,
+    fitView: true,
+    fitViewOptions: { padding: 0.2 },
+  };
 
   return (
     <div style={{ height: 420 }}>

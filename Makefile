@@ -102,6 +102,7 @@ test-frontend:
 	cd frontend && npm run test:unit && npm run coverage && npm run e2e
 
 test: test-backend test-frontend
+	@echo "Full suite finished (backend + frontend + Playwright e2e)"
 
 .PHONY: coverage coverage-backend coverage-frontend
 coverage-backend:
@@ -153,6 +154,7 @@ tmux-info:
 test-scripts:
 	$(MAKE) lint-shellcheck
 	cd tui && go build -o cmd/ttx-dashboard/ttx-dashboard ./cmd/ttx-dashboard
+	./scripts/tests/test_zip_repo.sh
 	./scripts/tmux/tests/test_log_search.sh
 	./scripts/tmux/tests/test_log_search_bug.sh
 	./scripts/tmux/tests/test_log_sources_listing.sh
@@ -188,3 +190,7 @@ verify-scripts: test-scripts
 .PHONY: tmux-e2e
 tmux-e2e:
 	./scripts/tmux_e2e_expect.sh
+
+.PHONY: zip
+zip:
+	./scripts/zip_repo.sh $(if $(ARGS),$(ARGS),--out /tmp/tasktree-code-$(shell date +%Y%m%d-%H%M%S).zip)

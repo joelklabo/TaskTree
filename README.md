@@ -42,7 +42,7 @@ Quick make targets:
 | Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
 | Dashboard | — | — | `make tmux` (session ttx) / `make tmux-info` | — |
 
-Notes: `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For E2E only: `make test-e2e` (frontend Playwright).
+Notes: `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (required for every change). `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For e2e-only reruns: `make test-e2e` (frontend Playwright).
 
 ### Log-triggered agent (local)
 - Watch a log and kick off a flow when an error appears:
@@ -53,6 +53,7 @@ Notes: `make ci` runs lint + test + build. `make setup-tools` installs shfmt/she
 
 ### Developer workflow (TTD-first)
 - Favor a **TTD loop**: write or update a failing test/trace, make the smallest change, re-run `make lint test`, update docs, commit.
+- Always run `make test` before considering a task done; it runs backend pytest plus frontend Vitest and Playwright e2e. No skipping e2e—even for docs/typos.
 - Use `make format` to apply Ruff/Prettier before committing.
 - Capture flow runs with the trace wrapper to keep artifacts reproducible.
 - For commits, install hooks (`bash scripts/git_hooks/install_hooks.sh`) and use `scripts/runner.sh "<message>"` (serializes commits with .git/context-runner.lock, rebases on origin/<branch>, runs `make ci`, then pushes).

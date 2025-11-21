@@ -58,6 +58,7 @@ describe("RunDetailPage trace view formatting", () => {
     await waitFor(() => expect(screen.getByText(/Trace timeline/i)).toBeInTheDocument());
     expect(screen.getByText(/Start:/i)).toBeInTheDocument();
     expect(screen.getByText(/End:/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Session summary/i).length).toBeGreaterThan(0);
 
     const stepCard = screen.getByTestId("timeline-step-assess");
     expect(stepCard).toBeInTheDocument();
@@ -75,9 +76,18 @@ describe("RunDetailPage trace view formatting", () => {
       ).toBeInTheDocument(),
     );
     expect(
-      screen.getByText(/"flow_name": "log_error_handler"/i, {
+      screen.queryByText(/"flow_name": "log_error_handler"/i, {
         selector: "pre",
       }),
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
+
+    const sessionToggle = screen.getByRole("button", { name: /Show session raw/i });
+    expect(screen.queryByText(/"flow_version": "0.1.0"/i)).not.toBeInTheDocument();
+    act(() => sessionToggle.click());
+    await waitFor(() =>
+      expect(
+        screen.getByText((content) => content.includes('"flow_version": "0.1.0"')),
+      ).toBeInTheDocument(),
+    );
   });
 });

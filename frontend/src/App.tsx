@@ -91,7 +91,10 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-6 pb-16 lg:py-8">
+      <main
+        className="mx-auto max-w-6xl px-5 py-6 pb-24 lg:px-6 lg:py-10"
+        data-testid="workspace-main"
+      >
         <Card>
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
@@ -112,7 +115,10 @@ export default function App() {
           </CardHeader>
           <CardContent>
             <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-              <TabsList className="mb-4">
+              <TabsList
+                className="sticky top-0 z-20 mb-4 flex flex-wrap gap-2 bg-card/95 px-2 py-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur"
+                data-testid="workspace-tabs"
+              >
                 <TabsTrigger value="flows">Flows</TabsTrigger>
                 <TabsTrigger value="traces">Traces</TabsTrigger>
                 <TabsTrigger value="constitution">Constitution</TabsTrigger>

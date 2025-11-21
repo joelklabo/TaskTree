@@ -37,14 +37,24 @@ test("traced run appears in UI with trace records", async ({ page }) => {
 
   // Navigate to Traces tab.
   await page.getByRole("tab", { name: "Traces" }).click();
+  await expect(page.getByPlaceholder("Filter runs by flow, label, or command")).toBeVisible();
   const runButton = page.getByRole("button", { name: runId });
   await expect(runButton).toBeVisible({ timeout: 15000 });
+  const runRow = page.getByRole("row", { name: new RegExp(runId) });
+  await expect(runRow.getByText("code_fix")).toBeVisible();
+  await expect(runRow.getByText(/tests_passed/i)).toBeVisible();
   await runButton.click();
   const runDetailTab = page.getByRole("tab", { name: "Run detail" });
   await runDetailTab.click();
 
-  // Trace detail should render JSON content (flow_name present).
+  await expect(page.getByText("Trace timeline")).toBeVisible();
+  const sessionToggle = page.getByRole("button", { name: /Show session raw/i });
+  await sessionToggle.click();
   await expect(page.locator("pre").first()).toContainText('"flow_name": "code_fix"');
+  const rawToggle = page.getByRole("button", { name: /Show raw/i }).first();
+  await rawToggle.click();
+  await expect(page.locator("pre").first()).toContainText("step");
+  await expect(page.locator("pre").nth(1)).toContainText('"flow_version": "0.1.0"');
 
   const waitForArtifacts = async () => {
     for (let i = 0; i < 20; i += 1) {

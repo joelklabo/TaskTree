@@ -3,7 +3,7 @@ import json
 import os
 import subprocess  # nosec B404
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 def utc_now() -> str:
@@ -30,6 +30,11 @@ class TraceRun:
         self.root.mkdir(parents=True, exist_ok=True)
         self.artifacts.mkdir(exist_ok=True)
 
+    def _load_meta(self) -> dict[str, Any]:
+        if not self.meta_path.exists():
+            return {}
+        return cast(dict[str, Any], json.loads(self.meta_path.read_text()))
+
     def write_meta_start(self, cmd: list[str], cwd: str) -> None:
         meta = {
             "run_id": self.run_id,
@@ -39,10 +44,17 @@ class TraceRun:
         }
         self.meta_path.write_text(json.dumps(meta, indent=2))
 
-    def write_meta_end(self, exit_code: int) -> None:
-        meta = json.loads(self.meta_path.read_text())
+    def update_meta(self, updates: dict[str, Any]) -> None:
+        meta = self._load_meta()
+        meta.update(updates)
+        self.meta_path.write_text(json.dumps(meta, indent=2))
+
+    def write_meta_end(self, exit_code: int, extra: dict[str, Any] | None = None) -> None:
+        meta = self._load_meta()
         meta["exit_code"] = exit_code
         meta["end_time"] = utc_now()
+        if extra:
+            meta.update(extra)
         self.meta_path.write_text(json.dumps(meta, indent=2))
 
     def append_log(self, text: str) -> None:
