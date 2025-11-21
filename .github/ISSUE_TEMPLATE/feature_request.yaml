@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose an improvement with desired behavior and signals.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What should change?
+      placeholder: "Add preview deploy for flows ..."
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Why does it matter?
+      description: Impact, who benefits, and success signals.
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: Acceptance + guardrails
+      description: Edge cases, non-goals, rollout constraints.
+  - type: checkboxes
+    id: check
+    attributes:
+      label: Checklist
+      options:
+        - label: Includes testing/observability expectations.
+        - label: References related issues/PRs if any.

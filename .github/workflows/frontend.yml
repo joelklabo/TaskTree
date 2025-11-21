@@ -1,0 +1,104 @@
+name: frontend
+
+on:
+  workflow_call:
+    outputs:
+      coverage:
+        description: Frontend coverage percentage
+        value: ${{ jobs.frontend.outputs.coverage }}
+      tests-status:
+        description: Frontend tests result
+        value: ${{ jobs.frontend.result }}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    outputs:
+      coverage: ${{ steps.coverage.outputs.coverage }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint/typecheck/format
+        working-directory: frontend
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run format:check
+
+      - name: Unit tests
+        id: unit
+        working-directory: frontend
+        run: npm run test:unit
+
+      - name: Coverage
+        id: coverage
+        working-directory: frontend
+        run: |
+          npm run coverage
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("coverage/coverage-summary.json").read_text())
+          pct = data["total"]["lines"]["pct"]
+          with open("$GITHUB_OUTPUT", "a", encoding="utf-8") as fh:
+              fh.write(f"coverage={pct}\n")
+          PY
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E (with retry)
+        id: e2e
+        working-directory: frontend
+        env:
+          CI: "true"
+        run: ../scripts/ci/retry.sh 2 10 npm run e2e
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload frontend artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: frontend-artifacts
+          path: |
+            frontend/coverage/
+            frontend/playwright-report/
+            frontend/test-results/
+            frontend/dist/
+          if-no-files-found: warn
+
+      - name: Job summary
+        run: |
+          cat <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          ## Frontend
+          - Status: ${{ job.status }}
+          - Coverage: ${{ steps.coverage.outputs.coverage }}%
+          - Artifacts: frontend-artifacts
+          EOF

@@ -1,0 +1,12 @@
+node_modules/
+**/node_modules/**
+.venv/
+**/.venv/**
+.tmux/
+backend/uv.lock
+backend/.venv/
+frontend/node_modules/
+frontend/coverage/
+fronted/playwright-report/
+frontend/test-results/
+UV_LOCKS/

@@ -1,0 +1,24 @@
+Tmux dashboard shortcuts (project-local)
+----------------------------------------
+- Prefix + m : toggle mouse on/off (default on)
+- Prefix + T : test toast (display-message) to verify overlays
+- Prefix + R : refresh all dashboard panes (respawn scripts)
+- Prefix + C : capture current pane to logs/pane_shares and clipboard (if available)
+- Prefix + y : same as C (yank shortcut) to capture/copy pane
+- Double-click a pane : capture + toast (mouse shortcut)
+- Prefix + f : fzf window/pane picker (requires fzf installed)
+- Prefix + I : install TPM plugins (first run)
+- Prefix + s : choose session; Prefix + w : choose window; Prefix + z : zoom pane
+- Prefix + [ : copy/scroll mode; q to exit
+
+Windows
+- dashboard : status, plan (compact), traces, log tails
+- servers   : backend/frontend dev servers
+- logs      : backend/frontend log tails
+- search    : log search REPL (prints copyable rg command)
+- git       : commits, status, diff --stat
+- alerts    : ranked errors/warnings
+- sources   : log sources overview, uses logs/log_sources.yaml
+- health    : watchdog pane (also Prefix+H to run once)
+- shares    : captured panes history (latest + preview)
+- backend/frontend/root : shells

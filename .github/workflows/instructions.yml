@@ -1,0 +1,29 @@
+name: Instructions guardrail
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Verify Copilot instructions reference AGENTS
+        run: |
+          set -euo pipefail
+          if ! grep -q "AGENTS.md" .github/copilot-instructions.md; then
+            echo "copilot-instructions.md must reference AGENTS.md" >&2
+            exit 1
+          fi
+          if ! grep -qi "TTD" .github/copilot-instructions.md; then
+            echo "copilot-instructions.md must mention TTD expectations" >&2
+            exit 1
+          fi
+          echo "Instructions file references AGENTS.md and TTD."

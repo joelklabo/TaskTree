@@ -1,0 +1,20 @@
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+  "E",  # pycodestyle errors
+  "F",  # pyflakes
+  "B",  # bugbear
+  "I",  # import sorting
+  "UP", # pyupgrade
+  "C4", # flake8-comprehensions
+  "TID",# tidy imports
+  "RUF",# ruff-specific rules
+]
+ignore = []
+
+[format]
+indent-style = "space"
+quote-style = "double"
+docstring-code-format = true

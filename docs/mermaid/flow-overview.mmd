@@ -1,0 +1,28 @@
+flowchart LR
+    subgraph Backend[Backend]
+        executor(Executor)
+        tracer(Tracer)
+        api(API routes)
+    end
+
+    subgraph Agents[Agents]
+        copilot(Copilot CLI)
+    end
+
+    subgraph Config[Config]
+        flows(Flows YAML)
+        prompts(Prompts)
+        constitution(Constitution)
+    end
+
+    subgraph Frontend[Frontend]
+        ui(UI Pages)
+    end
+
+    flows --> executor
+    constitution --> executor
+    executor --> copilot
+    copilot --> executor
+    executor --> tracer
+    tracer --> api
+    api --> ui

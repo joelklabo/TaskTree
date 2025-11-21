@@ -1,0 +1,25 @@
+name: README status block
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Update status block
+        run: python3 scripts/ci/update_readme_managed.py
+      - name: Diff check
+        run: |
+          if ! git diff --quiet -- README.md; then
+            echo "README status block is out of date. Run python scripts/ci/update_readme_managed.py" >&2
+            git diff -- README.md
+            exit 1
+          fi

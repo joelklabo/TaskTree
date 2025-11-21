@@ -1,0 +1,16 @@
+backend:
+  - backend/**
+  - scripts/**
+frontend:
+  - frontend/**
+site:
+  - site/**
+docs:
+  - docs/**
+  - README.md
+infra:
+  - .github/**
+  - Makefile
+dependencies:
+  - "**/package-lock.json"
+  - "backend/uv.lock"

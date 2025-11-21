@@ -1,0 +1,39 @@
+name: Manual Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Which suite to run (backend|frontend|docs|all)"
+        required: true
+        default: "all"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  backend:
+    if: ${{ inputs.target == 'backend' || inputs.target == 'all' }}
+    uses: ./.github/workflows/backend.yml
+    secrets: inherit
+
+  frontend:
+    if: ${{ inputs.target == 'frontend' || inputs.target == 'all' }}
+    needs: backend
+    uses: ./.github/workflows/frontend.yml
+    secrets: inherit
+
+  docs:
+    if: ${{ inputs.target == 'docs' || inputs.target == 'all' }}
+    uses: ./.github/workflows/docs.yml
+    secrets: inherit
+
+  summary:
+    if: always()
+    needs: [backend, frontend, docs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "Manual tests complete. backend=${{ needs.backend.result || 'skipped' }}, frontend=${{ needs.frontend.result || 'skipped' }}, docs=${{ needs.docs.result || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
