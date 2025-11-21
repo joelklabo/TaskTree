@@ -155,6 +155,7 @@ test-scripts:
 	$(MAKE) lint-shellcheck
 	cd tui && go build -o cmd/ttx-dashboard/ttx-dashboard ./cmd/ttx-dashboard
 	./scripts/tests/test_zip_repo.sh
+	./scripts/tests/test_trace_artifact_upload.sh
 	./scripts/tmux/tests/test_log_search.sh
 	./scripts/tmux/tests/test_log_search_bug.sh
 	./scripts/tmux/tests/test_log_sources_listing.sh
