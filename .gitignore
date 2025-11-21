@@ -55,6 +55,7 @@ backend/tasktree/agents/trace/runs/
 tasktree.db
 logs/
 .tmux/
+tmp/
 
 # Build artifacts
 build/
