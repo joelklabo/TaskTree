@@ -15,6 +15,7 @@ Repository hygiene for TaskTree: `.gitignore`, `.gitattributes`, `.vscode/`, hoo
   - .gitignore
   - .gitattributes
   - .git/hooks/**
+  - .vscode/**
   - scripts/git_hooks/**
 - **Excludes:**
   - backend/**
@@ -36,7 +37,7 @@ Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
 1. Claim the hygiene task in `docs/PLAN.md` with your handle and status.
 2. Start with a failing test/lint or a reproduction (e.g., unwanted files tracked).
 3. Implement the leanest fix; ensure hooks/scripts behave cross-platform when possible.
-4. Run `make lint` or targeted checks (`make verify-scripts`, etc.) before closing.
+4. Run `make test` (backend + frontend + Playwright e2e) even for hygiene/docs-only changes; use fast checks like `make verify-scripts` or linting first, but finish with the full suite.
 5. Document any repo workflow changes so other TaskTree agents stay in sync.
 
 ## Commit workflow

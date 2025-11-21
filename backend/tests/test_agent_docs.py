@@ -49,4 +49,5 @@ def test_git_agent_doc_mentions_commits_and_hooks() -> None:
     content = git_doc.read_text().lower()
     assert "commit" in content, "git agent doc should guide commits"
     assert "hook" in content, "git agent doc should mention hooks"
+    assert "make test" in content, "git agent doc should remind to run the full test suite"
     assert "scripts/git_hooks" in content, "git agent doc should reference git hook install script"

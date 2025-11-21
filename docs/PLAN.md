@@ -3,6 +3,15 @@
 - **Last updated:** 2025-11-21 (later updates should bump)
 - **Method:** TTD loop (Test-first, Trace, Document), commit early/often. Update this file when tasks start/finish.
 
+## How to use this plan
+- Ownership: `docs/PLAN.md` is scribe-owned per constitution; only the scribe edits it. Others request updates from the scribe.
+- Handle: colors = [red, blue, green, amber, teal, violet, gray]; idx = timestamp_seconds % len(colors); handle = colors[idx] + "-" + last4hex(timestamp_seconds).
+- Task pickup: never ask humans which task to do—always select from this plan. After finishing a task, return here and pick the next open item; if none, stop per discover/wait rules.
+- Claiming: when starting, add/move an item under “In Progress” with `[ ]`, your handle, start date, and a short note; bump “Last updated.” When done, move it to “Done” with `[x]`, owner, date, and notes.
+- Workflow: stay in TTD—start from a failing test/repro, capture traces, document, and run `make test` (backend + frontend + Playwright e2e) before marking done.
+- Completion: before moving an item to “Done,” commit and push via `scripts/runner.sh "<message>"` (or note the blocker here if you cannot); do not leave a finished task uncommitted.
+- Blockers: add blockers with owner/ask under “Blockers”; remove when resolved.
+
 ## In Progress
 - [ ] Trace detail UX: step timeline/cards + collapsible raw JSON; ensure Playwright + Vitest cover the structured view (web agent: red-0b2e) - started: 2025-11-21
 - [ ] Constitution UI/API polish: render task states/ownership/protected paths from backend route with error/empty states; add Playwright check (web agent: red-0b2e) - started: 2025-11-21
@@ -11,6 +20,7 @@
 - [ ] Layout polish: ensure workspace content not cut off (footer padding/scroll), sticky tabs header, responsive spacing (web agent: red-0b2e) - started: 2025-11-21
 
 ## Done
+- [x] Plan usage guidance and no-prompt/commit rules - owner: blue-96b1 - date: 2025-11-21 - notes: added “How to use this plan” section clarifying handle calc, no human task requests, and commit-before-done requirement (`scripts/runner.sh`).
 - [x] Repo scaffold, lint/format configs, TTD docs, protected resource checks, basic tests - owner: assistant - date: 2025-11-20 - notes: backend/frontend skeleton, ruff/mypy/eslint/prettier, protected paths enforcement, smoke tests.
 - [x] Artifacts listing API + UI surface - owner: assistant - date: 2025-11-20 - notes: backend endpoints to list/download artifacts; UI shows artifacts for runs.
 - [x] Copilot CLI agent with prompts, mock responses, optional command execution, and unit tests - owner: assistant - date: 2025-11-20 - notes: prompt rendering, mock JSON parsing, dry-run/exec toggle.
