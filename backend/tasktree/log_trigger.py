@@ -88,8 +88,8 @@ class LogTrigger:
             return {"before": [], "after": []}
         lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
         idx = lineno - 1
-        before = lines[max(0, idx - radius):idx]
-        after = lines[idx + 1: idx + 1 + radius]
+        before = lines[max(0, idx - radius) : idx]
+        after = lines[idx + 1 : idx + 1 + radius]
         return {"before": before, "after": after}
 
     def _log_local(self, message: str) -> None:

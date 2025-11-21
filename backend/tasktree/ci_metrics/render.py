@@ -141,12 +141,7 @@ def render_svg(records: list[dict], output: Path, max_points: int = 60) -> None:
         return
 
     records = records[-max_points:]
-    max_y = _pad(
-        max(
-            float(record.get("total_duration_ms", 0))
-            for record in records
-        )
-    )
+    max_y = _pad(max(float(record.get("total_duration_ms", 0)) for record in records))
 
     width = 900
     height = 460
@@ -225,13 +220,10 @@ def render_svg(records: list[dict], output: Path, max_points: int = 60) -> None:
     for s in series:
         coords = " ".join(f"{p.x:.2f},{p.y:.2f}" for p in s.points)
         lines.append(
-            f'<polyline fill="none" stroke="{s.color}" stroke-width="2" '
-            f'points="{coords}"/>'
+            f'<polyline fill="none" stroke="{s.color}" stroke-width="2" points="{coords}"/>'
         )
         for p in s.points:
-            lines.append(
-                f'<circle cx="{p.x:.2f}" cy="{p.y:.2f}" r="3" fill="{s.color}" />'
-            )
+            lines.append(f'<circle cx="{p.x:.2f}" cy="{p.y:.2f}" r="3" fill="{s.color}" />')
 
     # Legend.
     legend_x = margin["left"]
@@ -240,12 +232,9 @@ def render_svg(records: list[dict], output: Path, max_points: int = 60) -> None:
     for idx, s in enumerate(series):
         lx = legend_x + idx * legend_gap
         lines.append(
-            f'<rect x="{lx}" y="{legend_y - 10}" width="12" height="12" '
-            f'fill="{s.color}" rx="2"/>'
+            f'<rect x="{lx}" y="{legend_y - 10}" width="12" height="12" fill="{s.color}" rx="2"/>'
         )
-        lines.append(
-            f'<text class="legend" x="{lx + 18}" y="{legend_y + 0.5}">{s.label}</text>'
-        )
+        lines.append(f'<text class="legend" x="{lx + 18}" y="{legend_y + 0.5}">{s.label}</text>')
 
     lines.append(
         f'<text class="label" x="{margin["left"]}" y="20" font-size="14" '
@@ -264,7 +253,7 @@ def _render_empty_svg() -> str:
         '<text x="450" y="120" text-anchor="middle" '
         'font-family="Arial, sans-serif" font-size="18" fill="#0f172a">'
         "CI timing history will appear after the first successful main run.</text>"
-        '</svg>'
+        "</svg>"
     )
 
 

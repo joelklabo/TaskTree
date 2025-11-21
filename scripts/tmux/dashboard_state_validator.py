@@ -24,10 +24,19 @@ def _check_int(obj: Dict[str, Any], key: str, ctx: str, errors: list[str]) -> No
     if key in obj and not _is_int(obj[key]):
         errors.append(f"{ctx}.{key} not int")
 
+
 def main() -> int:
     root = Path(__file__).resolve().parents[2]
-    state_path = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "tmp" / "dashboard_state.json"
-    schema_path = Path(sys.argv[2]) if len(sys.argv) > 2 else root / "scripts" / "tmux" / "dashboard_state.schema.json"
+    state_path = (
+        Path(sys.argv[1])
+        if len(sys.argv) > 1
+        else root / "tmp" / "dashboard_state.json"
+    )
+    schema_path = (
+        Path(sys.argv[2])
+        if len(sys.argv) > 2
+        else root / "scripts" / "tmux" / "dashboard_state.schema.json"
+    )
     if not state_path.exists():
         print(f"state missing: {state_path}")
         return 1
@@ -129,7 +138,9 @@ def main() -> int:
                 if not isinstance(run, dict):
                     errors.append(f"ci.run not object: {run}")
                     continue
-                require_keys(run, ["workflow", "status", "conclusion", "branch"], "ci.run")
+                require_keys(
+                    run, ["workflow", "status", "conclusion", "branch"], "ci.run"
+                )
                 _check_str(run, "workflow", "ci.run", errors)
                 _check_str(run, "status", "ci.run", errors)
                 _check_str(run, "conclusion", "ci.run", errors)

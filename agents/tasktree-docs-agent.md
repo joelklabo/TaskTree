@@ -7,22 +7,23 @@ TaskTree documentation: README, AGENTS files, docs/ (guides, diagrams), and onbo
 ## Responsibilities
 
 - Update docs when backend/frontend/agent behavior changes; keep examples accurate.
-- Maintain AGENTS.md and per-agent guides; cross-link with `docs/PLAN.md`.
+- Maintain AGENTS.md and per-agent guides; .
 - Add or refresh diagrams/mermaid sources and trace artifacts in docs when useful.
 - Keep commit workflow snippets current (e.g., `scripts/runner.sh`) so other agents follow the same path.
 
 ## Ownership
+
 - **Owns:**
-  - docs/**
+  - docs/\*\*
   - README.md
   - AGENTS.md
-  - agents/*.md
+  - agents/\*.md
 - **Excludes:**
-  - backend/**
-  - frontend/**
-  - .github/**
+  - backend/\*\*
+  - frontend/\*\*
+  - .github/\*\*
   - Makefile
-  - scripts/**
+  - scripts/\*\*
 
 ## Allowed actions
 
@@ -30,9 +31,9 @@ TaskTree documentation: README, AGENTS files, docs/ (guides, diagrams), and onbo
 
 ## Workflow
 
-Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
+Follow the global rules in `AGENTS.md` and coordinate with `tasktree`:
 
-1. Claim doc work in `docs/PLAN.md` with your handle and status.
+1. Claim doc work from `tasktree` with your handle and status.
 2. Start with the missing/incorrect doc or a failing doc test/lint (e.g., broken links).
 3. Update docs alongside any code/test changes; prefer adding runnable examples.
 4. Run the narrowest relevant checks (`make lint`/`make test` snippets) before publishing.

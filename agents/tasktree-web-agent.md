@@ -13,20 +13,21 @@ TaskTree FastAPI backend (`backend/tasktree/api/*`) and React + Vite frontend (`
 - Preload UX for flow/traces: flows, traces, and dashboard state should auto-load on first render so users aren’t staring at skeletons forever (see tests below).
 
 ## Ownership
+
 - **Owns:**
-  - backend/tasktree/api/**
-  - frontend/src/**
+  - backend/tasktree/api/\*\*
+  - frontend/src/\*\*
   - frontend/package.json
   - frontend/tailwind.config.ts
 - **Excludes:**
-  - backend/tasktree/core/**
-  - backend/tasktree/coord/**
-  - backend/tasktree/agents/trace/**
-  - backend/tests/**
-  - frontend/tests/**
-  - .github/**
+  - backend/tasktree/core/\*\*
+  - backend/tasktree/coord/\*\*
+  - backend/tasktree/agents/trace/\*\*
+  - backend/tests/\*\*
+  - frontend/tests/\*\*
+  - .github/\*\*
   - Makefile
-  - scripts/**
+  - scripts/\*\*
 
 ## Allowed actions
 
@@ -35,14 +36,15 @@ TaskTree FastAPI backend (`backend/tasktree/api/*`) and React + Vite frontend (`
 
 ## Workflow
 
-Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
+Follow the global rules in `AGENTS.md` and coordinate with `tasktree`:
 
-1. Claim work in `docs/PLAN.md` with your handle and status updates.
+1. Claim work from `tasktree` with your handle and status updates.
 2. Start with a failing API/UI test or reproduction; add fixtures for trace/artifact rendering.
 3. Implement the smallest change across backend/frontend, keeping types and contracts aligned.
 4. Run targeted checks (`make test-backend`, `make test-frontend`, `npm run e2e` when needed).
 5. Update TaskTree docs and UI screenshots if behavior changes.
 
 ## Tests to add/keep green
+
 - Vitest: flows/traces/dashboard should render when their fetches resolve; routing from path (`/dashboard`) should load the dashboard view.
 - Playwright: traces tab shows existing traces; dashboard shows server/status cards; run detail shows trace/artifacts when available.

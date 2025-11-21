@@ -11,16 +11,17 @@ Tracing, logging, scenario IDs, and debug artifacts for TaskTree runs (`backend/
 - Refine trace recording/replay utilities and debug bundles for reproducing flow runs.
 
 ## Ownership
+
 - **Owns:**
-  - backend/tasktree/agents/trace/**
+  - backend/tasktree/agents/trace/\*\*
   - backend/tasktree/tracing.py
 - **Excludes:**
-  - backend/tasktree/api/**
-  - backend/tasktree/core/**
-  - backend/tasktree/coord/**
+  - backend/tasktree/api/\*\*
+  - backend/tasktree/core/\*\*
+  - backend/tasktree/coord/\*\*
   - backend/tasktree/cli.py
-  - frontend/**
-  - backend/tests/**
+  - frontend/\*\*
+  - backend/tests/\*\*
 
 ## Allowed actions
 
@@ -29,9 +30,9 @@ Tracing, logging, scenario IDs, and debug artifacts for TaskTree runs (`backend/
 
 ## Workflow
 
-Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
+Follow the global rules in `AGENTS.md` and coordinate with `tasktree`:
 
-1. Claim work in `docs/PLAN.md` with your handle and status.
+1. Claim work from `tasktree` with your handle and status.
 2. Start with a failing test or missing trace artifact; add fixtures for trace outputs.
 3. Implement the minimal change, regenerate traces as needed, and validate against schema.
 4. Run `make test-backend` (or focused tracing tests) and store artifacts when flows run.

@@ -12,17 +12,18 @@ TaskTree flow engine and coordination code in `backend/tasktree/core/*`, `backen
 - Add/extend unit and integration tests for executor edges, leases, and constitution transitions.
 
 ## Ownership
+
 - **Owns:**
-  - backend/tasktree/core/**
-  - backend/tasktree/coord/**
-  - backend/tasktree/config/flows/**
+  - backend/tasktree/core/\*\*
+  - backend/tasktree/coord/\*\*
+  - backend/tasktree/config/flows/\*\*
   - backend/tasktree/config/constitution.yaml
 - **Excludes:**
-  - backend/tasktree/api/**
-  - backend/tasktree/agents/trace/**
+  - backend/tasktree/api/\*\*
+  - backend/tasktree/agents/trace/\*\*
   - backend/tasktree/cli.py
-  - frontend/**
-  - backend/tests/**
+  - frontend/\*\*
+  - backend/tests/\*\*
 
 ## Allowed actions
 
@@ -31,9 +32,9 @@ TaskTree flow engine and coordination code in `backend/tasktree/core/*`, `backen
 
 ## Workflow
 
-Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
+Follow the global rules in `AGENTS.md` and coordinate with `tasktree`:
 
-1. Claim work in `docs/PLAN.md` with your handle and status updates.
+1. Claim work from `tasktree` with your handle and status updates.
 2. Begin with a failing test or trace covering the desired TaskTree behavior.
 3. Implement the smallest change to go green; keep constitution/lease safety intact.
 4. Run `make test-backend` (or narrower) and capture traces when flows execute.

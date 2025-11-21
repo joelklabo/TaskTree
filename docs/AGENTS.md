@@ -13,6 +13,7 @@ TaskTree treats agents as plugins: small, focused Python classes that turn conte
 Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make ci`, then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
 
 This document covers:
+
 - The agent interface
 - YAML configuration
 - Built-in/planned agents
@@ -37,6 +38,7 @@ class Agent(Protocol):
 ```
 
 Key types:
+
 - AgentContext: session_id, flow_name, flow_version, step_name, input (flow input + prior outputs), strategies (self-improvement hooks)
 - AgentOutput: prompt, raw_response, parsed, result (TaskResult with status, output, metrics, learnings, optional label for routing)
 
@@ -78,6 +80,7 @@ The YAML dict is passed to your agent class; define whatever keys you need, but 
 ## 3. Built-in agents
 
 ### 3.1 copilot_cli
+
 - Goal: Given a prompt template and context, generate shell commands and run them.
 - Config file: `config/agents/copilot_cli.yaml`
 - Typical actions: `plan_bugfix`, `implement_fix`, `run_tests`.
@@ -89,6 +92,7 @@ The YAML dict is passed to your agent class; define whatever keys you need, but 
   5. Optionally execute returned commands (start in dry-run first).
 
 ### 3.2 Planned agents
+
 - planner: produce task DAGs.
 - test_runner: run project tests (could wrap pytest).
 - debugger: read failing tests and suggest fixes.
@@ -100,7 +104,7 @@ The YAML dict is passed to your agent class; define whatever keys you need, but 
 
 Agents are subject to `config/constitution.yaml`.
 
-- Ownership: certain paths are reserved (e.g., `docs/PLAN.md` -> scribe). Respect ownership before writing.
+- Ownership: certain paths are reserved (e.g., scribe-owned files). Respect ownership before writing.
 - Protected paths: listed under `protected`; executor will block writes from non-owners.
 - Leases: executor acquires leases for resources defined in flow YAML via `coord.leases.acquire`; leases live in `leases/`.
 - Task state machine: labels like `tests_passed`/`tests_failed` can drive transitions.
@@ -121,6 +125,7 @@ Agents are subject to `config/constitution.yaml`.
 10. When updating plan docs or marking tasks done, identify yourself with a **color-based handle** derived from the session start timestamp to avoid collisions across agents. Suggested algorithm: pick a color list (["red","blue","green","amber","teal","violet","gray"]); compute `idx = (timestamp_seconds % len(colors))`; handle = `colors[idx]` + "-" + `last4hex(timestamp_seconds)`. Keep the same handle for the session; do not use plain names like "assistant".
 
 Autonomous loop guardrails:
+
 - Check plan status before/after tasks; if not action=discover/wait, keep going.
 - Valid stop reasons: discover (no tasks), wait (blocked/lock), human interrupt, unrecoverable error after retries.
 - Invalid stop reasons: "just reporting progress", "task looks hard", stopping without checking status.
@@ -167,6 +172,7 @@ registry.register("your_agent_id", lambda cfg: YourAgent(cfg))
 4. Reference `agent: your_agent_id` in flow YAML.
 
 Helpers to reuse:
+
 - `tasktree/agents/runner.py` — CommandRunner with allow/deny lists, dry-run, timeouts, and destructive-command blocking for any shell commands an agent chooses to execute.
 - `tasktree/agents/validation.py` — `validate_standard_agent_response` enforces the common status/summary/commands/metrics/learnings shape on LLM output.
 - `tasktree/agents/llm.py` — backends for calling an HTTP API or an external CLI that emits JSON; pair with the validator to keep outputs predictable.
@@ -210,21 +216,22 @@ Agents can write artifacts via `tasktree.tracing.Tracer.artifact_path`.
 
 ## 9. Make targets quick reference
 
-| Scenario | Backend | Frontend | Tools/notes | All-in-one |
-| --- | --- | --- | --- | --- |
-| Fresh setup (full) | `make setup-backend` | `make setup-frontend` | `make setup-tools` (installs shfmt/shellcheck) | `make setup` |
-| Fresh setup (skip tools) | `make setup-backend` | `make setup-frontend` | — | `make setup-fast` |
-| Format | `make format-backend` | `make format-frontend` | — | `make format` |
-| Lint | `make lint-backend` | `make lint-frontend` | `make lint-shfmt` / `make lint-shellcheck` | `make lint` |
-| Test | `make test-backend` | `make test-frontend` | — | `make test` |
-| Coverage | `make coverage-backend` | `make coverage-frontend` | — | `make coverage` |
-| Build | `make build-backend` | `make build-frontend` | — | `make build` |
-| Dev servers | `make dev-backend` | `make dev-frontend` | — | `make dev` (both) |
-| Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
+| Scenario                 | Backend                 | Frontend                 | Tools/notes                                      | All-in-one        |
+| ------------------------ | ----------------------- | ------------------------ | ------------------------------------------------ | ----------------- |
+| Fresh setup (full)       | `make setup-backend`    | `make setup-frontend`    | `make setup-tools` (installs shfmt/shellcheck)   | `make setup`      |
+| Fresh setup (skip tools) | `make setup-backend`    | `make setup-frontend`    | —                                                | `make setup-fast` |
+| Format                   | `make format-backend`   | `make format-frontend`   | —                                                | `make format`     |
+| Lint                     | `make lint-backend`     | `make lint-frontend`     | `make lint-shfmt` / `make lint-shellcheck`       | `make lint`       |
+| Test                     | `make test-backend`     | `make test-frontend`     | —                                                | `make test`       |
+| Coverage                 | `make coverage-backend` | `make coverage-frontend` | —                                                | `make coverage`   |
+| Build                    | `make build-backend`    | `make build-frontend`    | —                                                | `make build`      |
+| Dev servers              | `make dev-backend`      | `make dev-frontend`      | —                                                | `make dev` (both) |
+| Scripts checks           | —                       | —                        | `make verify-scripts` (shellcheck + tmux smokes) | —                 |
 
 Notes: `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (mandatory on every change). `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For e2e-only reruns: `make test-e2e` (frontend Playwright).
 
 ### Agent docs (naming + guardrail)
+
 - Agent guides live in `agents/tasktree-*-agent.md` (one file per agent area).
 - Filenames must use the `tasktree-` prefix; stale `context-*` names/strings are blocked by `backend/tests/test_agent_docs.py`.
-- Keep each doc TaskTree-specific and mention `AGENTS.md` + `docs/PLAN.md` for coordination.
+- Keep each doc TaskTree-specific and mention `AGENTS.md` for coordination.

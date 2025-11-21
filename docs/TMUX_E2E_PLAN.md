@@ -12,7 +12,6 @@ Goal: deterministic tmux e2e + continuous watchdog so every change to the dashbo
 - Exercise keybindings: Prefix+R (refresh) and Prefix+C (capture) in controlled panes.
 - Validate pane content via pipe logs:
   - status: contains “TaskTree dev status”
-  - plan: contains “docs/PLAN.md”
   - traces: contains “TaskTree traces”
   - alerts: contains “# Alerts”
   - sources: contains “Log sources overview”

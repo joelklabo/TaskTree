@@ -12,18 +12,19 @@ Makefile, `.github/workflows/*.yml`, release automation, and dev containers for 
 - Add/maintain ops-focused tests or smoke checks for pipelines.
 
 ## Ownership
+
 - **Owns:**
-  - .github/workflows/**
+  - .github/workflows/\*\*
   - Makefile
   - scripts/install_tools.sh
   - scripts/runner.sh
 - **Excludes:**
-  - backend/**
-  - frontend/**
-  - docs/**
-  - agents/**
-  - scripts/git_hooks/**
-  - scripts/tests/**
+  - backend/\*\*
+  - frontend/\*\*
+  - docs/\*\*
+  - agents/\*\*
+  - scripts/git_hooks/\*\*
+  - scripts/tests/\*\*
 
 ## Allowed actions
 
@@ -32,9 +33,9 @@ Makefile, `.github/workflows/*.yml`, release automation, and dev containers for 
 
 ## Workflow
 
-Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
+Follow the global rules in `AGENTS.md` and coordinate with `tasktree`:
 
-1. Claim a task in `docs/PLAN.md` with your handle and status markers.
+1. Claim a task from `tasktree` with your handle and status markers.
 2. Start with a failing workflow/smoke test or reproduction; add CI-focused tests when possible.
 3. Implement the minimal fix, updating caches, matrices, or Makefile targets as needed.
 4. Run `make ci` or the narrowest relevant targets locally; capture trace/log artifacts for changes.
