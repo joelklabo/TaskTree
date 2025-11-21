@@ -4,7 +4,7 @@ const baseURL = process.env.E2E_BASE_URL || "http://localhost:4173";
 const useExternalServer = process.env.E2E_EXTERNAL === "1";
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/e2e",
   timeout: 60_000,
   expect: {
     timeout: 10_000
