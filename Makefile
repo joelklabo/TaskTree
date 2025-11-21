@@ -52,7 +52,7 @@ lint-frontend:
 	cd frontend && npm run lint && npm run typecheck && npm run format:check
 
 lint: lint-backend lint-frontend lint-shellcheck
-	$(MAKE) lint-md lint-djlint lint-shfmt
+	$(MAKE) lint-md lint-djlint lint-shfmt lint-actions
 
 .PHONY: lint-shellcheck
 lint-shellcheck:
@@ -73,6 +73,14 @@ lint-shfmt:
 	fi
 	$(TOOLS_DIR)/shfmt --version >/dev/null
 	$(TOOLS_DIR)/shfmt -d scripts
+
+.PHONY: lint-actions
+lint-actions:
+	if [ ! -x "$(TOOLS_DIR)/actionlint" ]; then \
+	  echo "actionlint missing; run 'make setup-tools' to install to $(TOOLS_DIR)"; \
+	  exit 1; \
+	fi
+	$(TOOLS_DIR)/actionlint
 
 .PHONY: test test-backend test-frontend
 test-backend:
@@ -138,7 +146,9 @@ test-scripts:
 	./scripts/tests/test_mouse_copy.sh
 	./scripts/tests/test_log_search_missing_rg.sh
 	./scripts/tests/test_alerts_smoke_header.sh
+	./scripts/tests/test_alerts_cache_fallback.sh
 	./scripts/tests/test_search_pane_prompt.sh
+	./scripts/tests/test_ci_pane_missing.sh
 	./scripts/tests/test_status_links.sh
 	./scripts/tests/test_tmux_overlays.sh
 	./scripts/tests/test_tmux_titles.sh

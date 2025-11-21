@@ -6,9 +6,6 @@ on:
       coverage:
         description: Frontend coverage percentage
         value: ${{ jobs.frontend.outputs.coverage }}
-      tests-status:
-        description: Frontend tests result
-        value: ${{ jobs.frontend.result }}
   workflow_dispatch: {}
 
 permissions:

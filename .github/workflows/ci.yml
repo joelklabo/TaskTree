@@ -55,11 +55,7 @@ jobs:
             infra=true
             site=true
           fi
-          echo "backend=$backend" >> "$GITHUB_OUTPUT"
-          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
-          echo "docs=$docs" >> "$GITHUB_OUTPUT"
-          echo "infra=$infra" >> "$GITHUB_OUTPUT"
-          echo "site=$site" >> "$GITHUB_OUTPUT"
+          printf "backend=%s\nfrontend=%s\ndocs=%s\ninfra=%s\nsite=%s\n" "$backend" "$frontend" "$docs" "$infra" "$site" >> "$GITHUB_OUTPUT"
 
   backend:
     needs: changes
@@ -68,7 +64,7 @@ jobs:
     secrets: inherit
 
   frontend:
-    needs: backend
+    needs: [changes, backend]
     if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.infra == 'true'
     uses: ./.github/workflows/frontend.yml
     secrets: inherit
@@ -95,7 +91,8 @@ jobs:
           backend_cov="${{ needs.backend.outputs.coverage || 'n/a' }}"
           frontend_cov="${{ needs.frontend.outputs.coverage || 'n/a' }}"
 
-          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          summary_file="$(mktemp)"
+          cat <<EOF > "$summary_file"
           # CI Summary
           | Job | Status | Coverage | Notes |
           | --- | --- | --- | --- |
@@ -103,6 +100,7 @@ jobs:
           | Frontend | ${frontend_status} | ${frontend_cov}% | artifacts: frontend-artifacts |
           | Docs | ${docs_status} | n/a | artifacts: n/a |
           EOF
+          cat "$summary_file" >> "$GITHUB_STEP_SUMMARY"
       - name: PR comment
         if: github.event_name == 'pull_request'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7

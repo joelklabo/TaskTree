@@ -6,9 +6,6 @@ on:
       coverage:
         description: Backend coverage percentage
         value: ${{ jobs.backend.outputs.coverage }}
-      tests-status:
-        description: Backend tests result
-        value: ${{ jobs.backend.result }}
   workflow_dispatch: {}
 
 permissions:
@@ -27,6 +24,7 @@ jobs:
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
       - name: Cache uv
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -91,13 +89,6 @@ jobs:
               echo "== git status ==" && git status -sb
               echo ""
               echo "== python ==" && python --version
-              echo ""
-              echo "== installed (short) ==" && uv run python - <<'PY'
-import pkg_resources
-pkgs = sorted([(d.project_name, d.version) for d in pkg_resources.working_set])
-for name, ver in pkgs:
-    print(f"{name}=={ver}")
-PY
             } > ../backend-artifacts/debug-info.txt
           )
         shell: bash

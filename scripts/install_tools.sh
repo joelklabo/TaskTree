@@ -135,8 +135,42 @@ install_rg() {
   rm -rf "$tmp"
 }
 
+install_actionlint() {
+  local version="1.7.8"
+  local os arch asset url tmp
+  read -r os arch <<<"$(detect_platform)"
+  case "$os" in
+  darwin | linux) ;;
+  *)
+    echo "Unsupported OS for actionlint: $os" >&2
+    exit 1
+    ;;
+  esac
+  case "$arch" in
+  arm64 | amd64) ;;
+  *)
+    echo "Unsupported arch for actionlint: $arch" >&2
+    exit 1
+    ;;
+  esac
+  asset="actionlint_${version}_${os}_${arch}.tar.gz"
+  url="https://github.com/rhysd/actionlint/releases/download/v${version}/${asset}"
+  tmp="$(mktemp -d)"
+  echo "Installing actionlint v${version} from ${url}"
+  if ! curl -fsSL "$url" -o "${tmp}/${asset}"; then
+    echo "Failed to download actionlint binary" >&2
+    rm -rf "$tmp"
+    exit 1
+  fi
+  tar -C "$tmp" -xzf "${tmp}/${asset}"
+  mv "${tmp}/actionlint" "$TOOLS_DIR/actionlint"
+  chmod +x "$TOOLS_DIR/actionlint"
+  rm -rf "$tmp"
+}
+
 install_shfmt
 install_shellcheck
 install_rg
+install_actionlint
 
 echo "Tools installed to $TOOLS_DIR"
