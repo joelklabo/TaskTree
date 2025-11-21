@@ -23,6 +23,7 @@ ruff_cache/
 coverage/
 coverage-*.json
 htmlcov/
+backend/coverage.xml
 *.tsbuildinfo
 
 # uv
