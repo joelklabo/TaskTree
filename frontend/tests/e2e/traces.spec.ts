@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // End-to-end: create a traced run via API, then verify Traces UI and Run detail render data.
 test("traced run appears in UI with trace records", async ({ page }) => {

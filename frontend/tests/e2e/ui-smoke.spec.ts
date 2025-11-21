@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("UI navigation + trace detail renders without console errors", async ({ page }) => {
   const consoleErrors: string[] = [];

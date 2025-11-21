@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("constitution view renders task states, ownership, and protected paths", async ({ page }) => {
   await page.goto("/");

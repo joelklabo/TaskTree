@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("non-traced run shows tracing-disabled message in Run detail", async ({ page }) => {
   await page.goto("/");
