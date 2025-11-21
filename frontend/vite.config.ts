@@ -22,7 +22,7 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, "tests/e2e/**"],
     coverage: {
       provider: "v8",
-      reporter: ["text", "lcov"],
+      reporter: ["text", "lcov", "json-summary"],
       reportsDirectory: "./coverage"
     }
   }
