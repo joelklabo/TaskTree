@@ -18,7 +18,7 @@
 - [x] Install Peekaboo CLI (brew preferred) and document invocation path in `docs/PEEKABOO_NOTES.md`. (commit: 40124fe)
 - [x] Add a `scripts/peekaboo_capture.sh` helper that captures a full-screen PNG and optional AI describe; cover with a minimal shell test (e.g., verifies script is executable/runs in noop dry mode). (commit: 40124fe)
 - [x] Wire Playwright failure hook to call the capture helper (guarded so CI without Peekaboo skips gracefully) and attach artifacts to Playwright output dir. (commit: 40124fe)
-- [x] Add a TaskTree trace artifact uploader step for captured images on Playwright failures (backend/trace integration if needed) with tests. (commit: 41705d4)
+- [x] Add a TaskTree trace artifact uploader step for captured images on Playwright failures (backend/trace integration if needed) with tests. (commit: 715cba8)
 - [ ] Scenario 1: Flows list loads — Peekaboo script that captures Workspace > Flows with populated rows; add Playwright+Peekaboo test/assert that screenshot exists. (commit: ______)
 - [ ] Scenario 2: Flow graph renders — Capture flow detail graph for `log_error_handler`; assert nodes visible via vision/metadata. (commit: ______)
 - [ ] Scenario 3: Run start feedback — After traced run start, capture toast + “No run selected” pill update. (commit: ______)
