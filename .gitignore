@@ -1,0 +1,59 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+*.log
+*.sqlite3
+.env
+.env.*
+.envrc
+.direnv/
+.venv/
+venv/
+.cache/
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+.ruff_cache/
+.coverage
+coverage/
+coverage-*.json
+htmlcov/
+*.tsbuildinfo
+
+# uv
+backend/.venv/
+backend/.uv/
+
+# Node/JS
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.eslintcache
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+*.code-workspace
+.idea/
+*.swp
+*.swo
+
+# TaskTree runtime
+leases/
+backend/tasktree/agents/trace/runs/
+tasktree.db
+logs/
+.tmux/
+
+# Build artifacts
+build/

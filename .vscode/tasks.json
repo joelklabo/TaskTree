@@ -1,0 +1,80 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: backend (uvicorn)",
+      "type": "shell",
+      "command": "uv run uvicorn tasktree.api.app:app --reload --port 8000",
+      "options": {
+        "cwd": "backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: frontend (Vite)",
+      "type": "shell",
+      "command": "npm run dev -- --host --port 5173",
+      "options": {
+        "cwd": "frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint: backend",
+      "type": "shell",
+      "command": "make lint-backend",
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint: frontend",
+      "type": "shell",
+      "command": "npm run lint && npm run typecheck && npm run format:check",
+      "options": {
+        "cwd": "frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: backend",
+      "type": "shell",
+      "command": "make test-backend",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: frontend (unit)",
+      "type": "shell",
+      "command": "npm run test:unit",
+      "options": {
+        "cwd": "frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: frontend (e2e)",
+      "type": "shell",
+      "command": "npm run e2e",
+      "options": {
+        "cwd": "frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "CI (make ci)",
+      "type": "shell",
+      "command": "make ci",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: tmux (attach)",
+      "type": "shell",
+      "command": "scripts/tmux_dashboard.sh --session ttx",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: tmux (no attach)",
+      "type": "shell",
+      "command": "scripts/tmux_dashboard.sh --session ttx --no-attach",
+      "problemMatcher": []
+    }
+  ]
+}

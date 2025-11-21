@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="TaskTree — bold, traceable agent workflows with rich previews and artifacts." />
+    <meta property="og:title" content="TaskTree — Agents, Flows, Traces" />
+    <meta property="og:description" content="Automate and observe every run with bold CI, previews, trace-heavy workflows, and GHCR releases." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./og-image.svg" />
+    <title>TaskTree — Agents, Flows, Traces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./script.js"></script>
+  </head>
+  <body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <header class="navbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="brand-title">TaskTree</div>
+          <div class="brand-sub">Agents · Flows · Traces</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#flow">Flows</a>
+        <a href="#agents">Agents</a>
+        <a href="#ttd">TTD Loop</a>
+        <a class="pill" href="./app/" aria-label="Open the app build">Launch App</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Bold new workflows</p>
+          <h1>
+            Build once.<br />
+            Rerun with receipts.
+          </h1>
+          <p class="lede">
+            TaskTree is an agent-first workflow stack with trace-heavy CI, PR previews, and artifacts that make debugging feel luxurious.
+            Bold gradients included.
+          </p>
+          <div class="cta-row">
+            <a class="btn primary" href="./app/">Launch the app</a>
+            <a class="btn ghost" href="https://github.com/honk/TaskTree">View repository</a>
+          </div>
+          <div class="hero-tags">
+            <span>Live previews</span>
+            <span>Artifact bundles</span>
+            <span>Supply-chain ready</span>
+            <span>Agent-friendly</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="card-header">
+            <div class="status-dot"></div>
+            <span>Latest run</span>
+            <span class="pill small">Green</span>
+          </div>
+          <div class="card-body">
+            <div class="metric">
+              <div class="metric-label">Tests</div>
+              <div class="metric-value" data-target="328">0</div>
+              <div class="metric-sub">Shard-aware with artifacts</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Coverage</div>
+              <div class="metric-value" data-target="92">0</div>
+              <div class="metric-sub">Backend + Frontend, diffed</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Traces</div>
+              <div class="metric-value" data-target="74">0</div>
+              <div class="metric-sub">Replayable with previews</div>
+            </div>
+            <div class="card-foot">
+              <span class="pill ghost">PR previews</span>
+              <span class="pill ghost">CodeQL</span>
+              <span class="pill ghost">SBOM</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid" id="flow">
+        <div class="section-header">
+          <p class="eyebrow">Flow-first design</p>
+          <h2>Concrete routes for agents and humans</h2>
+          <p class="lede">
+            Fan-out lint/test/e2e/docs, fan-in gate, plus PR comments and Pages previews so every run leaves a breadcrumb trail.
+          </p>
+        </div>
+        <div class="cards">
+          <div class="card">
+            <div class="icon">⚡</div>
+            <h3>Reusable CI</h3>
+            <p>Change-aware matrices with cached uv/npm and Playwright. Rich run summaries in Checks + PR comments.</p>
+          </div>
+          <div class="card">
+            <div class="icon">🧭</div>
+            <h3>Guided bots</h3>
+            <p>CODEOWNERS + labeler + slash commands keep agents scoped. Auto-merge safe bumps with guardrails.</p>
+          </div>
+          <div class="card">
+            <div class="icon">🧪</div>
+            <h3>Traces & artifacts</h3>
+            <p>Coverage HTML, Playwright videos, SBOMs, debug bundles. All linked in summaries.</p>
+          </div>
+          <div class="card">
+            <div class="icon">🌐</div>
+            <h3>Pages previews</h3>
+            <p>Per-PR preview deploys for both the app and this marketing site. Comment + summary links.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="gallery" id="agents">
+        <div class="section-header">
+          <p class="eyebrow">Agents welcome</p>
+          <h2>Guardrails for autonomy</h2>
+          <p class="lede">
+            Every PR has checklists for tests, traces, docs, and preview links. Agents stay in-bounds; humans stay in control.
+          </p>
+        </div>
+        <div class="gallery-grid">
+          <div class="gallery-card">
+            <h4>CODEOWNERS + labels</h4>
+            <p>Routes reviews and job selection by path so the right workflows fire, nothing extra.</p>
+          </div>
+          <div class="gallery-card">
+            <h4>Security baseline</h4>
+            <p>CodeQL, SBOM + Trivy scans, provenance-ready releases, pinned actions.</p>
+          </div>
+          <div class="gallery-card">
+            <h4>Debug bundle</h4>
+            <p>On failure, an artifact with logs, coverage, and env snapshot keeps triage quick.</p>
+          </div>
+          <div class="gallery-card">
+            <h4>Slash commands</h4>
+            <p>/test backend|frontend|docs, /release orchestration hooks to match your loop.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="steps" id="ttd">
+        <div class="section-header">
+          <p class="eyebrow">TTD loop</p>
+          <h2>Test · Trace · Document</h2>
+          <p class="lede">
+            The repo bakes in TTD: failing test first, trace artifacts every run, docs updated alongside code. CI enforces the rhythm.
+          </p>
+        </div>
+        <ol>
+          <li>
+            <div class="step-num">1</div>
+            <div>
+              <h4>Start with a failing test/trace</h4>
+              <p>Capture the repro in pytest, Vitest, or a flow trace. CI surfaces it in summaries.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div>
+              <h4>Fix with artifacts</h4>
+              <p>Run lint/test/e2e; upload coverage, Playwright videos, and debug bundles.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div>
+              <h4>Document immediately</h4>
+              <p>README blocks auto-refresh; PR templates nudge agents to link previews and traces.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <div class="brand-title">TaskTree</div>
+        <p>Agents, flows, and traces with receipts.</p>
+      </div>
+      <div class="footer-links">
+        <a href="./app/">Launch app</a>
+        <a href="https://github.com/honk/TaskTree">GitHub</a>
+        <a href="https://github.com/honk/TaskTree/tree/main/docs">Docs</a>
+      </div>
+    </footer>
+  </body>
+</html>

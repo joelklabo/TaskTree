@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible problem so agents can fix it fast.
+labels: [bug]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened? Keep it concise.
+      placeholder: "When I run tt run code_fix, it crashes with ..."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include commands, inputs, sample data, and whether it happens on main.
+      placeholder: |
+        1. Branch/commit: ...
+        2. Command(s): ...
+        3. Expected: ...
+        4. Actual: ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or artifacts
+      description: Paste relevant stack traces/logs or link to CI artifacts.
+      render: shell
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python/Node versions, terminal, anything special.
+      placeholder: "macOS 14, Python 3.11.8, Node 20.15"
+  - type: checkboxes
+    id: check
+    attributes:
+      label: Checklist
+      options:
+        - label: I can reproduce on latest main.
+        - label: I attached logs or linked to a failing CI run.
+        - label: This is not a duplicate (checked open issues).

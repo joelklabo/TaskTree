@@ -1,0 +1,27 @@
+ownership:
+  "planner/": planner
+  "tasktree/": planner
+  "docs/PLAN.md": scribe
+  "ci/": ci_watcher
+
+leases:
+  ttl_seconds: 90
+  renew_interval: 30
+  max_retries: 3
+  backoff_seconds: [5, 20]
+
+task_states:
+  states: ["TODO", "IN_PROGRESS", "VERIFY", "DONE"]
+  transitions:
+    TODO:
+      start: IN_PROGRESS
+    IN_PROGRESS:
+      tests_passed: VERIFY
+      gave_up: TODO
+    VERIFY:
+      merged: DONE
+
+protected:
+  - "docs/PLAN.md"
+  - "tasktree/config/flows/"
+  - "tasktree/config/constitution.yaml"

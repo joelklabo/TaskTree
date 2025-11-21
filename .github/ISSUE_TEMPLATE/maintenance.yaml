@@ -1,0 +1,20 @@
+name: Maintenance chore
+description: Keep workflows, pins, and caches healthy.
+labels: [chore]
+body:
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: Tasks
+      options:
+        - label: Refresh GitHub Action SHAs/pins
+        - label: Update cache keys (uv/npm/Playwright)
+        - label: Verify Pages workflow + preview comment
+        - label: Review CODEOWNERS/labeler coverage
+        - label: Regenerate README managed blocks/badges
+        - label: Audit secrets/permissions for workflows
+  - type: textarea
+    id: context
+    attributes:
+      label: Notes
+      description: Link to runs, failure logs, or desired cadence.

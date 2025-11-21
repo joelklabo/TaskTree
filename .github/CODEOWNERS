@@ -1,0 +1,10 @@
+# Default owner for everything (useful for routing agents)
+* @honk
+
+# Scoped ownership (helps agents/automation choose the right reviewer/labels)
+.github/** @honk
+backend/** @honk
+frontend/** @honk
+site/** @honk
+docs/** @honk
+scripts/** @honk

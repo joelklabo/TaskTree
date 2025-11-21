@@ -1,0 +1,44 @@
+name: Project Automation
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add item to project (if PROJECT_ID is set)
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          PROJECT_ID: ${{ vars.PROJECT_ID }}
+        with:
+          script: |
+            const projectId = process.env.PROJECT_ID;
+            if (!projectId) {
+              core.info("PROJECT_ID not set in repo/org variables; skipping project automation.");
+              return;
+            }
+
+            const nodeId = context.payload.pull_request?.node_id || context.payload.issue?.node_id;
+            if (!nodeId) {
+              core.info("No node id found; skipping.");
+              return;
+            }
+
+            const mutation = `
+              mutation($project: ID!, $content: ID!) {
+                addProjectV2ItemById(input: {projectId: $project, contentId: $content}) {
+                  item { id }
+                }
+              }
+            `;
+            await github.graphql(mutation, { project: projectId, content: nodeId });
+            core.info(`Added item ${nodeId} to project ${projectId}`);

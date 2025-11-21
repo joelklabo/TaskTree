@@ -1,0 +1,57 @@
+name: Slash Commands
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: write
+
+jobs:
+  dispatch:
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/test') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse command and dispatch
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const body = context.payload.comment.body.trim();
+            const [, , targetRaw] = body.split(/\s+/);
+            const target = (targetRaw || "all").toLowerCase();
+            const allowed = ["backend", "frontend", "docs", "all"];
+            if (!allowed.includes(target)) {
+              core.setFailed(`Unsupported target '${target}'. Allowed: ${allowed.join(", ")}`);
+              return;
+            }
+            const prNumber = context.payload.issue.number;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const ref = pr.head.ref;
+
+            core.info(`Dispatching manual-tests.yml for target=${target} ref=${ref}`);
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "manual-tests.yml",
+              ref,
+              inputs: { target },
+            });
+
+            const comment = [
+              "🔁 Triggered manual tests",
+              `- Target: **${target}**`,
+              `- Ref: ${ref}`
+            ].join("\n");
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment,
+            });

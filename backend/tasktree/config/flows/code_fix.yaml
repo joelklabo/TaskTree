@@ -1,0 +1,30 @@
+id: code_fix
+version: "0.1.0"
+description: "Fix a bug, run tests, and handle failures."
+start: plan
+steps:
+  - id: plan
+    agent: copilot_cli
+    action: plan_bugfix
+    resources: []
+    transitions:
+      success: implement
+      failure: end
+
+  - id: implement
+    agent: copilot_cli
+    action: implement_fix
+    resources:
+      - "src/**"
+    transitions:
+      success: test
+      failure: end
+
+  - id: test
+    agent: copilot_cli
+    action: run_tests
+    resources:
+      - "tests/**"
+    transitions:
+      tests_passed: end
+      tests_failed: implement

@@ -1,0 +1,5 @@
+id: tmux_dashboard_guide
+name: "Tmux Dashboard Guide"
+description: "Reads tmux dashboard marker/pane logs and returns attach/launch info plus a status snippet."
+project_root: "."
+marker_path: "logs/dashboard_session.txt"

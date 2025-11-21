@@ -1,0 +1,40 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+  "ruff.nativeServer": "ruff",
+  "ruff.organizeImports": true,
+  "eslint.workingDirectories": [
+    "frontend"
+  ],
+  "eslint.validate": [
+    "typescript",
+    "typescriptreact"
+  ],
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.associations": {
+    "*.j2": "jinja-html"
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "backend"
+  ],
+  "python.analysis.typeCheckingMode": "basic",
+  "editor.rulers": [
+    88
+  ]
+}

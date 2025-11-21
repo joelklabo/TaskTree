@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.set.outputs.backend }}
+      frontend: ${{ steps.set.outputs.frontend }}
+      docs: ${{ steps.set.outputs.docs }}
+      infra: ${{ steps.set.outputs.infra }}
+      site: ${{ steps.set.outputs.site }}
+    steps:
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'scripts/**'
+            frontend:
+              - 'frontend/**'
+            docs:
+              - 'docs/**'
+              - 'README.md'
+            infra:
+              - '.github/**'
+              - 'Makefile'
+            site:
+              - 'site/**'
+      - name: Normalize run flags
+        id: set
+        run: |
+          backend=${{ steps.filter.outputs.backend }}
+          frontend=${{ steps.filter.outputs.frontend }}
+          docs=${{ steps.filter.outputs.docs }}
+          infra=${{ steps.filter.outputs.infra }}
+          site=${{ steps.filter.outputs.site }}
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            backend=true
+            frontend=true
+            docs=true
+            infra=true
+            site=true
+          fi
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+          echo "docs=$docs" >> "$GITHUB_OUTPUT"
+          echo "infra=$infra" >> "$GITHUB_OUTPUT"
+          echo "site=$site" >> "$GITHUB_OUTPUT"
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.infra == 'true'
+    uses: ./.github/workflows/backend.yml
+    secrets: inherit
+
+  frontend:
+    needs: backend
+    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.infra == 'true'
+    uses: ./.github/workflows/frontend.yml
+    secrets: inherit
+
+  docs:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true' || needs.changes.outputs.infra == 'true'
+    uses: ./.github/workflows/docs.yml
+    secrets: inherit
+
+  summary:
+    name: Summary
+    needs: [changes, backend, frontend, docs]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary
+        id: build
+        run: |
+          backend_status="${{ needs.backend.result || 'skipped' }}"
+          frontend_status="${{ needs.frontend.result || 'skipped' }}"
+          docs_status="${{ needs.docs.result || 'skipped' }}"
+
+          backend_cov="${{ needs.backend.outputs.coverage || 'n/a' }}"
+          frontend_cov="${{ needs.frontend.outputs.coverage || 'n/a' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          # CI Summary
+          | Job | Status | Coverage | Notes |
+          | --- | --- | --- | --- |
+          | Backend | ${backend_status} | ${backend_cov}% | artifacts: backend-coverage, backend-debug |
+          | Frontend | ${frontend_status} | ${frontend_cov}% | artifacts: frontend-artifacts |
+          | Docs | ${docs_status} | n/a | artifacts: n/a |
+          EOF
+      - name: PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const body = `
+            ## CI Summary
+            - Backend: ${{ needs.backend.result || 'skipped' }} (cov: ${{ needs.backend.outputs.coverage || 'n/a' }}%)
+            - Frontend: ${{ needs.frontend.result || 'skipped' }} (cov: ${{ needs.frontend.outputs.coverage || 'n/a' }}%)
+            - Docs: ${{ needs.docs.result || 'skipped' }}
+            `;
+            const { owner, repo, number } = context.issue;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: number });
+            const marker = "[CI Summary]";
+            const existing = comments.find(c => c.user?.login === "github-actions[bot]" && c.body?.includes(marker));
+            const finalBody = `${marker}\n${body}`;
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: finalBody });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: number, body: finalBody });
+            }
