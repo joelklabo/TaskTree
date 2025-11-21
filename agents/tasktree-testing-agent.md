@@ -12,6 +12,23 @@ Test coverage and structure across TaskTree backend (`backend/tests`), frontend 
 - Keep commit/test workflows consistent across agents (use `scripts/runner.sh`); surface new test entrypoints in docs.
 - Drive Peekaboo-based visual regressions per `docs/PEEKABOO_INTEGRATION_PLAN.md` when integrating screenshot capture into Playwright.
 
+## Ownership
+- **Owns:**
+  - backend/tests/**
+  - frontend/tests/**
+  - frontend/playwright.config.ts
+  - frontend/vitest.setup.ts
+  - scripts/tests/**
+  - scripts/peekaboo_capture.sh
+  - scripts/trace_artifact_upload.sh
+- **Excludes:**
+  - backend/tasktree/**
+  - frontend/src/**
+  - docs/**
+  - .github/**
+  - Makefile
+  - agents/**
+
 ## Allowed actions
 
 - Avoid introducing untested production code; everything should follow the TTD loop.

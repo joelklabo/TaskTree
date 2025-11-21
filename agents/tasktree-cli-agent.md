@@ -11,6 +11,17 @@ TaskTree CLI (`tt`) in `backend/tasktree/cli.py`: subcommands, flags, JSON/stdou
 - Add CLI integration tests that invoke the entrypoint (e.g., `uv run tt ...`) and assert stdout/stderr.
 - Update CLI examples in README/docs when behavior shifts.
 
+## Ownership
+- **Owns:**
+  - backend/tasktree/cli.py
+- **Excludes:**
+  - backend/tasktree/api/**
+  - backend/tasktree/core/**
+  - backend/tasktree/coord/**
+  - backend/tasktree/agents/trace/**
+  - frontend/**
+  - backend/tests/**
+
 ## Allowed actions
 
 - Adjust backend flow loading or agent selection only when required for CLI parity.

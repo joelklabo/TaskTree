@@ -11,6 +11,19 @@ TaskTree documentation: README, AGENTS files, docs/ (guides, diagrams), and onbo
 - Add or refresh diagrams/mermaid sources and trace artifacts in docs when useful.
 - Keep commit workflow snippets current (e.g., `scripts/runner.sh`) so other agents follow the same path.
 
+## Ownership
+- **Owns:**
+  - docs/**
+  - README.md
+  - AGENTS.md
+  - agents/*.md
+- **Excludes:**
+  - backend/**
+  - frontend/**
+  - .github/**
+  - Makefile
+  - scripts/**
+
 ## Allowed actions
 
 - Modify code only for doc-comments or samples needed to illustrate docs.

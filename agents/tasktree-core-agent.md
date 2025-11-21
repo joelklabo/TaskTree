@@ -11,6 +11,19 @@ TaskTree flow engine and coordination code in `backend/tasktree/core/*`, `backen
 - Maintain session/step record integrity and tracing handoff (`Tracer`, artifacts).
 - Add/extend unit and integration tests for executor edges, leases, and constitution transitions.
 
+## Ownership
+- **Owns:**
+  - backend/tasktree/core/**
+  - backend/tasktree/coord/**
+  - backend/tasktree/config/flows/**
+  - backend/tasktree/config/constitution.yaml
+- **Excludes:**
+  - backend/tasktree/api/**
+  - backend/tasktree/agents/trace/**
+  - backend/tasktree/cli.py
+  - frontend/**
+  - backend/tests/**
+
 ## Allowed actions
 
 - Adjust CLI wiring only when execution semantics change.

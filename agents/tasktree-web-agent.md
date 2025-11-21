@@ -12,6 +12,22 @@ TaskTree FastAPI backend (`backend/tasktree/api/*`) and React + Vite frontend (`
 - Write backend/ frontend tests (FastAPI clients, Vitest/Playwright) for new behavior.
 - Preload UX for flow/traces: flows, traces, and dashboard state should auto-load on first render so users aren’t staring at skeletons forever (see tests below).
 
+## Ownership
+- **Owns:**
+  - backend/tasktree/api/**
+  - frontend/src/**
+  - frontend/package.json
+  - frontend/tailwind.config.ts
+- **Excludes:**
+  - backend/tasktree/core/**
+  - backend/tasktree/coord/**
+  - backend/tasktree/agents/trace/**
+  - backend/tests/**
+  - frontend/tests/**
+  - .github/**
+  - Makefile
+  - scripts/**
+
 ## Allowed actions
 
 - Avoid changing CLI behavior unless the API requires parity updates.

@@ -10,6 +10,18 @@ Tracing, logging, scenario IDs, and debug artifacts for TaskTree runs (`backend/
 - Improve structured logs and correlation between API/CLI runs and stored traces.
 - Refine trace recording/replay utilities and debug bundles for reproducing flow runs.
 
+## Ownership
+- **Owns:**
+  - backend/tasktree/agents/trace/**
+  - backend/tasktree/tracing.py
+- **Excludes:**
+  - backend/tasktree/api/**
+  - backend/tasktree/core/**
+  - backend/tasktree/coord/**
+  - backend/tasktree/cli.py
+  - frontend/**
+  - backend/tests/**
+
 ## Allowed actions
 
 - Adjust business semantics only when required for observability; avoid task ownership churn.

@@ -11,6 +11,20 @@ Makefile, `.github/workflows/*.yml`, release automation, and dev containers for 
 - Own release publishing (backend wheel, frontend bundle, GHCR image) and provenance settings.
 - Add/maintain ops-focused tests or smoke checks for pipelines.
 
+## Ownership
+- **Owns:**
+  - .github/workflows/**
+  - Makefile
+  - scripts/install_tools.sh
+  - scripts/runner.sh
+- **Excludes:**
+  - backend/**
+  - frontend/**
+  - docs/**
+  - agents/**
+  - scripts/git_hooks/**
+  - scripts/tests/**
+
 ## Allowed actions
 
 - Avoid changing core TaskTree execution semantics unless needed for build/packaging.

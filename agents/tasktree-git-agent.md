@@ -10,6 +10,21 @@ Repository hygiene for TaskTree: `.gitignore`, `.gitattributes`, `.vscode/`, hoo
 - Improve Git hooks/scripts for multi-agent safety (e.g., CI pre-commit checks).
 - Keep repo tooling config aligned with TaskTree workflows (uv/node versions, editor settings).
 
+## Ownership
+- **Owns:**
+  - .gitignore
+  - .gitattributes
+  - .git/hooks/**
+  - scripts/git_hooks/**
+- **Excludes:**
+  - backend/**
+  - frontend/**
+  - docs/**
+  - .github/**
+  - Makefile
+  - agents/**
+  - scripts/runner.sh
+
 ## Allowed actions
 
 - Avoid changing application logic; keep work scoped to repo hygiene and tooling.
