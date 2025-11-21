@@ -7,10 +7,9 @@ test("non-traced run shows tracing-disabled message in Run detail", async ({ pag
   const flowRow = page.getByRole("row", { name: /code_fix/ });
   await flowRow.getByRole("button", { name: "Run", exact: true }).click();
 
-  // Run detail tab should become enabled once the run is selected.
-  const runDetailTab = page.getByRole("tab", { name: "Run detail" });
-  await expect(runDetailTab).toBeEnabled({ timeout: 10000 });
-  await runDetailTab.click();
+  // Run detail view should be reachable once the run is selected.
+  await expect(page.getByRole("button", { name: "View last run" })).toBeVisible({ timeout: 10000 });
+  await page.getByRole("button", { name: "View last run" }).click();
 
   // The Run detail view should show the tracing-disabled message instead of failing.
   await expect(page.getByText("Tracing disabled")).toBeVisible();

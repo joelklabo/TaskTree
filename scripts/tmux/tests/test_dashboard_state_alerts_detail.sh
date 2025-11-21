@@ -44,4 +44,4 @@ if [ "$level" = "null" ] || [ -z "$level" ]; then
   exit 1
 fi
 
-echo "ok: test_dashboard_state_alerts_detail (expected to fail until structured alerts added)"
+echo "ok: test_dashboard_state_alerts_detail"

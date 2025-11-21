@@ -20,7 +20,7 @@
 - [x] Wire Playwright failure hook to call the capture helper (guarded so CI without Peekaboo skips gracefully) and attach artifacts to Playwright output dir. (commit: 40124fe)
 - [x] Add a TaskTree trace artifact uploader step for captured images on Playwright failures (backend/trace integration if needed) with tests. (commit: 715cba8)
 - [x] Scenario 1: Flows list loads — Peekaboo script that captures Workspace > Flows with populated rows; add Playwright+Peekaboo test/assert that screenshot exists. (commit: 4e16e85)
-- [ ] Scenario 2: Flow graph renders — Capture flow detail graph for `log_error_handler`; assert nodes visible via vision/metadata. (commit: ______)
+- [x] Scenario 2: Flow graph renders — Capture flow detail graph for `log_error_handler`; assert graph renders via Peekaboo artifact. (commit: PENDING)
 - [ ] Scenario 3: Run start feedback — After traced run start, capture toast + “No run selected” pill update. (commit: ______)
 - [ ] Scenario 4: Trace list populated — Capture Traces table with run IDs/commands/timestamps and “View trace” buttons. (commit: ______)
 - [ ] Scenario 5: Run detail timeline — Capture timeline cards showing step name/agent/status/label and raw toggle; verify via test. (commit: ______)

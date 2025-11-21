@@ -30,7 +30,7 @@ type DashboardState struct {
 	Alerts struct {
 		Total      int    `json:"total"`
 		RecentText string `json:"recent_text"`
-		Recent []struct {
+		Recent     []struct {
 			Level  string `json:"level"`
 			Msg    string `json:"msg"`
 			Count  int    `json:"count"`
@@ -114,16 +114,16 @@ func (m model) View() string {
 		),
 		cardStyle.Render(
 			headerStyle.Render("Git") + "\n" +
-				labelStyle.Render("Branch: ")+valueStyle.Render(m.state.Git.Branch)+"\n"+
-				labelStyle.Render("Ahead/Behind/Dirty: ")+valueStyle.Render(
-					fmt.Sprintf("%d/%d/%d", m.state.Git.Ahead, m.state.Git.Behind, m.state.Git.Dirty)),
+				labelStyle.Render("Branch: ") + valueStyle.Render(m.state.Git.Branch) + "\n" +
+				labelStyle.Render("Ahead/Behind/Dirty: ") + valueStyle.Render(
+				fmt.Sprintf("%d/%d/%d", m.state.Git.Ahead, m.state.Git.Behind, m.state.Git.Dirty)),
 		),
 		cardStyle.Render(
 			headerStyle.Render("Servers") + "\n" + renderServers(m.state.Servers),
 		),
 		cardStyle.Render(
 			headerStyle.Render("Alerts") + "\n" +
-				labelStyle.Render("Total: ")+valueStyle.Render(fmt.Sprintf("%d", m.state.Alerts.Total))+"\n"+
+				labelStyle.Render("Total: ") + valueStyle.Render(fmt.Sprintf("%d", m.state.Alerts.Total)) + "\n" +
 				renderAlerts(m.state.Alerts.Recent, m.state.Alerts.RecentText),
 		),
 		cardStyle.Render(
@@ -131,11 +131,11 @@ func (m model) View() string {
 		),
 		cardStyle.Render(
 			headerStyle.Render("Traces") + "\n" +
-				labelStyle.Render("Recent runs: ")+valueStyle.Render(fmt.Sprintf("%d", m.state.Traces.RecentRuns)),
+				labelStyle.Render("Recent runs: ") + valueStyle.Render(fmt.Sprintf("%d", m.state.Traces.RecentRuns)),
 		),
 		cardStyle.Render(
 			headerStyle.Render("Logs") + "\n" +
-				labelStyle.Render("Sources: ")+valueStyle.Render(fmt.Sprintf("%d", m.state.Logs.ConfiguredSources)),
+				labelStyle.Render("Sources: ") + valueStyle.Render(fmt.Sprintf("%d", m.state.Logs.ConfiguredSources)),
 		),
 	}
 	lines = append(lines, lipgloss.JoinHorizontal(lipgloss.Top, sections...))
@@ -172,7 +172,7 @@ func renderAlerts(alerts []struct {
 		out += valueStyle.Render(recentText)
 		out += "\n"
 	}
-	if len(alerts) == 0 {
+	if len(alerts) == 0 && recentText == "" {
 		out += valueStyle.Render("no recent")
 		return out
 	}

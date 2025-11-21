@@ -59,4 +59,4 @@ if [ "$run_branch" != "main" ] || [[ "$run_url" != https://example.com/* ]]; the
   exit 1
 fi
 
-echo "ok: test_dashboard_state_ci_runs (expected to fail until gh parsing added)"
+echo "ok: test_dashboard_state_ci_runs"

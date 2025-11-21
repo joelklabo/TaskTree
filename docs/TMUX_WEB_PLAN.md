@@ -20,7 +20,7 @@ Goal: replace the tmux-pane-rendered dashboard with a single TUI/web view that r
 - **tmux integration**: tmux smoke test that the dashboard window runs `ttx-dashboard` (not shell loops) and pane titles stay themed.
 - **Alert patterns config**: test that YAML-driven alert levels appear in dashboard view and copy/export button renders the underlying query.
 - **CI watch**: test that CI section renders a recent run in smoke (mocked gh) and caches on gh missing.
-**Status so far:** collector smoke/schema/tmux-state + cache tests are GREEN; tmux window cmd GREEN; web unit + Playwright dashboard smoke GREEN. Remaining: stricter schema, TUI snapshot, alerts/CI tests, full probes, docs.
+**Status so far:** collector smoke/schema/tmux-state + cache tests are GREEN; tmux window cmd GREEN; web unit + Playwright dashboard smoke GREEN. Schema type checks tightened (amber-5464). Remaining: TUI snapshot, alerts/CI tests, full probes, docs.
 
 ## Implementation steps (ordered)
 1) **Contract**: define `DashboardState` JSON schema (types for status/git/servers/alerts/ci/traces/log sources/search). Add schema file + validator test (red).
@@ -59,10 +59,11 @@ Goal: replace the tmux-pane-rendered dashboard with a single TUI/web view that r
 - [x] tmux dashboard cmd test — `test_dashboard_window_cmd.sh`
 - [x] Web unit test — `src/__tests__/DashboardStateView.test.tsx`
 - [x] Web e2e smoke — `tests/e2e/dashboard-state.spec.ts`
-- [ ] Schema formalized (JSON schema + stricter validator)
-- [ ] TUI snapshot test (BubbleTea)
-- [ ] Alerts config/structured test (YAML-driven levels/alerts copy)
-- [ ] CI section test (smoke + gh output)
+- [x] Schema formalized (JSON schema + stricter validator; amber-5464) — `test_dashboard_state_schema_types.sh` enforces type errors
+- [x] TUI alert text-only regression guard (skip duplicate "no recent" when tail text exists; amber-5464)
+- [x] TUI snapshot test (BubbleTea; amber-5464) — `main_snapshot_test.go` guards layout
+- [x] Alerts structured tail → cards (amber-5464) — `test_dashboard_state_alerts_detail.sh` parses levels/source
+- [x] CI section test (gh stub + status propagation; amber-5464) — `test_dashboard_state_ci_runs.sh`
 - [ ] Implement full collector probes (alerts/ci/logs detail)
 - [ ] Polish TUI layout
 - [ ] Docs updated

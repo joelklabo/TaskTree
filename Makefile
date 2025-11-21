@@ -154,6 +154,7 @@ tmux-info:
 test-scripts:
 	$(MAKE) lint-shellcheck
 	cd tui && go build -o cmd/ttx-dashboard/ttx-dashboard ./cmd/ttx-dashboard
+	cd tui && go test ./...
 	./scripts/tests/test_zip_repo.sh
 	./scripts/tests/test_trace_artifact_upload.sh
 	./scripts/tmux/tests/test_log_search.sh
@@ -175,6 +176,7 @@ test-scripts:
 	./scripts/tmux/tests/test_dashboard_state_tmux.sh
 	./scripts/tmux/tests/test_dashboard_state_cache.sh
 	./scripts/tmux/tests/test_dashboard_state_schema_file.sh
+	./scripts/tmux/tests/test_dashboard_state_schema_types.sh
 	./scripts/tmux/tests/test_dashboard_state_missing_keys.sh
 	./scripts/tmux/tests/test_dashboard_state_alerts_detail.sh
 	./scripts/tmux/tests/test_dashboard_state_ci_runs.sh

@@ -61,3 +61,9 @@ temp/
 
 # Build artifacts
 build/
+
+# Generated artifacts and binaries
+backend/coverage.xml
+metrics/*.jsonl
+site/
+tui/cmd/ttx-dashboard/ttx-dashboard
