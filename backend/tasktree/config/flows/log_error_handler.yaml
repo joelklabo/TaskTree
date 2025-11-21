@@ -1,0 +1,32 @@
+id: log_error_handler
+version: "0.1.0"
+description: "Handle errors detected in logs by summarizing and proposing fixes."
+start: assess
+steps:
+  - id: assess
+    agent: copilot_cli
+    action: plan_bugfix
+    resources: []
+    transitions:
+      success: propose_fix
+      failure: end
+
+  - id: propose_fix
+    agent: copilot_cli
+    action: implement_fix
+    resources:
+      - "src/**"
+      - "backend/**"
+      - "frontend/**"
+    transitions:
+      success: test
+      failure: end
+
+  - id: test
+    agent: copilot_cli
+    action: run_tests
+    resources:
+      - "tests/**"
+    transitions:
+      tests_passed: end
+      tests_failed: propose_fix

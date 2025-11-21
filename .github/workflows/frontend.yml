@@ -69,6 +69,12 @@ jobs:
         working-directory: frontend
         run: npm run test:unit
 
+      - name: Dashboard smoke (Playwright)
+        working-directory: frontend
+        env:
+          CI: "true"
+        run: npm test -- tests/dashboard-state.spec.ts
+
       - name: Coverage
         id: coverage
         working-directory: frontend
@@ -77,8 +83,15 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          data = json.loads(Path("coverage/coverage-summary.json").read_text())
-          pct = data["total"]["lines"]["pct"]
+
+          summary_path = Path("coverage/coverage-summary.json")
+          if not summary_path.exists():
+              print("coverage-summary.json missing; defaulting coverage to 0.0")
+              pct = 0.0
+          else:
+              data = json.loads(summary_path.read_text())
+              pct = data["total"]["lines"]["pct"]
+
           with open("$GITHUB_OUTPUT", "a", encoding="utf-8") as fh:
               fh.write(f"coverage={pct}\n")
           PY

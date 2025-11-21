@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Simple commit message guard: ensure non-empty subject and <= 72 chars.
+set -euo pipefail
+
+if [[ "${SKIP_COMMIT_MSG_HOOK:-}" == "1" ]]; then
+  echo "[hook] SKIP_COMMIT_MSG_HOOK=1 set; skipping commit message check."
+  exit 0
+fi
+
+msg_file="$1"
+subject="$(head -n1 "$msg_file")"
+len=${#subject}
+
+if [[ -z "$subject" ]]; then
+  echo "[hook] Commit message subject cannot be empty." >&2
+  exit 1
+fi
+
+if ((len > 72)); then
+  echo "[hook] Subject is ${len} chars; please keep it <= 72." >&2
+  exit 1
+fi
+
+echo "[hook] Commit message OK (${len} chars)."

@@ -40,9 +40,10 @@ export default function FlowGraph({ flow }: Props) {
     nodes.push({
       id: step.id,
       data: { label: `${step.id} (${step.agent})` },
-      position: { x: 150 * (idx + 1), y: 100 },
+      position: { x: 180 * (idx + 1), y: 120 },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
+      style: { border: "1px solid #cbd5e1", padding: 8, borderRadius: 6, background: "#fff" },
     });
 
     Object.entries(step.transitions || {}).forEach(([event, target]) => {
@@ -75,10 +76,10 @@ export default function FlowGraph({ flow }: Props) {
 
   const elements: FlowElements = [...nodes, ...edges];
 
-  const reactFlowProps = { elements };
+  const reactFlowProps = { elements, fitView: true };
 
   return (
-    <div style={{ height: 400 }}>
+    <div style={{ height: 420 }}>
       {/* Elements prop typing differs across react-flow-renderer versions; cast to satisfy TS/ESLint. */}
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
       <ReactFlow {...(reactFlowProps as unknown as Record<string, unknown>)}>

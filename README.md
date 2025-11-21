@@ -8,11 +8,18 @@ TaskTree is a scaffold for running simple, traceable task DAGs with agents. This
 <!--status:start-->
 | Check | Status |
 | --- | --- |
-| CI | ![CI](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/ci.yml?branch=main&label=ci) |
-| Pages | ![Pages](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/pages.yml?branch=main&label=pages) |
-| CodeQL | ![CodeQL](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/codeql.yml?branch=main&label=codeql) |
-| Security | ![Security](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/security.yml?branch=main&label=security) |
+| CI | ![CI](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/ci.yml?branch=main&label=ci) |
+| Pages | ![Pages](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/pages.yml?branch=main&label=pages) |
+| CodeQL | ![CodeQL](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/codeql.yml?branch=main&label=codeql) |
+| Security | ![Security](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/security.yml?branch=main&label=security) |
 <!--status:end-->
+
+## CI timing history
+Latest CI runtime splits (auto-updated on successful pushes to `main`):
+
+![CI timing trend](docs/ci-timings.svg)
+
+Raw history lives in `metrics/ci_timings.jsonl` and includes per-job/step durations for each run.
 
 ## Getting started
 ```
@@ -37,10 +44,18 @@ Quick make targets:
 
 Notes: `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For E2E only: `make test-e2e` (frontend Playwright).
 
+### Log-triggered agent (local)
+- Watch a log and kick off a flow when an error appears:
+  - `uv run tasktree.log_trigger --paths tmp/dev-app.log --patterns "ERROR" "Exception" --flow-id log_error_handler`
+  - Add `--dry-run` to observe without running the flow; `--min-interval 30` rate-limits per file.
+- Flow config: `backend/tasktree/config/flows/log_error_handler.yaml` (copilot_cli stub).
+- Details: `docs/LOG_TRIGGER.md`.
+
 ### Developer workflow (TTD-first)
 - Favor a **TTD loop**: write or update a failing test/trace, make the smallest change, re-run `make lint test`, update docs, commit.
 - Use `make format` to apply Ruff/Prettier before committing.
 - Capture flow runs with the trace wrapper to keep artifacts reproducible.
+- For commits, install hooks (`bash scripts/git_hooks/install_hooks.sh`) and use `scripts/runner.sh "<message>"` (serializes commits, rebases on origin/<branch>, runs `make test` by default; set `RUNNER_TARGET=ci` to use the CI target).
 
 ## CLI
 Within `backend/` you can run flows:

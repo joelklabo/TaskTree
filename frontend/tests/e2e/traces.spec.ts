@@ -40,6 +40,8 @@ test("traced run appears in UI with trace records", async ({ page }) => {
   const runButton = page.getByRole("button", { name: runId });
   await expect(runButton).toBeVisible({ timeout: 15000 });
   await runButton.click();
+  const runDetailTab = page.getByRole("tab", { name: "Run detail" });
+  await runDetailTab.click();
 
   // Trace detail should render JSON content (flow_name present).
   await expect(page.locator("pre").first()).toContainText('"flow_name": "code_fix"');

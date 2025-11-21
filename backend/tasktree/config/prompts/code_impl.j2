@@ -1,6 +1,6 @@
 You are a coding assistant. Implement the following plan.
 PLAN:
-{{ input.plan.summary }}
+{{ input.plan.summary if input.plan is defined and input.plan.summary is defined else "No prior plan provided. Use the error context to propose and implement a fix." }}
 Repository is mounted as the current directory.
 Return JSON:
 {"status": "success" | "failure", "summary": "...", "learnings": [], "commands": ["shell command", "..."]}

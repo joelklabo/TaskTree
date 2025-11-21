@@ -65,3 +65,9 @@ def test_corrupt_lease_file_is_ignored(tmp_path: Path) -> None:
     lease = leases.read_lease(path)
     assert lease is None
     assert not path.exists()
+
+
+def test_release_is_idempotent(tmp_path: Path) -> None:
+    lease = leases.Lease(path=leases.lease_path("resource"), holder="holder", issued_at=0, ttl=1)
+    # release should not raise even if file is already gone
+    leases.release(lease)

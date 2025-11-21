@@ -24,11 +24,12 @@ import { useToast } from "../components/ui/use-toast";
 
 type Props = {
   onRunSelected: (ref: { sessionId: string; traceId?: string }) => void;
+  initialFlows?: FlowSummary[] | null;
 };
 
-export default function FlowsPage({ onRunSelected }: Props) {
-  const [flows, setFlows] = React.useState<FlowSummary[]>([]);
-  const [loading, setLoading] = React.useState(true);
+export default function FlowsPage({ onRunSelected, initialFlows }: Props) {
+  const [flows, setFlows] = React.useState<FlowSummary[]>(initialFlows ?? []);
+  const [loading, setLoading] = React.useState(!initialFlows);
   const [error, setError] = React.useState<string | null>(null);
   const [selectedFlowId, setSelectedFlowId] = React.useState<string | null>(null);
   const [flowDetail, setFlowDetail] = React.useState<FlowDetail | null>(null);
@@ -37,13 +38,14 @@ export default function FlowsPage({ onRunSelected }: Props) {
   const { toast } = useToast();
 
   React.useEffect(() => {
+    if (initialFlows) return;
     fetchFlows()
       .then((data) => {
         setFlows(data);
       })
       .catch((err) => setError(err instanceof Error ? err.message : JSON.stringify(err)))
       .finally(() => setLoading(false));
-  }, []);
+  }, [initialFlows]);
 
   React.useEffect(() => {
     if (!selectedFlowId) {
@@ -86,7 +88,7 @@ export default function FlowsPage({ onRunSelected }: Props) {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-lg font-semibold tracking-tight">Flows</h2>
           <p className="text-sm text-muted-foreground">
             Launch flows with or without tracing and inspect their structure.

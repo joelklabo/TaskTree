@@ -1,0 +1,95 @@
+{
+  "type": "object",
+  "required": ["status", "git", "servers", "alerts", "ci", "traces", "logs"],
+  "properties": {
+    "status": {
+      "type": "object",
+      "properties": {
+        "env": { "type": "string" },
+        "ready": { "type": "boolean" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["env", "ready"]
+    },
+    "git": {
+      "type": "object",
+      "properties": {
+        "branch": { "type": "string" },
+        "ahead": { "type": "number" },
+        "behind": { "type": "number" },
+        "dirty": { "type": "number" }
+      },
+      "required": ["branch", "ahead", "behind", "dirty"]
+    },
+    "servers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "port"],
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "type": "boolean" },
+          "port": { "type": "number" }
+        }
+      }
+    },
+    "alerts": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "number" },
+        "recent_text": { "type": "string" },
+        "recent": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "level": { "type": "string" },
+              "msg": { "type": "string" },
+              "source": { "type": "string" },
+              "count": { "type": "number" }
+            },
+            "required": ["level", "msg"]
+          }
+        }
+      },
+      "required": ["total", "recent", "recent_text"]
+    },
+    "ci": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "recent_text": { "type": "string" },
+        "runs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "workflow": { "type": "string" },
+              "status": { "type": "string" },
+              "conclusion": { "type": "string" },
+              "branch": { "type": "string" },
+              "url": { "type": "string" },
+              "updated_at": { "type": "string" }
+            },
+            "required": ["workflow", "status", "conclusion", "branch"]
+          }
+        }
+      },
+      "required": ["status", "runs", "recent_text"]
+    },
+    "traces": {
+      "type": "object",
+      "properties": {
+        "recent_runs": { "type": "number" }
+      },
+      "required": ["recent_runs"]
+    },
+    "logs": {
+      "type": "object",
+      "properties": {
+        "configured_sources": { "type": "number" }
+      },
+      "required": ["configured_sources"]
+    }
+  }
+}

@@ -3,6 +3,8 @@
 Goals: fix visibility/UX for URLs and commands, add overlays/help, tighten tests to catch regressions (incl. search pane bug). TTD enforced: write failing tests for every item, then implement.
 
 ## Work items (with pre-implementation failing tests)
+- Alerts/cache stability
+  - Tests (fail first): alerts pane retains last successful render while a refresh is running; alerts log shows a “cache used” indicator if generation fails or is slow; alerts pane shows content within 10s even if upstream cmd delays.
 - Frontend URL visibility
   - Test (fail first): status output contains http(s) links for backend/frontend with host+port (regex match). Add indicator text/color token. Prevent scroll drift by ensuring output fits/clears.
 - Copy/buttons discoverability
@@ -23,6 +25,10 @@ Goals: fix visibility/UX for URLs and commands, add overlays/help, tighten tests
   - Test (fail first): mouse interaction (double-click/mousedown binding) triggers a pane capture and emits a toast message in tmux logs.
 - Design refresh (titles/borders/theme/menu)
   - Test (fail first): themed status/window formats include rounded/catppuccin tokens; pane titles populated; optional menu plugin present in bindings.
+- Caching for slow panes (alerts/trace/git)
+  - Tests (fail first): when source commands hang/return error, pane falls back to last cached output; cache files exist under logs/tmux/cache/ and timestamps are shown.
+- TUI option for alerts (optional)
+  - Test (fail first): alerts pane command exits nonzero is treated as soft failure but pane still shows previous snapshot; optional TUI binary present or shimmed content shown.
 
 ## Tests to add/expand (all must fail before implementation)
 - Search pane regression: new targeted test reproducing the bug you saw.
@@ -33,6 +39,8 @@ Goals: fix visibility/UX for URLs and commands, add overlays/help, tighten tests
 - Log sources listing: assert status/help shows entries loaded from `logs/log_sources.yaml`.
 - Mouse copy binding: assert binding exists (MouseDown/MouseDouble) and capture file count increases after invoking the bound command.
 - Design/menu: assert status/window format contains catppuccin/power tokens and menu binding is registered.
+- Alerts caching: assert alerts log contains either fresh content or cached snapshot marker; fail if neither.
+- Pane cache fallback: inject a failing alerts command and assert pane still shows previous cached content.
 
 ## Tests to add/expand
 - Search pane regression: reproduce the missing-output bug (directory-only sources were fixed; add your scenario as a dedicated test).

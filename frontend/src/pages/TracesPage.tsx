@@ -15,20 +15,22 @@ import {
 
 type Props = {
   onSelectRun: (runId: string) => void;
+  initialRuns?: TraceMeta[] | null;
 };
 
-export default function TracesPage({ onSelectRun }: Props) {
-  const [runs, setRuns] = React.useState<TraceMeta[]>([]);
-  const [loading, setLoading] = React.useState(false);
+export default function TracesPage({ onSelectRun, initialRuns }: Props) {
+  const [runs, setRuns] = React.useState<TraceMeta[]>(initialRuns ?? []);
+  const [loading, setLoading] = React.useState(!initialRuns);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    if (initialRuns) return;
     setLoading(true);
     fetchTraces()
       .then((data) => setRuns(data))
       .catch((err: unknown) => setError(err instanceof Error ? err.message : JSON.stringify(err)))
       .finally(() => setLoading(false));
-  }, []);
+  }, [initialRuns]);
 
   return (
     <div className="space-y-4">

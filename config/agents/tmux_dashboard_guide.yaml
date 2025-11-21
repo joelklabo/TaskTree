@@ -1,0 +1,5 @@
+id: tmux_dashboard_guide
+name: "Tmux Dashboard Guide"
+description: "Reads tmux dashboard markers/logs and reports attach info and status snippet."
+project_root: ".."
+marker_path: "../logs/dashboard_session.txt"

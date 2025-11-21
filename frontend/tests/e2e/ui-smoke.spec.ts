@@ -34,12 +34,11 @@ test("UI navigation + trace detail renders without console errors", async ({ pag
   const runButton = page.getByRole("button", { name: runId });
   await expect(runButton).toBeVisible({ timeout: 15000 });
   await runButton.click();
+  const runDetailTab = page.getByRole("tab", { name: "Run detail" });
+  await runDetailTab.click();
 
   // Run detail tab should now be active and show trace content/artifacts sections.
-  await expect(page.getByRole("tab", { name: "Run detail" })).toHaveAttribute(
-    "data-state",
-    "active"
-  );
+  await expect(runDetailTab).toHaveAttribute("data-state", "active");
   await expect(page.getByRole("heading", { name: "Trace events" })).toBeVisible();
   await page.getByRole("tab", { name: "Artifacts" }).click();
   await expect(page.getByRole("heading", { name: "Artifacts" })).toBeVisible();

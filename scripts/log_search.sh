@@ -116,7 +116,17 @@ if [ ${#extra[@]} -gt 0 ]; then
   cmd+=("${extra[@]}")
 fi
 cmd+=("$pattern")
-cmd+=("${paths[@]}")
+valid_paths=()
+for p in "${paths[@]}"; do
+  if [ -e "$p" ]; then
+    valid_paths+=("$p")
+  fi
+done
+if [ ${#valid_paths[@]} -eq 0 ]; then
+  echo "No existing log sources found after expansion."
+  exit 1
+fi
+cmd+=("${valid_paths[@]}")
 cmd_str="$(printf "%q " "${cmd[@]}")"
 
 if [ "$md" -eq 1 ]; then

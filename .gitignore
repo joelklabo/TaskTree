@@ -41,6 +41,7 @@ frontend/test-results/
 npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.bin/
 
 # Editor
 *.code-workspace

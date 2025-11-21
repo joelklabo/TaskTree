@@ -3,18 +3,65 @@ import ConstitutionPage from "./pages/ConstitutionPage";
 import FlowsPage from "./pages/FlowsPage";
 import RunDetailPage from "./pages/RunDetailPage";
 import TracesPage from "./pages/TracesPage";
+import DashboardPage from "./pages/DashboardPage";
+import { fetchFlows, fetchTraces } from "./api/client";
+import dashboardFixture from "./__tests__/fixtures/dashboard_state.json";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { Badge } from "./components/ui/badge";
 import { Toaster } from "./components/ui/toaster";
 
-type View = "flows" | "run" | "constitution" | "traces";
+type View = "flows" | "run" | "constitution" | "traces" | "dashboard";
 type RunRef = { sessionId: string; traceId?: string };
 
+const pathToView = (path: string): View => {
+  const trimmed = path.replace(/^\/+|\/+$/g, "");
+  if (trimmed === "traces") return "traces";
+  if (trimmed === "constitution") return "constitution";
+  if (trimmed === "dashboard") return "dashboard";
+  if (trimmed === "run") return "run";
+  return "flows";
+};
+
 export default function App() {
-  const [view, setView] = React.useState<View>("flows");
+  const initialView = pathToView(window.location.pathname);
+  const [view, setView] = React.useState<View>(initialView);
   const [runRef, setRunRef] = React.useState<RunRef | null>(null);
+  const [prefetchedFlows, setPrefetchedFlows] =
+    React.useState<typeof fetchFlows extends () => Promise<infer R> ? R : [] | null>(null);
+  const [prefetchedTraces, setPrefetchedTraces] =
+    React.useState<typeof fetchTraces extends () => Promise<infer R> ? R : [] | null>(null);
+  const [prefetchedDashboard, setPrefetchedDashboard] = React.useState<
+    typeof dashboardFixture | null
+  >(null);
+
+  React.useEffect(() => {
+    const onPop = () => setView(pathToView(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  React.useEffect(() => {
+    fetchFlows()
+      .then(setPrefetchedFlows)
+      .catch(() => setPrefetchedFlows(null));
+    fetchTraces()
+      .then(setPrefetchedTraces)
+      .catch(() => setPrefetchedTraces(null));
+    fetch("/tmp/dashboard_state.json", { cache: "no-cache" })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("fetch failed"))))
+      .then((data) => setPrefetchedDashboard(data as typeof dashboardFixture))
+      .catch(() => setPrefetchedDashboard(dashboardFixture));
+  }, []);
+
+  React.useEffect(() => {
+    const path = view === "flows" ? "/" : `/${view}`;
+    if (view === "run" && !runRef) {
+      return;
+    }
+    window.history.replaceState(null, "", path);
+  }, [view, runRef]);
 
   const handleRunSelected = (ref: RunRef) => {
     setRunRef(ref);
@@ -44,7 +91,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-6 lg:py-8">
+      <main className="mx-auto max-w-6xl px-6 py-6 pb-16 lg:py-8">
         <Card>
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
@@ -69,16 +116,18 @@ export default function App() {
                 <TabsTrigger value="flows">Flows</TabsTrigger>
                 <TabsTrigger value="traces">Traces</TabsTrigger>
                 <TabsTrigger value="constitution">Constitution</TabsTrigger>
+                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                 <TabsTrigger value="run" disabled={!runRef}>
                   Run detail
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="flows" className="border-none p-0">
-                <FlowsPage onRunSelected={handleRunSelected} />
+                <FlowsPage onRunSelected={handleRunSelected} initialFlows={prefetchedFlows} />
               </TabsContent>
               <TabsContent value="traces" className="border-none p-0">
                 <TracesPage
+                  initialRuns={prefetchedTraces}
                   onSelectRun={(id) => handleRunSelected({ sessionId: id, traceId: id })}
                 />
               </TabsContent>
@@ -91,6 +140,9 @@ export default function App() {
                 ) : (
                   <p className="text-sm text-muted-foreground">Select a run to view details.</p>
                 )}
+              </TabsContent>
+              <TabsContent value="dashboard" className="border-none p-0">
+                <DashboardPage initialState={prefetchedDashboard} />
               </TabsContent>
             </Tabs>
           </CardContent>

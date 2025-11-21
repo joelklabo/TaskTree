@@ -9,6 +9,10 @@ TaskTree treats agents as plugins: small, focused Python classes that turn conte
 5. Commit early and often with clear messages.
 6. If you cannot add a test/trace (e.g., missing infra), document the gap in the PR/commit message and add a TODO to backfill.
 
+Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make test` (default; override with `RUNNER_TARGET=ci`), then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
+
+Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make test` (default; override with `RUNNER_TARGET=ci`), then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
+
 This document covers:
 - The agent interface
 - YAML configuration
@@ -220,3 +224,8 @@ Agents can write artifacts via `tasktree.tracing.Tracer.artifact_path`.
 | Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
 
 Notes: `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For E2E only: `make test-e2e` (frontend Playwright).
+
+### Agent docs (naming + guardrail)
+- Agent guides live in `agents/tasktree-*-agent.md` (one file per agent area).
+- Filenames must use the `tasktree-` prefix; stale `context-*` names/strings are blocked by `backend/tests/test_agent_docs.py`.
+- Keep each doc TaskTree-specific and mention `AGENTS.md` + `docs/PLAN.md` for coordination.

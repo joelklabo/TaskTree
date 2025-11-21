@@ -11,6 +11,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude tests/e2e**",
+    "test:file": "vitest run --exclude tests/e2e** --run",
     "coverage": "vitest run --coverage --exclude tests/e2e**",
     "e2e": "playwright test",
     "test:unit": "vitest run"

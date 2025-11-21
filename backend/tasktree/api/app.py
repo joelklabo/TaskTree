@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from tasktree.api import routes_flows, routes_runs, routes_trace
+from tasktree.api import routes_constitution, routes_flows, routes_runs, routes_trace
 
 app = FastAPI(title="TaskTree API")
 
@@ -17,6 +17,7 @@ api_router = APIRouter()
 api_router.include_router(routes_flows.router, prefix="/flows", tags=["flows"])
 api_router.include_router(routes_runs.router, prefix="/runs", tags=["runs"])
 api_router.include_router(routes_trace.router, prefix="/trace", tags=["trace"])
+api_router.include_router(routes_constitution.router, prefix="/constitution", tags=["constitution"])
 
 app.include_router(api_router, prefix="/api")
 

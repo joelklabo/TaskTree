@@ -27,6 +27,7 @@ export type TraceMeta = {
 };
 
 export type ArtifactInfo = { path: string; size: number };
+export type Constitution = Record<string, unknown>;
 
 const api = axios.create({
   baseURL: "/api",
@@ -67,6 +68,11 @@ export async function fetchTrace(runId: string): Promise<unknown[]> {
 
 export async function fetchArtifacts(runId: string): Promise<ArtifactInfo[]> {
   const res = await api.get<ArtifactInfo[]>(`/trace/runs/${runId}/artifacts`);
+  return res.data;
+}
+
+export async function fetchConstitution(): Promise<Constitution> {
+  const res = await api.get<Constitution>("/constitution/");
   return res.data;
 }
 

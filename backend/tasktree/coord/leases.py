@@ -87,5 +87,4 @@ def acquire(resource: str, holder: str) -> Lease:
 
 
 def release(lease: Lease) -> None:
-    if lease.path.exists():
-        lease.path.unlink()
+    lease.path.unlink(missing_ok=True)

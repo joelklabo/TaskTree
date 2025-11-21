@@ -1,0 +1,28 @@
+{
+  "status": { "env": "dev", "ready": true, "updated_at": "2025-11-20T20:30:00Z" },
+  "git": { "branch": "main", "ahead": 1, "behind": 0, "dirty": 2 },
+  "servers": [
+    { "name": "backend", "status": true, "port": 8000 },
+    { "name": "frontend", "status": false, "port": 5173 }
+  ],
+  "alerts": {
+    "total": 3,
+    "recent_text": "recent alerts text",
+    "recent": [{ "level": "warn", "msg": "test alert" }]
+  },
+  "ci": {
+    "status": "success",
+    "recent_text": "ci cached output",
+    "runs": [
+      {
+        "workflow": "ci",
+        "status": "completed",
+        "conclusion": "success",
+        "branch": "main",
+        "url": "https://example.com/run/1"
+      }
+    ]
+  },
+  "traces": { "recent_runs": 4 },
+  "logs": { "configured_sources": 2 }
+}

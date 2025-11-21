@@ -18,7 +18,7 @@ class TmuxDashboardGuideAgent(Agent):
         self.config = config
 
     def run_step(self, action: str, ctx: AgentContext) -> AgentOutput:
-        root = Path(self.config.get("project_root", Path(__file__).resolve().parents[2]))
+        root = Path(self.config.get("project_root", Path(__file__).resolve().parents[1]))
         marker = Path(self.config.get("marker_path", root / "logs" / "dashboard_session.txt"))
         attach = ""
         launch = ""
