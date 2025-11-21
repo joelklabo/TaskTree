@@ -57,6 +57,7 @@ tasktree.db
 logs/
 .tmux/
 tmp/
+temp/
 
 # Build artifacts
 build/
