@@ -1,4 +1,4 @@
-name: backend
+name: Backend Pipeline
 
 on:
   workflow_call:

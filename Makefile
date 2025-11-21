@@ -87,7 +87,7 @@ test-backend:
 	cd backend && uv run pytest --cov=tasktree --cov-report=xml
 
 test-frontend:
-	cd frontend && npm test && npm run e2e || true
+	cd frontend && npm run test:unit && npm run coverage && npm run e2e
 
 test: test-backend test-frontend
 
@@ -118,21 +118,21 @@ ci: lint test build
 
 .PHONY: tmux-smoke
 tmux-smoke:
-	./scripts/tmux_dashboard_smoke.sh
+	./scripts/tmux/tmux_dashboard_smoke.sh
 
 .PHONY: tmux-refresh-smoke
 tmux-refresh-smoke:
-	./scripts/tmux_refresh_smoke.sh
+	./scripts/tmux/tmux_refresh_smoke.sh
 
 .PHONY: tmux
 tmux:
-	./scripts/tmux_dashboard.sh --session ttx
+	./scripts/tmux/tmux_dashboard.sh --session ttx
 
 tmux-info:
 	@session=ttx; \
 	echo "Session: $$session"; \
 	echo "Attach: tmux attach -t $$session"; \
-	echo "Launcher: ./scripts/tmux_dashboard.sh --session $$session"; \
+	echo "Launcher: ./scripts/tmux/tmux_dashboard.sh --session $$session"; \
 	if [ -f logs/dashboard_session.txt ]; then \
 	  echo "--- logs/dashboard_session.txt ---"; cat logs/dashboard_session.txt; \
 	fi
@@ -140,22 +140,22 @@ tmux-info:
 .PHONY: test-scripts
 test-scripts:
 	$(MAKE) lint-shellcheck
-	./scripts/tests/test_log_search.sh
-	./scripts/tests/test_log_search_bug.sh
-	./scripts/tests/test_log_sources_listing.sh
-	./scripts/tests/test_mouse_copy.sh
-	./scripts/tests/test_log_search_missing_rg.sh
-	./scripts/tests/test_alerts_smoke_header.sh
-	./scripts/tests/test_alerts_cache_fallback.sh
-	./scripts/tests/test_search_pane_prompt.sh
-	./scripts/tests/test_ci_pane_missing.sh
-	./scripts/tests/test_status_links.sh
-	./scripts/tests/test_tmux_overlays.sh
-	./scripts/tests/test_tmux_titles.sh
-	./scripts/tests/test_log_alerts.sh
+	./scripts/tmux/tests/test_log_search.sh
+	./scripts/tmux/tests/test_log_search_bug.sh
+	./scripts/tmux/tests/test_log_sources_listing.sh
+	./scripts/tmux/tests/test_mouse_copy.sh
+	./scripts/tmux/tests/test_log_search_missing_rg.sh
+	./scripts/tmux/tests/test_alerts_smoke_header.sh
+	./scripts/tmux/tests/test_alerts_cache_fallback.sh
+	./scripts/tmux/tests/test_search_pane_prompt.sh
+	./scripts/tmux/tests/test_ci_pane_missing.sh
+	./scripts/tmux/tests/test_status_links.sh
+	./scripts/tmux/tests/test_tmux_overlays.sh
+	./scripts/tmux/tests/test_tmux_titles.sh
+	./scripts/tmux/tests/test_log_alerts.sh
 	$(MAKE) tmux-smoke
 	$(MAKE) tmux-refresh-smoke
-	./scripts/tmux_e2e_expect.sh
+	./scripts/tmux/tmux_e2e_expect.sh
 
 .PHONY: verify-scripts
 verify-scripts: test-scripts
