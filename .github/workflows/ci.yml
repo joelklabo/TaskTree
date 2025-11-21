@@ -61,6 +61,20 @@ jobs:
           fi
           printf "backend=%s\nfrontend=%s\ndocs=%s\ninfra=%s\nsite=%s\n" "$backend" "$frontend" "$docs" "$infra" "$site" >> "$GITHUB_OUTPUT"
 
+  actions-lint:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Install tools
+        run: ./scripts/install_tools.sh
+      - name: actionlint
+        run: ./.bin/actionlint
+
   backend:
     needs: changes
     if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.infra == 'true'
@@ -81,13 +95,14 @@ jobs:
 
   summary:
     name: Summary
-    needs: [changes, backend, frontend, docs]
+    needs: [changes, actions-lint, backend, frontend, docs]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Build summary
         id: build
         run: |
+          actions_status="${{ needs.actions-lint.result || 'skipped' }}"
           backend_status="${{ needs.backend.result || 'skipped' }}"
           frontend_status="${{ needs.frontend.result || 'skipped' }}"
           docs_status="${{ needs.docs.result || 'skipped' }}"
@@ -100,6 +115,7 @@ jobs:
           # CI Summary
           | Job | Status | Coverage | Notes |
           | --- | --- | --- | --- |
+          | Actionlint | ${actions_status} | n/a | |
           | Backend | ${backend_status} | ${backend_cov}% | artifacts: backend-coverage, backend-debug |
           | Frontend | ${frontend_status} | ${frontend_cov}% | artifacts: frontend-artifacts |
           | Docs | ${docs_status} | n/a | artifacts: n/a |
