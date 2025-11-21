@@ -10,7 +10,8 @@ def test_runner_script_exists_and_is_executable() -> None:
     assert os.access(RUNNER, os.X_OK), "scripts/runner.sh should be executable"
 
 
-def test_runner_script_runs_tests_before_commit() -> None:
+def test_runner_script_runs_ci_before_commit() -> None:
     content = RUNNER.read_text()
-    assert "make test" in content, "runner should run make test before committing"
+    assert "make ci" in content, "runner should run make ci before committing"
+    assert "context-runner.lock" in content, "runner should serialize commits with context lock"
     assert "git commit" in content, "runner should perform git commit"

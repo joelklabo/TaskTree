@@ -20,7 +20,7 @@
 - [x] tmux dashboard docs - owner: assistant - date: 2025-11-20 - notes: docs/TMUX_DASHBOARD.md documents scripts/tmux_dashboard.sh usage and smoke.
 - [x] Log-triggered agent flow scaffold - owner: assistant - date: 2025-11-21 - notes: `LogWatcher` + `log_trigger` CLI, `log_error_handler` flow, docs in README + docs/LOG_TRIGGER.md; tests cover watcher + trigger.
 - [x] Agent docs guardrails + TaskTree naming + e2e dashboard stabilization - owner: red-0b2e - date: 2025-11-21 - notes: agent doc/test guard for tasktree-* naming, Playwright dashboard/routes stabilized, full test suite green.
-- [x] Commit runner adopted from Context repo + frontend coverage boost - owner: red-0b2e - date: 2025-11-21 - notes: added scripts/runner.sh, git agent/docs updated, coverage tests for flows/traces/run detail/API; full `make test` green.
+- [x] Commit runner adopted from Context repo + frontend coverage boost - owner: red-0b2e - date: 2025-11-21 - notes: added scripts/runner.sh (locks `.git/context-runner.lock`, runs `make ci` before push), git agent/docs updated, coverage tests for flows/traces/run detail/API; full `make test` green.
 
 ## Blockers
 - None noted. Add items here with owner/ask.

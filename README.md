@@ -55,7 +55,7 @@ Notes: `make ci` runs lint + test + build. `make setup-tools` installs shfmt/she
 - Favor a **TTD loop**: write or update a failing test/trace, make the smallest change, re-run `make lint test`, update docs, commit.
 - Use `make format` to apply Ruff/Prettier before committing.
 - Capture flow runs with the trace wrapper to keep artifacts reproducible.
-- For commits, install hooks (`bash scripts/git_hooks/install_hooks.sh`) and use `scripts/runner.sh "<message>"` (serializes commits, rebases on origin/<branch>, runs `make test` by default; set `RUNNER_TARGET=ci` to use the CI target).
+- For commits, install hooks (`bash scripts/git_hooks/install_hooks.sh`) and use `scripts/runner.sh "<message>"` (serializes commits with .git/context-runner.lock, rebases on origin/<branch>, runs `make ci`, then pushes).
 
 ## CLI
 Within `backend/` you can run flows:

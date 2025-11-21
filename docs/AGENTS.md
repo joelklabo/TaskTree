@@ -9,9 +9,7 @@ TaskTree treats agents as plugins: small, focused Python classes that turn conte
 5. Commit early and often with clear messages.
 6. If you cannot add a test/trace (e.g., missing infra), document the gap in the PR/commit message and add a TODO to backfill.
 
-Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make test` (default; override with `RUNNER_TARGET=ci`), then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
-
-Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make test` (default; override with `RUNNER_TARGET=ci`), then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
+Commit helper: use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make ci`, then push. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
 
 This document covers:
 - The agent interface

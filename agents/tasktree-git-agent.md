@@ -27,7 +27,7 @@ Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
 ## Commit workflow
 
 - Install hooks via `scripts/git_hooks/install_hooks.sh` to enforce commit-msg and CI guardrails.
-- Use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run tests (`make test` by default; override via `RUNNER_TARGET=ci scripts/runner.sh "..."`), and push.
+- Use `scripts/runner.sh "<message>"` to serialize commits, rebase on origin/<branch>, run `make ci`, and push.
 - Keep subjects ≤72 chars, imperative mood; avoid skipping hooks unless explicitly approved (`SKIP_CI_HOOK=1`, `SKIP_COMMIT_MSG_HOOK=1` exist but should be rare).
 - Stage only related files; prefer small, focused commits with context in the body when needed.
 - If adding/adjusting hooks or tooling, update docs and note behavior toggles in commit body.

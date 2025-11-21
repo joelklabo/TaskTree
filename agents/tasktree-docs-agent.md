@@ -9,6 +9,7 @@ TaskTree documentation: README, AGENTS files, docs/ (guides, diagrams), and onbo
 - Update docs when backend/frontend/agent behavior changes; keep examples accurate.
 - Maintain AGENTS.md and per-agent guides; cross-link with `docs/PLAN.md`.
 - Add or refresh diagrams/mermaid sources and trace artifacts in docs when useful.
+- Keep commit workflow snippets current (e.g., `scripts/runner.sh`) so other agents follow the same path.
 
 ## Allowed actions
 
@@ -23,3 +24,8 @@ Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
 3. Update docs alongside any code/test changes; prefer adding runnable examples.
 4. Run the narrowest relevant checks (`make lint`/`make test` snippets) before publishing.
 5. Capture TaskTree traces or screenshots when they clarify the doc.
+6. Use `scripts/runner.sh "<message>"` for commits to serialize pushes, rebase, run `make ci`, and keep commit hooks in play.
+
+## Commit workflow
+
+- `scripts/runner.sh "<message>"` takes `.git/context-runner.lock`, rebases on origin/<branch>, runs `make ci`, and pushes. Install hooks first via `scripts/git_hooks/install_hooks.sh`.
