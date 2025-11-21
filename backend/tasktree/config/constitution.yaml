@@ -1,7 +1,6 @@
 ownership:
   "planner/": planner
   "tasktree/": planner
-  "docs/PLAN.md": scribe
   "ci/": ci_watcher
 
 leases:
@@ -22,6 +21,5 @@ task_states:
       merged: DONE
 
 protected:
-  - "docs/PLAN.md"
   - "tasktree/config/flows/"
   - "tasktree/config/constitution.yaml"

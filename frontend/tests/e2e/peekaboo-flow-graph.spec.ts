@@ -15,6 +15,9 @@ test("peekaboo captures flow graph for log_error_handler", async ({ page }, test
   await expect(page.getByText("Flow detail: log_error_handler")).toBeVisible();
   await expect(page.getByText("Start: assess")).toBeVisible();
   await expect(page.locator(".react-flow")).toBeVisible();
+  const nodeCount = await page.locator(".react-flow__node").count();
+  expect(nodeCount).toBeGreaterThan(0);
+  await expect(page.locator(".react-flow__node").first()).toHaveCSS("position", "absolute");
 
   const traceRoot = testInfo.outputPath("trace-root");
   const { capturePath, artifactPath, tracePath } = await capturePeekaboo(testInfo, {

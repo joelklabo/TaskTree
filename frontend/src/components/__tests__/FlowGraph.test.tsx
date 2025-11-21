@@ -48,20 +48,19 @@ describe("FlowGraph", () => {
     const fitViewOptions = (propsRaw as { fitViewOptions?: { padding?: number } }).fitViewOptions;
     expect(fitViewOptions?.padding ?? 0).toBeGreaterThan(0);
 
-    const elementsRaw = (propsRaw as { elements?: unknown }).elements;
-    const elements = Array.isArray(elementsRaw)
-      ? elementsRaw.filter(
-          (el): el is { id?: unknown; data?: unknown; target?: unknown; position?: unknown } =>
-            typeof el === "object" && el !== null,
+    const nodesRaw = (propsRaw as { nodes?: unknown }).nodes;
+    const edgesRaw = (propsRaw as { edges?: unknown }).edges;
+    const nodes = Array.isArray(nodesRaw)
+      ? nodesRaw.filter(
+          (n): n is { id?: unknown; data?: unknown } => typeof n === "object" && n !== null,
         )
       : [];
+    const edges = Array.isArray(edgesRaw)
+      ? edgesRaw.filter((e): e is { target?: unknown } => typeof e === "object" && e !== null)
+      : [];
 
-    const nodeIds = elements
-      .filter((el) => "position" in el)
-      .map((n) => (typeof n.id === "string" ? n.id : ""))
-      .filter(Boolean);
-    const edgeTargets = elements
-      .filter((el) => "target" in el)
+    const nodeIds = nodes.map((n) => (typeof n.id === "string" ? n.id : "")).filter(Boolean);
+    const edgeTargets = edges
       .map((e) => (typeof e.target === "string" ? e.target : ""))
       .filter(Boolean);
 
@@ -73,7 +72,7 @@ describe("FlowGraph", () => {
     const isNodeData = (val: unknown): val is { label?: unknown; badge?: unknown } =>
       typeof val === "object" && val !== null;
 
-    const startNode = elements.find((el) => typeof el.id === "string" && el.id === "start");
+    const startNode = nodes.find((node) => typeof node.id === "string" && node.id === "start");
     expect(startNode).toBeDefined();
     if (startNode && "data" in startNode) {
       const data: unknown = startNode.data;
@@ -84,7 +83,7 @@ describe("FlowGraph", () => {
         expect(data.badge).toBe("start");
       }
     }
-    const endNode = elements.find((el) => typeof el.id === "string" && el.id === "end");
+    const endNode = nodes.find((node) => typeof node.id === "string" && node.id === "end");
     expect(endNode).toBeDefined();
     if (endNode && "data" in endNode) {
       const data: unknown = endNode.data;

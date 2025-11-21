@@ -38,9 +38,6 @@ def test_agent_docs_are_tasktree_specific(agent_file: Path) -> None:
 
     assert "tasktree" in content_lower, f"TaskTree mention missing in {agent_file.name}"
     assert "agents.md" in content_lower, f"AGENTS.md reference missing in {agent_file.name}"
-    assert (
-        "docs/plan.md" in content_lower
-    ), f"docs/PLAN.md reference missing in {agent_file.name}"
 
 
 def test_git_agent_doc_mentions_commits_and_hooks() -> None:

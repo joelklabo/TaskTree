@@ -7,6 +7,8 @@ import ReactFlow, {
   Edge,
   Node,
 } from "react-flow-renderer";
+import "react-flow-renderer/dist/style.css";
+import "react-flow-renderer/dist/theme-default.css";
 
 type Props = {
   flow: {
@@ -31,7 +33,6 @@ export default function FlowGraph({ flow }: Props) {
   }
   type FlowNodeData = { label: string; badge?: string };
   type FlowEdgeData = { label?: string };
-  type FlowElements = Array<Node<FlowNodeData> | Edge<FlowEdgeData>>;
 
   const nodes: Array<Node<FlowNodeData>> = [];
   const edges: Array<Edge<FlowEdgeData>> = [];
@@ -88,10 +89,9 @@ export default function FlowGraph({ flow }: Props) {
     animated: true,
   });
 
-  const elements: FlowElements = [...nodes, ...edges];
-
   const reactFlowProps = {
-    elements,
+    nodes,
+    edges,
     fitView: true,
     fitViewOptions: { padding: 0.2 },
   };

@@ -110,7 +110,7 @@ require_log() {
 }
 
 require_log "$TMUX_LOG_DIR/dashboard-status.log" "TaskTree dev status"
-require_log "$TMUX_LOG_DIR/dashboard-plan.log" "docs/PLAN.md"
+require_log "$TMUX_LOG_DIR/dashboard-plan.log" "TaskTree flows"
 require_log "$TMUX_LOG_DIR/dashboard-traces.log" "TaskTree traces"
 # For alerts/sources/shares, just ensure the pipes exist (content may vary if log_alerts/log_sources are empty).
 [ -f "$TMUX_LOG_DIR/alerts.log" ] || fail "log missing: $TMUX_LOG_DIR/alerts.log"

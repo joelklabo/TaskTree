@@ -12,15 +12,16 @@ TaskTree CLI (`tt`) in `backend/tasktree/cli.py`: subcommands, flags, JSON/stdou
 - Update CLI examples in README/docs when behavior shifts.
 
 ## Ownership
+
 - **Owns:**
   - backend/tasktree/cli.py
 - **Excludes:**
-  - backend/tasktree/api/**
-  - backend/tasktree/core/**
-  - backend/tasktree/coord/**
-  - backend/tasktree/agents/trace/**
-  - frontend/**
-  - backend/tests/**
+  - backend/tasktree/api/\*\*
+  - backend/tasktree/core/\*\*
+  - backend/tasktree/coord/\*\*
+  - backend/tasktree/agents/trace/\*\*
+  - frontend/\*\*
+  - backend/tests/\*\*
 
 ## Allowed actions
 
@@ -29,9 +30,9 @@ TaskTree CLI (`tt`) in `backend/tasktree/cli.py`: subcommands, flags, JSON/stdou
 
 ## Workflow
 
-Follow the global rules in `AGENTS.md` and coordination in `docs/PLAN.md`:
+Follow the global rules in `AGENTS.md` and coordinate updates with `tasktree`:
 
-1. Claim a task in `docs/PLAN.md` with your handle and status.
+1. Claim a task with your handle and status.
 2. Start with a failing CLI test or reproduction, then implement the minimal fix.
 3. Run `make test-backend` (or the narrowest pytest target) and capture traces when flows run.
 4. Document changes immediately (TaskTree CLI usage/help) before closing the task.

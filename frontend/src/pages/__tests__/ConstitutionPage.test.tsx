@@ -22,8 +22,8 @@ describe("ConstitutionPage", () => {
         states: ["TODO", "IN_PROGRESS"],
         transitions: { TODO: { start: "IN_PROGRESS" } },
       },
-      ownership: { "docs/PLAN.md": "scribe", "backend/": "planner" },
-      protected: ["docs/PLAN.md", "backend/"],
+      ownership: { "tasktree/": "planner", "backend/": "ops" },
+      protected: ["tasktree/config/flows/", "backend/"],
     });
 
     render(<ConstitutionPage />);
@@ -32,7 +32,7 @@ describe("ConstitutionPage", () => {
     expect(await screen.findByText("TODO")).toBeInTheDocument();
     expect(await screen.findByText("start -> IN_PROGRESS")).toBeInTheDocument();
     expect(screen.getByText(/Ownership/)).toBeInTheDocument();
-    expect(screen.getAllByText("docs/PLAN.md").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("tasktree/").length).toBeGreaterThan(0);
     expect(screen.getByText("Protected paths")).toBeInTheDocument();
     expect(screen.getAllByText("backend/").length).toBeGreaterThan(0);
   });

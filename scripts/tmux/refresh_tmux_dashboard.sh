@@ -95,7 +95,7 @@ respawn_window() {
 
 respawn_window "dashboard" \
   "bash -lc 'while true; do clear; ./scripts/dev_status.sh; sleep 5; done'" \
-  "bash -lc 'while true; do clear; printf \"docs/PLAN.md (compact)\\n\\n\"; fmt -w 100 docs/PLAN.md | head -n 140; sleep 5; done'" \
+  "bash -lc 'while true; do clear; ./scripts/plan_preview.sh; sleep 5; done'" \
   "bash -lc 'while true; do clear; ./scripts/trace_status.sh; sleep 7; done'" \
   "bash -lc 'while true; do clear; printf \"Log tails\\n\\n\"; if [ -f logs/backend-dev.log ]; then tail -n 40 logs/backend-dev.log; else echo \"backend-dev.log not yet created\"; fi; echo; if [ -f logs/frontend-dev.log ]; then tail -n 25 logs/frontend-dev.log; else echo \"frontend-dev.log not yet created\"; fi; sleep 5; done'"
 
