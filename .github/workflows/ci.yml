@@ -87,6 +87,12 @@ jobs:
     uses: ./.github/workflows/frontend.yml
     secrets: inherit
 
+  frontend-e2e:
+    needs: [changes]
+    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.infra == 'true'
+    uses: ./.github/workflows/frontend-e2e.yml
+    secrets: inherit
+
   docs:
     needs: changes
     if: needs.changes.outputs.docs == 'true' || needs.changes.outputs.infra == 'true'
@@ -95,7 +101,7 @@ jobs:
 
   summary:
     name: Summary
-    needs: [changes, actions-lint, backend, frontend, docs]
+    needs: [changes, actions-lint, backend, frontend, frontend-e2e, docs]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -105,6 +111,7 @@ jobs:
           actions_status="${{ needs.actions-lint.result || 'skipped' }}"
           backend_status="${{ needs.backend.result || 'skipped' }}"
           frontend_status="${{ needs.frontend.result || 'skipped' }}"
+          frontend_e2e_status="${{ needs.frontend-e2e.result || 'skipped' }}"
           docs_status="${{ needs.docs.result || 'skipped' }}"
 
           backend_cov="${{ needs.backend.outputs.coverage || 'n/a' }}"
@@ -118,6 +125,7 @@ jobs:
           | Actionlint | ${actions_status} | n/a | |
           | Backend | ${backend_status} | ${backend_cov}% | artifacts: backend-coverage, backend-debug |
           | Frontend | ${frontend_status} | ${frontend_cov}% | artifacts: frontend-artifacts |
+          | Frontend E2E | ${frontend_e2e_status} | n/a | artifacts: frontend-e2e-artifacts-* |
           | Docs | ${docs_status} | n/a | artifacts: n/a |
           EOF
           cat "$summary_file" >> "$GITHUB_STEP_SUMMARY"

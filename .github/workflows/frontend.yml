@@ -51,12 +51,6 @@ jobs:
         working-directory: backend
         run: uv sync --extra dev
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-
       - name: Install deps
         working-directory: frontend
         run: pnpm install --frozen-lockfile
@@ -72,12 +66,6 @@ jobs:
         id: unit
         working-directory: frontend
         run: pnpm run test:unit
-
-      - name: Dashboard smoke (Playwright)
-        working-directory: frontend
-        env:
-          CI: "true"
-        run: pnpm run e2e -- tests/e2e/dashboard-state.spec.ts
 
       - name: Coverage
         id: coverage
