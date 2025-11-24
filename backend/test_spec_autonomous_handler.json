@@ -1,0 +1,19 @@
+{
+  "test_specification": "Create an end-to-end test that validates the complete autonomous error handler workflow. The test should: (1) Create a temporary log file, (2) Start the LogTrigger daemon watching that file, (3) Append an error to the log file, (4) Verify the daemon triggers the log_error_handler flow, (5) Verify the flow goes through all expected steps: investigate -> implement -> test, (6) Verify the flow completes successfully, (7) Clean up the daemon. This is a real integration test that exercises the entire autonomous cycle.",
+  "context": {
+    "existing_patterns": "Backend uses pytest with fixtures like tmp_path for temporary files. Tests import from tasktree modules. Tests use plain assertions without messages. Tests have docstrings. Example pattern:\n\ndef test_something(tmp_path: Path) -> None:\n    \"\"\"Test description.\"\"\"\n    # Setup\n    file = tmp_path / 'test.log'\n    \n    # Test\n    result = do_something(file)\n    \n    # Verify\n    assert result.status == 'success'\n",
+    "target_file": "backend/tests/test_e2e_autonomous_handler.py",
+    "framework": "pytest",
+    "expected_assertions": [
+      "LogTrigger daemon starts successfully",
+      "Daemon detects error when appended to log file",
+      "Flow is triggered with correct payload structure",
+      "Flow executes investigate step",
+      "Flow executes implement step",
+      "Flow executes test step",
+      "Flow completes with success status",
+      "Daemon can be stopped cleanly"
+    ],
+    "example_test_file": "from tasktree.core.executor import run_flow\n\n\ndef test_log_error_handler_with_retry_success() -> None:\n    \"\"\"Test that retry flow works when test passes on first attempt.\"\"\"\n    flow_input = {\n        \"error_log\": \"TypeError: test error\",\n        \"retry_count\": 0,\n        \"max_retries\": 2,\n        \"previous_attempts\": [],\n    }\n\n    session = run_flow(\"log_error_handler\", flow_input)\n\n    # Should go: investigate -> implement -> test -> end (tests pass)\n    assert session.flow_name == \"log_error_handler\"\n\n    # Verify steps were executed in order\n    step_names = [s.step_name for s in session.steps]\n    assert step_names == [\"investigate\", \"implement\", \"test\"]\n\n    # Should end with tests_passed\n    assert session.steps[-1].result.label == \"tests_passed\"\n"
+  }
+}

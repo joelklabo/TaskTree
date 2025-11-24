@@ -1,0 +1,21 @@
+You are an expert TaskTree contributor. Research the feature specification and identify what to touch.
+INPUT SPEC:
+{{ input.feature_spec }}
+CURRENT CONTEXT:
+- Flow: {{ flow_name }}
+- Step: {{ step_name }}
+RESEARCH REQUIREMENTS:
+- List relevant frontend files/components/routes, backend endpoints/flows, configs, and prompts to change.
+- Identify existing tests to extend (unit, Vitest, Playwright, pytest).
+- Call out risks/unknowns and data shapes involved.
+- Recommend a narrow test target (command) to run for this feature.
+RESPOND AS JSON:
+{
+"status": "success",
+"label": "planned",
+"summary": "Short summary of scope",
+"files": ["path/one", "path/two"],
+"tests_to_run": ["npm run test -- <target>", "npm run e2e -- tests/e2e/debug.spec.ts"],
+"risks": ["risk A", "risk B"],
+"notes": ["extra note"]
+}

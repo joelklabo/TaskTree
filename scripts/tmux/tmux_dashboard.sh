@@ -99,7 +99,7 @@ ALERTS_CMD="bash -lc '\"$ROOT/scripts/tmux/dashboard_loop.sh\" 12 \"$ROOT/script
 CI_INTERVAL="${CI_INTERVAL:-120}"
 CI_CMD="bash -lc '\"$ROOT/scripts/tmux/dashboard_loop.sh\" ${CI_INTERVAL} \"$ROOT/scripts/tmux/cache_wrapper.sh\" ci \"$ROOT/scripts/tmux/ci_status.sh\"'"
 # shellcheck disable=SC2016
-SHARES_CMD='bash -lc '\''set +u; latest=""; mkdir -p logs/pane_shares; while true; do clear; echo "Pane shares (latest 20)"; ls -1t logs/pane_shares 2>/dev/null | head -n 20; echo; latest=$(ls -1t logs/pane_shares 2>/dev/null | head -n 1 2>/dev/null || true); if [ -n "$latest" ]; then echo "Latest: $latest"; echo "---"; tail -n 120 "logs/pane_shares/$latest" 2>/dev/null; fi; sleep 6; done'\'''
+SHARES_CMD='bash -lc '\''set +u; latest=""; mkdir -p logs/pane_shares; while true; do clear; echo "Pane shares (latest 20)"; ls -1t logs/pane_shares 2>/dev/null | head -n 20; echo; latest=$(ls -1t logs/pane_shares 2>/dev/null | head -n 1 2>/dev/null || true); if [ -n "$latest" ]; then echo "Latest: $latest"; echo "---"; (cd backend && uv run python -m tasktree.cli logs tail "pane_shares/$latest" --lines 120) 2>/dev/null; fi; sleep 6; done'\'''
 SOURCES_CMD="bash -lc '\"$ROOT/scripts/tmux/dashboard_loop.sh\" 10 \"$ROOT/scripts/tmux/log_sources_overview.sh\"'"
 HEALTH_CMD="bash -lc '\"$ROOT/scripts/tmux/dashboard_loop.sh\" 15 \"$ROOT/scripts/tmux/health_check.sh\" \"${SESSION:-ttx}\"'"
 if [ "$SMOKE" -eq 1 ]; then
@@ -137,8 +137,8 @@ tmux select-pane -t "$SERVER_FRONT" -T "frontend" || true
 
 # Logs window: follow backend + frontend logs with a couple lines of history.
 tmux new-window -t "$SESSION" -c "$ROOT" -n logs
-tmux send-keys -t "$SESSION:logs" "tail -n 80 -F logs/backend-dev.log" C-m
-tmux split-window -v -t "$SESSION:logs" -c "$ROOT" "tail -n 80 -F logs/frontend-dev.log"
+tmux send-keys -t "$SESSION:logs" "cd backend && uv run python -m tasktree.cli logs tail backend-dev.log --lines 80 --follow" C-m
+tmux split-window -v -t "$SESSION:logs" -c "$ROOT" "cd backend && uv run python -m tasktree.cli logs tail frontend-dev.log --lines 80 --follow"
 tmux select-layout -t "$SESSION:logs" even-vertical
 LOG_PANES=()
 while IFS= read -r p; do LOG_PANES+=("$p"); done < <(tmux list-panes -t "$SESSION:logs" -F '#{pane_id}')

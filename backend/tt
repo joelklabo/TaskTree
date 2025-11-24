@@ -1,0 +1,3 @@
+#!/bin/bash
+# Wrapper for the TaskTree CLI (backend-local)
+exec "$(dirname "$0")/.venv/bin/tt" "$@"

@@ -2,6 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from "child_process";
 import path from "path";
 
 const shouldUseExternal = process.env.E2E_EXTERNAL === "1";
+const skipBackend = process.env.E2E_SKIP_BACKEND === "1";
 const backendPort = process.env.E2E_BACKEND_PORT || "8000";
 
 async function waitForHealth(url: string, timeoutMs = 30000, intervalMs = 500): Promise<void> {
@@ -24,7 +25,7 @@ async function waitForHealth(url: string, timeoutMs = 30000, intervalMs = 500): 
 }
 
 export default async function globalSetup() {
-  if (shouldUseExternal) {
+  if (shouldUseExternal || skipBackend) {
     return;
   }
 

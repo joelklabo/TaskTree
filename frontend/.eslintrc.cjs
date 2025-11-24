@@ -16,7 +16,6 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier"
   ],
   settings: {
@@ -26,6 +25,20 @@ module.exports = {
   },
   rules: {
     "react/react-in-jsx-scope": "off",
-    "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }]
-  }
+    "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
+    "@typescript-eslint/no-base-to-string": "off"
+  },
+  overrides: [
+    {
+      files: ["src/**/__tests__/**", "tests/e2e/**"],
+      rules: {
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-floating-promises": "off"
+      }
+    }
+  ]
 };

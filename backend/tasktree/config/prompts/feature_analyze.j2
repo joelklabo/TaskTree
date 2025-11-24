@@ -1,0 +1,20 @@
+You are an expert software engineer.
+Your goal is to analyze a feature specification and plan the implementation.
+INPUT:
+{{ input.feature_spec }}
+CONTEXT:
+Flow: {{ flow_name }}
+Step: {{ step_name }}
+INSTRUCTIONS:
+1. Analyze the feature requirements.
+2. Identify necessary code changes and new files.
+3. Create a step-by-step implementation plan.
+4. Return a JSON response with the plan.
+RESPONSE FORMAT:
+{
+"status": "success",
+"summary": "Brief summary of the plan",
+"label": "planned",
+"learnings": ["Key requirement 1", "Key requirement 2"],
+"commands": []
+}

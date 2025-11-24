@@ -10,7 +10,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-LOG_PATH="${LOG_PATH:-tmp/dev-app.log}"
+LOG_PATH="${LOG_PATH:-logs/backend-dev.log}"
 FLOW_ID="${FLOW_ID:-log_error_handler}"
 PATTERNS="${PATTERNS:-ERROR Exception Traceback}"
 DRY_RUN="${DRY_RUN:-0}"
@@ -22,10 +22,11 @@ if ! command -v uv >/dev/null 2>&1; then
   exit 1
 fi
 
-mapfile -t pattern_args < <(printf '%s\n' "${PATTERNS}")
+# Convert space-separated PATTERNS to array (bash 3 compatible)
+IFS=' ' read -r -a pattern_args <<<"${PATTERNS}"
 
 cmd=(
-  uv run tasktree.log_trigger
+  uv run python -m tasktree.log_trigger
   --paths "${LOG_PATH}"
   --flow-id "${FLOW_ID}"
   --min-interval 30
@@ -44,6 +45,6 @@ for pat in "${pattern_args[@]}"; do
   cmd+=(--patterns "${pat}")
 done
 
-cd "${ROOT}"
+cd "${ROOT}/backend"
 echo "[watch_logs] running: ${cmd[*]}"
 exec "${cmd[@]}"

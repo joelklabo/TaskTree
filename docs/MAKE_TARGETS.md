@@ -13,7 +13,9 @@
 | Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
 
 Notes:
+- `make lint-backend` runs Ruff with `--fix` before mypy/bandit/yamllint.
 - `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (required for every change; do not skip).
 - `make ci` runs lint + test + build.
 - `make setup-tools` installs shfmt/shellcheck into `.bin/` (included in PATH). Running `make lint` expects these to exist.
 - E2E-only rerun: `make test-e2e` (frontend Playwright).
+- Frontend package manager: `pnpm` (via Corepack). Frontend lint/typecheck logs are tee’d into `logs/npm/*.log`.

@@ -10,7 +10,7 @@ This document captures the current log-triggered agent flow we added as a refere
 ## Components
 - `backend/tasktree/log_watcher.py`: polling tailer that emits `LogEvent` when regexes match.
 - `backend/tasktree/log_trigger.py`: couples the watcher to a flow runner; supports rate limiting, context lines, dry-run, and local logging.
-- Flow glue: `backend/tasktree/config/flows/log_error_handler.yaml` (copilot_cli plan/implement/test stub).
+- Flow glue: `backend/tasktree/config/flows/log_error_handler.yaml` (codex_cli investigate/implement/test with retry/triage).
 - Scripts: `scripts/watch_logs.sh` (plain shell runner) and `make log-watch` / `make tmux-log-watch` helpers.
 - Docs: `docs/LOG_TRIGGER.md` (CLI options, tests, tmux helper).
 
@@ -35,7 +35,7 @@ echo "ERROR demo failure" >> tmp/dev-app.log
 You should see a trigger log entry (and, if not dry-run, a `tt run log_error_handler --input ...` invocation).
 
 ## Running real agent flow
-- Default flow: `log_error_handler` with `copilot_cli` stub actions (plan_bugfix → implement_fix → run_tests).
+- Default flow: `log_error_handler` with `codex_cli` stub actions (investigate_error → implement_fix → run_tests → retry/triage when needed).
 - To exercise the full agent stack with traces:
   ```bash
   cd backend
@@ -52,7 +52,7 @@ You should see a trigger log entry (and, if not dry-run, a `tt run log_error_han
 - Customize the flow id to route errors to specialized agents (e.g., frontend vs backend log handlers).
 - Wire the flow’s `resources` to the code areas the agent should touch.
 - Harden implement prompt to tolerate missing `input.plan.summary` (now falls back to generic instructions).
-- If using another agent backend, swap `log_error_handler`’s agent or prompt map to match your tool (Copilot CLI, Codex CLI, Claude, etc.).
+- If using another agent backend, swap `log_error_handler`’s agent or prompt map to match your tool (Codex CLI, Claude, etc.).
 
 ## Next steps (if we extend)
 - Add glob support for multiple logs and pattern presets.

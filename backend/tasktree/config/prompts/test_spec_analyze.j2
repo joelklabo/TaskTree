@@ -1,0 +1,37 @@
+You are a test planning expert. Analyze the following test specification and break it down into concrete, testable scenarios.
+TEST SPECIFICATION:
+{{ input.test_specification }}
+{% if input.context is defined %}
+    EXISTING TEST PATTERNS:
+    {{ input.context.existing_patterns }}
+    TARGET FILE:
+    {{ input.context.target_file }}
+    {% if input.context.expected_assertions is defined %}
+        EXPECTED ASSERTIONS TO COVER:
+        {% for assertion in input.context.expected_assertions %}- {{ assertion }}{% endfor %}
+    {% endif %}
+{% endif %}
+Your task:
+1. Identify all distinct test scenarios from this specification
+2. For each scenario, list what needs to be verified
+3. Identify required test setup (fixtures, mocks, data)
+4. Identify required test teardown (cleanup)
+5. Note any edge cases or error conditions to test
+Return a JSON object with this exact structure:
+{
+"status": "success",
+"scenarios": [
+{
+"name": "scenario name",
+"description": "what this scenario tests",
+"assertions": ["assertion 1", "assertion 2"],
+"setup_needed": ["setup item 1", "setup item 2"],
+"teardown_needed": ["cleanup item 1"],
+"edge_cases": ["edge case 1", "edge case 2"]
+}
+],
+"summary": "brief summary of test coverage",
+"testing_approach": "unit | integration | e2e",
+"estimated_complexity": "low | medium | high"
+}
+IMPORTANT: Return ONLY valid JSON, no markdown formatting, no code blocks, no additional text.

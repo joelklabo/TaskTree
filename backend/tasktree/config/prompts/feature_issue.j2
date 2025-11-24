@@ -1,0 +1,23 @@
+You must draft a GitHub issue capturing a failed implementation after max retries.
+INPUT SPEC:
+{{ input.feature_spec }}
+RESEARCH:
+{{ input.research | tojson }}
+TEST PLAN:
+{{ input.tests_plan | tojson }}
+FAILURES:
+{{ input.failures | tojson }}
+REQUIREMENTS:
+- Provide title, summary, repro steps, failing commands/output, and suggested next actions.
+- Keep concise, actionable, and link to relevant files if paths are known.
+RESPOND AS JSON:
+{
+"status": "success",
+"label": "issue_created",
+"summary": "One-liner issue summary",
+"issue": {
+"title": "Feature implementation failed: <short name>",
+"body": "## Summary\n...\n\n## Spec\n...\n\n## Repro\n- command(s)\n- expected vs actual\n\n## Artifacts\n- logs / traces\n\n## Next steps\n- ...",
+"labels": ["feature", "failure", "tasktree"]
+}
+}

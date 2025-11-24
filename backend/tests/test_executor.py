@@ -17,19 +17,19 @@ def _write_flow(tmp_flow_dir: Path, flow_id: str, resources: list[str]) -> None:
         start: plan
         steps:
           - id: plan
-            agent: copilot_cli
+            agent: codex_cli
             action: plan_bugfix
             resources: []
             transitions:
               success: implement
           - id: implement
-            agent: copilot_cli
+            agent: codex_cli
             action: implement_fix
             resources: {resources}
             transitions:
               success: test
           - id: test
-            agent: copilot_cli
+            agent: codex_cli
             action: run_tests
             resources: []
             transitions:
@@ -120,7 +120,7 @@ def test_missing_transition_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Pa
                 start: plan
                 steps:
                   - id: plan
-                    agent: copilot_cli
+                    agent: codex_cli
                     action: plan_bugfix
                     resources: []
                     transitions:
@@ -158,7 +158,7 @@ def test_missing_agent_registration(monkeypatch: pytest.MonkeyPatch, tmp_path: P
                 start: plan
                 steps:
                   - id: plan
-                    agent: copilot_cli
+                    agent: codex_cli
                     action: plan_bugfix
                     resources: []
                     transitions:

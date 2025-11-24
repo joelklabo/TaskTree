@@ -1,0 +1,48 @@
+You are a test code review expert. Review the generated test code for quality, completeness, and adherence to best practices.
+GENERATED TEST CODE:
+{% if input.implement_tests is defined %}{{ input.implement_tests | tojson(indent=2) }}{% endif %}
+ORIGINAL TEST SPECIFICATION:
+{{ input.test_specification }}
+{% if input.context is defined %}
+    EXISTING TEST PATTERNS:
+    {{ input.context.existing_patterns }}
+{% endif %}
+Your task:
+1. Review test code for correctness and completeness
+2. Check if all scenarios from specification are covered
+3. Verify assertions are meaningful and comprehensive
+4. Check for proper error handling and edge cases
+5. Identify any potential issues or improvements
+6. Verify adherence to pytest best practices
+7. Check code style and documentation
+Review criteria:
+- Coverage: Does the test cover all specified scenarios?
+- Assertions: Are assertions clear, specific, and comprehensive?
+- Fixtures: Are fixtures used appropriately?
+- Edge cases: Are edge cases and error conditions tested?
+- Code quality: Is the code clean, readable, and maintainable?
+- Best practices: Does it follow pytest conventions?
+Return a JSON object with this exact structure:
+{
+"status": "success",
+"quality_score": 85,
+"coverage_complete": true,
+"issues_found": [
+{
+"severity": "high | medium | low",
+"issue": "description of issue",
+"suggestion": "how to fix it",
+"location": "test function or line reference"
+}
+],
+"improvements": [
+{
+"category": "assertions | fixtures | edge_cases | code_quality",
+"suggestion": "specific improvement suggestion"
+}
+],
+"strengths": ["strength 1", "strength 2"],
+"summary": "overall assessment of test quality",
+"ready_for_use": true
+}
+IMPORTANT: Return ONLY valid JSON, no markdown formatting, no code blocks, no additional text.

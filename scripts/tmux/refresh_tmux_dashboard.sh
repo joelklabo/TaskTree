@@ -97,13 +97,13 @@ respawn_window "dashboard" \
   "bash -lc 'while true; do clear; ./scripts/dev_status.sh; sleep 5; done'" \
   "bash -lc 'while true; do clear; ./scripts/plan_preview.sh; sleep 5; done'" \
   "bash -lc 'while true; do clear; ./scripts/trace_status.sh; sleep 7; done'" \
-  "bash -lc 'while true; do clear; printf \"Log tails\\n\\n\"; if [ -f logs/backend-dev.log ]; then tail -n 40 logs/backend-dev.log; else echo \"backend-dev.log not yet created\"; fi; echo; if [ -f logs/frontend-dev.log ]; then tail -n 25 logs/frontend-dev.log; else echo \"frontend-dev.log not yet created\"; fi; sleep 5; done'"
+  "bash -lc 'while true; do clear; printf \"Log tails\\n\\n\"; if [ -f logs/backend-dev.log ]; then cd backend && uv run python -m tasktree.cli logs tail backend-dev.log --lines 40; else echo \"backend-dev.log not yet created\"; fi; echo; if [ -f logs/frontend-dev.log ]; then cd backend && uv run python -m tasktree.cli logs tail frontend-dev.log --lines 25; else echo \"frontend-dev.log not yet created\"; fi; sleep 5; done'"
 
 ensure_window "servers" "bash"
 respawn_window "servers" "./scripts/dev_backend.sh" "./scripts/dev_frontend.sh"
 
 ensure_window "logs" "bash"
-respawn_window "logs" "tail -n 80 -F logs/backend-dev.log" "tail -n 80 -F logs/frontend-dev.log"
+respawn_window "logs" "cd backend && uv run python -m tasktree.cli logs tail backend-dev.log --lines 80 --follow" "cd backend && uv run python -m tasktree.cli logs tail frontend-dev.log --lines 80 --follow"
 
 ensure_window "search" "bash"
 respawn_window "search" "./scripts/log_search_repl.sh"
@@ -122,7 +122,7 @@ respawn_window "help" "bash -lc 'while true; do clear; if [ -f docs/TMUX_HELP.tx
 
 ensure_window "shares" "bash"
 # shellcheck disable=SC2012
-respawn_window "shares" "bash -lc 'set +u; latest=\"\"; mkdir -p logs/pane_shares; while true; do clear; echo \"Pane shares (latest 20)\"; ls -1t logs/pane_shares 2>/dev/null | head -n 20; echo; latest=$(ls -1t logs/pane_shares 2>/dev/null | head -n 1 2>/dev/null || true); latest=${latest:-}; if [ -n \"$latest\" ]; then echo \"Latest: $latest\"; echo \"---\"; tail -n 120 \"logs/pane_shares/$latest\" 2>/dev/null; fi; sleep 6; done'"
+respawn_window "shares" "bash -lc 'set +u; latest=\"\"; mkdir -p logs/pane_shares; while true; do clear; echo \"Pane shares (latest 20)\"; ls -1t logs/pane_shares 2>/dev/null | head -n 20; echo; latest=$(ls -1t logs/pane_shares 2>/dev/null | head -n 1 2>/dev/null || true); latest=${latest:-}; if [ -n \"$latest\" ]; then echo \"Latest: $latest\"; echo \"---\"; (cd backend && uv run python -m tasktree.cli logs tail \"pane_shares/$latest\" --lines 120) 2>/dev/null; fi; sleep 6; done'"
 
 ensure_window "sources" "bash"
 respawn_window "sources" "bash -lc 'while true; do clear; ./scripts/log_sources_overview.sh; sleep 10; done'"

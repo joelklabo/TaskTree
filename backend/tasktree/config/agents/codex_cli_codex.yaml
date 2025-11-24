@@ -1,0 +1,17 @@
+id: codex_cli
+name: "Codex CLI Agent"
+description: "Real LLM integration using codex exec"
+model: "gpt-4.1-mini"
+llm_enabled: true
+llm_timeout_sec: 120
+backend_type: "codex_cli"
+backend_cmd: ["codex"]
+tools:
+  - type: "shell"
+    allow_write: true
+    root: "."
+execute_commands: false  # Set to true for real fixes
+command_timeout_sec: 60
+command_dry_run: false
+block_destructive: true
+mock_responses: {}

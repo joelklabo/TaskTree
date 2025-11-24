@@ -6,7 +6,7 @@ flowchart LR
     end
 
     subgraph Agents[Agents]
-        copilot(Copilot CLI)
+        codex(Codex CLI)
     end
 
     subgraph Config[Config]
@@ -21,8 +21,8 @@ flowchart LR
 
     flows --> executor
     constitution --> executor
-    executor --> copilot
-    copilot --> executor
+    executor --> codex
+    codex --> executor
     executor --> tracer
     tracer --> api
     api --> ui

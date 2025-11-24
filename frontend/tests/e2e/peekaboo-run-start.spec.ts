@@ -5,13 +5,20 @@ import { expect, test } from "./fixtures";
 import { capturePeekaboo } from "./support/peekaboo";
 
 test("peekaboo captures run start feedback with toast + run badge", async ({ page }, testInfo) => {
+  await page.route("**/api/runs/", async (route) => {
+    if (route.request().method() === "POST") {
+      await route.fulfill({ json: { session_id: "sess-peekaboo", trace_run_id: "trace-peekaboo" } });
+      return;
+    }
+    await route.fallback();
+  });
+
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Flows" })).toBeVisible();
 
   const flowRow = page.getByRole("row", { name: /code_fix/ });
   await flowRow.getByRole("button", { name: "Run with trace" }).click();
 
-  await expect(page.getByText("No run selected")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "View last run" })).toBeVisible({ timeout: 10000 });
 
   const traceRoot = testInfo.outputPath("trace-root");

@@ -1,25 +1,43 @@
 id: copilot_cli
-name: "Copilot CLI Agent"
-description: "Uses an LLM to generate commands and optionally execute them."
+name: "Copilot CLI Agent - Local Mock"
+description: "Mock-friendly default config for tests and offline dev"
 model: "gpt-4.1-mini"
 temperature: 0.2
 max_tokens: 256
 llm_enabled: false
-llm_endpoint: ""
-api_key_env: "OPENAI_API_KEY"
 llm_timeout_sec: 30
-backend_type: "api"
-backend_cmd: []
+backend_type: "codex_cli"
+backend_cmd: ["codex"]
 tools:
   - type: "shell"
     allow_write: true
     root: "."
-# For strict dry-run, leave execute_commands false (default).
 execute_commands: false
-command_allowlist: []
-command_denylist: []
-command_timeout_sec:
+command_timeout_sec: 60
 command_dry_run: false
 block_destructive: true
-# Optional test mocks per action (JSON strings).
-mock_responses: {}
+# Optional per-action overrides; defaults in codex_cli.py handle core flows.
+mock_responses:
+  analyze_test_spec: |
+    {
+      "status": "success",
+      "summary": "Analyzed test spec (mock).",
+      "label": "planned"
+    }
+  plan_test_implementation: |
+    {
+      "status": "success",
+      "summary": "Planned test implementation (mock)."
+    }
+  implement_test_code: |
+    {
+      "status": "success",
+      "summary": "Implemented test code (mock).",
+      "label": "tests_written"
+    }
+  review_test_code: |
+    {
+      "status": "success",
+      "summary": "Reviewed test code (mock).",
+      "label": "tests_ready"
+    }

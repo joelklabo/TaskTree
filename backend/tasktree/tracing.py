@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
+from typing import Any
 
 from tasktree.agents.trace.trace import TraceRun
 from tasktree.core.state import SessionRecord, StepRecord, step_record_dict
@@ -48,3 +50,36 @@ class Tracer:
         p = self._trace_run.artifacts / rel
         p.parent.mkdir(parents=True, exist_ok=True)
         return p
+
+    @classmethod
+    def log_step(
+        cls,
+        session_id: str,
+        step: str,
+        action: str,
+        prompt: str,
+        response: str,
+        parsed: dict[str, Any],
+        result: dict[str, Any],
+        config: dict[str, Any] | None = None,
+    ) -> None:
+        tracer = cls()
+        if not tracer._trace_run:
+            return
+
+        try:
+            path = tracer.artifact_path(f"{step}/{action}.json")
+            data = {
+                "session_id": session_id,
+                "step": step,
+                "action": action,
+                "prompt": prompt,
+                "response": response,
+                "parsed": parsed,
+                "result": result,
+                "config": config,
+            }
+            path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except Exception:
+            # Fail safe: if writing fails, stop tracing for this run
+            tracer._trace_run = None

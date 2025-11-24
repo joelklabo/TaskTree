@@ -1,0 +1,29 @@
+You are a triage specialist for complex failures.
+ORIGINAL ERROR:
+{% if input.error_details is defined %}
+    Type: {{ input.error_details.error_type }}
+    Message: {{ input.error_details.error_message }}
+    Location: {{ input.error_details.file_path }}:{{ input.error_details.line_number }}
+{% else %}
+    {{ input.error_log }}
+{% endif %}
+RETRY COUNT: {{ input.retry_count | default(0) }}
+{% if input.previous_attempts is defined and input.previous_attempts | length > 0 %}
+    ALL ATTEMPTS ({{ input.previous_attempts | length }}):
+    {% for attempt in input.previous_attempts %}
+        === Attempt {{ loop.index }} ===
+        Investigation: {{ attempt.investigate_summary }}
+        Fix attempted: {{ attempt.implement_summary }}
+        Test result: {{ attempt.test_result }}
+        Learnings: {{ attempt.learnings | join(", ") }}
+    {% endfor %}
+{% endif %}
+TASK:
+Generate a comprehensive debugging report for human review:
+1. Summarize what was tried and why it failed
+2. Identify patterns or insights from failed attempts
+3. Suggest next steps or areas to investigate
+4. List any commands that might help (git log, grep, etc.)
+Repository is mounted as the current directory.
+Return JSON only:
+{"status": "success", "summary": "triage report with recommendations", "commands": ["optional diagnostic commands"], "learnings": ["key insights from all attempts"]}

@@ -18,20 +18,23 @@ type DashboardState = {
   alerts?: { total?: number; recent_text?: string; recent?: Alert[] };
   ci?: { status?: string; recent_text?: string; runs?: CiRun[] };
   traces?: { recent_runs?: number };
-  logs?: { configured_sources?: number };
+  logs?: { configured_sources?: number; sources?: Array<{ name: string; description: string }> };
+  flows?: { total?: number };
 };
 
 const Badge: React.FC<{ ok: boolean }> = ({ ok }) => (
   <span className={`inline-flex h-2 w-2 rounded-full ${ok ? "bg-green-500" : "bg-red-500"}`} />
 );
 
+export type { DashboardState };
+
 export function DashboardStateView({ state = {} as DashboardState }: { state?: DashboardState }) {
   const servers = state.servers ?? [];
   const alerts = state.alerts?.recent ?? [];
   const ciRuns = state.ci?.runs ?? [];
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <Card>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>Status</CardTitle>
         </CardHeader>
@@ -40,7 +43,7 @@ export function DashboardStateView({ state = {} as DashboardState }: { state?: D
           <div>Updated: {state.status?.updated_at ?? "?"}</div>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>Git</CardTitle>
         </CardHeader>
@@ -52,7 +55,7 @@ export function DashboardStateView({ state = {} as DashboardState }: { state?: D
           </div>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>Servers</CardTitle>
         </CardHeader>
@@ -67,7 +70,7 @@ export function DashboardStateView({ state = {} as DashboardState }: { state?: D
           {servers.length === 0 && <div className="text-slate-400">No servers</div>}
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>Alerts</CardTitle>
         </CardHeader>
@@ -89,7 +92,7 @@ export function DashboardStateView({ state = {} as DashboardState }: { state?: D
           )}
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>CI</CardTitle>
         </CardHeader>
@@ -120,7 +123,7 @@ export function DashboardStateView({ state = {} as DashboardState }: { state?: D
           )}
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>Traces</CardTitle>
         </CardHeader>
@@ -128,12 +131,24 @@ export function DashboardStateView({ state = {} as DashboardState }: { state?: D
           Recent runs: {state.traces?.recent_runs ?? 0}
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-900/30 shadow-lg shadow-slate-900/40">
         <CardHeader>
           <CardTitle>Logs</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-slate-100">
-          Sources configured: {state.logs?.configured_sources ?? 0}
+        <CardContent className="text-sm text-slate-100 space-y-2">
+          <div>Sources: {state.logs?.configured_sources ?? 0}</div>
+          {state.logs?.sources && state.logs.sources.length > 0 ? (
+            <div className="space-y-1">
+              {state.logs.sources.slice(0, 5).map((src) => (
+                <div key={src.name} className="text-slate-300">
+                  <span className="font-medium">{src.name}</span>{" "}
+                  <span className="text-slate-500">{src.description}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-slate-400">No sources discovered</div>
+          )}
         </CardContent>
       </Card>
     </div>

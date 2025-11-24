@@ -1,31 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { DashboardStateView } from "./DashboardStateView";
+import { DashboardStateView, type DashboardState } from "./DashboardStateView";
 import stateFixture from "../__tests__/fixtures/dashboard_state.json";
-
-type DashboardState = typeof stateFixture;
 
 type Props = { initialState?: DashboardState | null };
 
+async function fetchJson<T>(url: string): Promise<T | null> {
+  try {
+    const res = await fetch(url, { cache: "no-cache" });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 export default function DashboardPage({ initialState }: Props) {
   const [state, setState] = useState<DashboardState | null>(initialState ?? null);
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      try {
-        const res = await fetch("/tmp/dashboard_state.json", { cache: "no-cache" });
-        if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-        const data = (await res.json()) as DashboardState;
-        if (!cancelled) setState(data);
-      } catch (err) {
-        // fall back to fixture
-        if (!cancelled) setState(stateFixture);
-        console.error("dashboard state fetch failed; using fixture", err);
+      const [health, flows, logs, events, traces] = await Promise.all([
+        fetchJson<{ status?: string }>("/health"),
+        fetchJson<Array<{ id: string; description?: string }>>("/api/flows/"),
+        fetchJson<Array<{ name: string; description?: string }>>("/api/logs/sources"),
+        fetchJson<{ events: Array<Record<string, unknown>> }>("/api/logs/events"),
+        fetchJson<Array<Record<string, unknown>>>("/api/trace/runs"),
+      ]);
+
+      const logErrors = events?.events.filter((ev) => ev.type === "log_error").slice(0, 3) ?? [];
+      const next: DashboardState = {
+        status: {
+          env: "dev",
+          ready: health?.status === "ok",
+          updated_at: new Date().toISOString(),
+        },
+        git: { branch: "main", ahead: 0, behind: 0, dirty: 0 },
+        servers: [
+          { name: "backend", status: health?.status === "ok", port: 8000 },
+          {
+            name: "frontend",
+            status: true,
+            port: window.location.port ? Number(window.location.port) : 4173,
+          },
+        ],
+        alerts: {
+          total: logErrors.length,
+          recent_text: logErrors.map((ev) => String(ev.message || "")).join("\n"),
+          recent: logErrors.map((ev) => ({
+            level: "error",
+            msg: String(ev.message || ev.type || ""),
+            source: String(ev.log_file || "log"),
+          })),
+        },
+        ci: { status: "unknown", recent_text: "ci not wired", runs: [] },
+        traces: { recent_runs: traces?.length ?? 0 },
+        logs: {
+          configured_sources: logs?.length ?? 0,
+          sources: logs?.map((l) => ({ name: l.name, description: l.description || "" })) ?? [],
+        },
+        flows: { total: flows?.length ?? 0 },
+      };
+      if (!cancelled) {
+        setState(next);
       }
     };
     void load();
-    const id = setInterval(() => {
-      void load();
-    }, 2000);
+    const id = setInterval(() => void load(), 5000);
     return () => {
       cancelled = true;
       clearInterval(id);

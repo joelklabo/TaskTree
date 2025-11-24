@@ -1,0 +1,47 @@
+You are a test implementation expert. Create a detailed implementation plan for the test scenarios identified.
+ANALYZED SCENARIOS:
+{% if input.analyze_spec is defined %}{{ input.analyze_spec | tojson(indent=2) }}{% endif %}
+{% if input.context is defined %}
+    EXISTING TEST PATTERNS:
+    {{ input.context.existing_patterns }}
+    TARGET FILE:
+    {{ input.context.target_file }}
+    TESTING FRAMEWORK:
+    {{ input.context.framework | default("pytest") }}
+{% endif %}
+Your task:
+1. For each scenario, specify the exact test function structure
+2. Identify required imports and dependencies
+3. Specify fixture requirements (pytest fixtures, temporary files, etc.)
+4. Define test data needed
+5. Outline the test execution flow (Arrange-Act-Assert)
+6. Specify assertions in detail
+Return a JSON object with this exact structure:
+{
+"status": "success",
+"test_plan": [
+{
+"scenario_name": "scenario name from analyze step",
+"test_function_name": "test_function_name",
+"required_imports": ["import statement 1", "import statement 2"],
+"fixtures_needed": ["fixture1", "fixture2"],
+"test_data": {
+"description": "what data is needed",
+"example": "example test data"
+},
+"test_steps": [
+"1. Arrange: setup step",
+"2. Act: action to perform",
+"3. Assert: what to verify"
+],
+"assertions": [
+"assert specific_condition",
+"assert another_condition"
+]
+}
+],
+"shared_fixtures": ["fixture that multiple tests will use"],
+"shared_imports": ["import used by all tests"],
+"summary": "brief summary of implementation approach"
+}
+IMPORTANT: Return ONLY valid JSON, no markdown formatting, no code blocks, no additional text.

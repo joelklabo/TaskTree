@@ -5,10 +5,10 @@ This is an opt-in local helper that watches a log file for error lines and kicks
 ## Run it
 From `backend/` (or repo root):
 ```
-uv run tasktree.log_trigger --paths tmp/dev-app.log --patterns "ERROR" "Exception" "Traceback" --flow-id log_error_handler --min-interval 30
+uv run tasktree.log_trigger --paths logs/backend-dev.log --patterns "ERROR" "Exception" "Traceback" --flow-id log_error_handler --min-interval 30
 ```
-- Default path: `tmp/dev-app.log` (safe to write during tests).
-- Default flow: `log_error_handler` (copilot_cli stub steps).
+- Default path: `logs/backend-dev.log` (the app/trace/debug endpoints also write here).
+- Default flow: `log_error_handler` (codex_cli stub steps).
 - Rate limit: 30s per file (override with `--min-interval`).
 - Dry-run: add `--dry-run` to just print matches.
 - Context: add `--context-lines N` to include N lines before/after the match in the flow input and optional log output.
@@ -17,7 +17,12 @@ uv run tasktree.log_trigger --paths tmp/dev-app.log --patterns "ERROR" "Exceptio
 ## How it works
 - The watcher polls files (no inotify dependency) and keeps per-file offsets (handles truncation/rotation).
 - On first matching line per interval, it passes `{file, lineno, line, pattern}` to `tt run <flow>` as JSON input.
-- The flow is defined at `backend/tasktree/config/flows/log_error_handler.yaml` with plan/implement/test steps.
+- The flow is defined at `backend/tasktree/config/flows/log_error_handler.yaml` with investigate/implement/test steps and retry → triage handling.
+
+## Frontend drill
+- Open the “Error lab” tab in the UI to craft a client-side error payload.
+- Submit the form to POST to `/api/debug/log-client-error`, which writes to `logs/backend-dev.log`.
+- Point `tasktree.log_trigger` at `logs/backend-dev.log` so the new error line triggers `log_error_handler`.
 
 ## Tests
 - `make ci` covers:

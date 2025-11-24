@@ -1,0 +1,34 @@
+id: implement_feature
+name: "Implement Feature"
+version: "0.1.0"
+description: "Implement a feature from a markdown spec using Copilot CLI."
+start: analyze
+steps:
+  - id: analyze
+    agent: copilot_cli
+    action: analyze_feature_spec
+    resources: []
+    transitions:
+      planned: implement
+      success: implement
+      failure: end
+
+  - id: implement
+    agent: copilot_cli
+    action: implement_feature
+    resources:
+      - "src/**"
+    transitions:
+      implemented: verify
+      success: verify
+      failure: end
+
+  - id: verify
+    agent: copilot_cli
+    action: verify_feature
+    resources:
+      - "tests/**"
+    transitions:
+      verified: end
+      success: end
+      failure: implement

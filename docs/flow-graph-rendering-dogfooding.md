@@ -16,7 +16,7 @@ I couldn't embed the entire chat transcript, but this log captures every step I 
 
 3) Dogfood the tool (trace a flow)
 - Ran our own code_fix flow with tracing to plan the fix: `cd backend && uv run -m tasktree.agents.trace.record uv run tt run code_fix --input '{"bug_description": "Flow graph not rendering nodes in UI"}'`
-- Run id: `2025-11-21T17:15:31Z_46794` (artifacts in `backend/tasktree/agents/trace/runs/2025-11-21T17:15:31Z_46794/`). Copilot_cli returned success for plan/implement/test steps.
+- Run id: `2025-11-21T17:15:31Z_46794` (artifacts in `backend/tasktree/agents/trace/runs/2025-11-21T17:15:31Z_46794/`). codex_cli returned success for plan/implement/test steps.
 
 4) Root cause investigation
 - Hypothesis 1 (styles): added React Flow CSS imports to ensure layout/handles appear.

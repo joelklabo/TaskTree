@@ -1,0 +1,31 @@
+id: proof_fix
+name: "Proof Fix"
+version: "0.1.0"
+description: "Fix a bug using the proof agent."
+start: plan
+steps:
+  - id: plan
+    agent: copilot_cli_proof
+    action: plan_bugfix
+    resources: []
+    transitions:
+      success: implement
+      failure: end
+
+  - id: implement
+    agent: copilot_cli_proof
+    action: implement_fix
+    resources:
+      - "src/**"
+    transitions:
+      success: test
+      failure: end
+
+  - id: test
+    agent: copilot_cli_proof
+    action: run_tests
+    resources:
+      - "tests/**"
+    transitions:
+      tests_passed: end
+      tests_failed: implement

@@ -1,7 +1,7 @@
 // Based on shadcn/ui toast hook
 import * as React from "react";
 
-import { ToastActionElement, type ToastProps } from "@/components/ui/toast";
+import { type ToastProps, Toast } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 1000;
@@ -10,7 +10,7 @@ type ToasterToast = ToastProps & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
-  action?: ToastActionElement;
+  action?: React.ReactNode;
 };
 
 type Action =
@@ -38,7 +38,7 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout);
 };
 
-export const reducer = (state: State, action: Action): State => {
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
       return {
@@ -148,4 +148,4 @@ function useToast() {
   };
 }
 
-export { toast, useToast };
+export { useToast };

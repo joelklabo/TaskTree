@@ -1,0 +1,27 @@
+You are implementing a feature with an iterative test-driven loop. You may retry up to {{ input.max_retries or 5 }} times based on failures.
+INPUT SPEC:
+{{ input.feature_spec }}
+RESEARCH:
+{{ input.research | tojson }}
+TEST PLAN:
+{{ input.tests_plan | tojson }}
+LAST FAILURE (if any):
+{{ input.last_failure | default("none") }}
+CURRENT RETRY:
+{{ input.retry_count | default(0) }} / {{ input.max_retries or 5 }}
+REQUIREMENTS:
+- Make the smallest changes to satisfy the failing tests.
+- Include commands to modify files and run the relevant tests only.
+- If tests still fail, return label `needs_retry` and include the failure details.
+- If retries exceed max, return label `issue_needed`.
+- On success, return label `implemented`.
+RESPOND AS JSON:
+{
+"status": "success",
+"label": "implemented | needs_retry | issue_needed",
+"summary": "What changed",
+"commands": ["apply_patch ...", "npm run test -- <target>"],
+"learnings": ["key observation"],
+"next_tests": ["npm run test -- <target>", "npm run e2e -- <target>"],
+"failure": "failure snippet if any"
+}

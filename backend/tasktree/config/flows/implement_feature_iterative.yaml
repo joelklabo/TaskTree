@@ -1,0 +1,58 @@
+id: implement_feature_iterative
+name: "Implement Feature (Iterative)"
+version: "0.1.0"
+description: "Iterative feature implementation with research, failing tests, retries, and commit/issue fallback."
+start: research
+steps:
+  - id: research
+    agent: copilot_cli
+    action: research_feature
+    transitions:
+      planned: build_tests
+      success: build_tests
+      failure: end
+
+  - id: build_tests
+    agent: copilot_cli
+    action: build_failing_tests
+    resources:
+      - "tests/**"
+      - "frontend/tests/**"
+      - "frontend/src/**"
+    transitions:
+      tests_ready: implement
+      success: implement
+      failure: end
+
+  - id: implement
+    agent: copilot_cli
+    action: implement_feature_iterative
+    resources:
+      - "src/**"
+      - "frontend/src/**"
+      - "frontend/tests/**"
+      - "tests/**"
+    transitions:
+      implemented: commit
+      needs_retry: implement
+      issue_needed: issue
+      failure: issue
+
+  - id: issue
+    agent: copilot_cli
+    action: create_feature_issue
+    resources: []
+    transitions:
+      issue_created: end
+      success: end
+      failure: end
+
+  - id: commit
+    agent: copilot_cli
+    action: commit_feature
+    resources:
+      - "."
+    transitions:
+      committed: end
+      success: end
+      failure: end

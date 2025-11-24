@@ -18,7 +18,8 @@ class TraceRun:
     def __init__(self, run_id: str | None = None, root: str | Path | None = None):
         self.run_id = run_id or f"{utc_now()}_{os.getpid()}"
         if root:
-            self.root = Path(root).resolve()
+            base = Path(root).resolve()
+            self.root = (base / self.run_id).resolve()
         else:
             self.root = (Path(__file__).parent / "runs" / self.run_id).resolve()
         self.artifacts = self.root / "artifacts"

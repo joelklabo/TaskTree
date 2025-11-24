@@ -70,3 +70,29 @@ def test_release_is_idempotent(tmp_path: Path) -> None:
     lease = leases.Lease(path=leases.lease_path("resource"), holder="holder", issued_at=0, ttl=1)
     # release should not raise even if file is already gone
     leases.release(lease)
+
+
+def test_read_lease_handles_disappearing_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Simulate a race where the lease file vanishes between exists() and read_text()."""
+    target = leases.lease_path("race_resource")
+
+    real_exists = Path.exists
+    real_read_text = Path.read_text
+
+    def fake_exists(self: Path) -> bool:
+        if self == target:
+            return True  # Pretend the file is present
+        return real_exists(self)
+
+    def fake_read_text(self: Path) -> str:
+        if self == target:
+            raise FileNotFoundError
+        return real_read_text(self)
+
+    monkeypatch.setattr(Path, "exists", fake_exists)
+    monkeypatch.setattr(Path, "read_text", fake_read_text)
+
+    lease = leases.read_lease(target)
+    assert lease is None

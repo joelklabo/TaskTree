@@ -42,14 +42,29 @@ Quick make targets:
 | Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
 | Dashboard | — | — | `make tmux` (session ttx) / `make tmux-info` | — |
 
-Notes: `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (required for every change). `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For e2e-only reruns: `make test-e2e` (frontend Playwright).
+Notes: `make lint-backend` runs Ruff with `--fix` before mypy/bandit/yamllint. `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (required for every change). `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For e2e-only reruns: `make test-e2e` (frontend Playwright).
+
+### Dev servers and health
+- Local dev is running in tmux session `tasktree-dev` (backend on :8000 with reload; frontend on :5173 with `--host 127.0.0.1`). Attach with `tmux attach -t tasktree-dev`; detach with `Ctrl-b d`.
+- The UI header shows backend health via `DevServerStatus` (green when `/api/health` succeeds, red when offline). Logs/dev output stream inside the tmux window.
+
+### Prompt skeleton helper
+- API: `GET /api/prompts/skeleton?action=<action>&agent=codex_cli` returns a JSON skeleton with the input keys referenced by the action’s prompt template (values empty). Useful for showing users what fields to fill.
+- Example: `/api/prompts/skeleton?action=implement_feature&agent=codex_cli` yields `{"input":{"feature_spec":"","history":""}}`.
 
 ### Log-triggered agent (local)
 - Watch a log and kick off a flow when an error appears:
-  - `uv run tasktree.log_trigger --paths tmp/dev-app.log --patterns "ERROR" "Exception" --flow-id log_error_handler`
+  - `uv run tasktree.log_trigger --paths logs/backend-dev.log --patterns "ERROR" "Exception" --flow-id log_error_handler`
   - Add `--dry-run` to observe without running the flow; `--min-interval 30` rate-limits per file.
-- Flow config: `backend/tasktree/config/flows/log_error_handler.yaml` (copilot_cli stub).
+- Flow config: `backend/tasktree/config/flows/log_error_handler.yaml` (codex_cli investigate/implement/test stub with retry/triage).
 - Details: `docs/LOG_TRIGGER.md`.
+
+### Switching agent profiles (mock vs real LLM)
+- Default agent config (`backend/tasktree/config/agents/codex_cli.yaml`) is mock-friendly for offline/dev.
+- Set an env var before starting the API or running flows to swap to another config file in `backend/tasktree/config/agents/` (e.g., real Codex CLI):
+  - All agents: `TASKTREE_AGENT_PROFILE=codex_cli_codex`
+  - Per agent: `TASKTREE_AGENT_PROFILE_CODEX_CLI=codex_cli_codex`
+- The value should match the YAML filename (without extension); a missing file will raise loudly on run start.
 
 ### Developer workflow (TTD-first)
 - Favor a **TTD loop**: write or update a failing test/trace, make the smallest change, re-run `make lint test`, update docs, commit.
@@ -58,14 +73,37 @@ Notes: `make test` runs backend pytest plus frontend Vitest **and** Playwright e
 - Capture flow runs with the trace wrapper to keep artifacts reproducible.
 - For commits, install hooks (`bash scripts/git_hooks/install_hooks.sh`) and use `scripts/runner.sh "<message>"` (serializes commits with .git/context-runner.lock, rebases on origin/<branch>, runs `make ci`, then pushes).
 
+## Dogfooding examples
+- Scenario Debugger / Variant Runner (spec in `docs/scenario-debugger-spec.md`), run via `implement_feature`:
+  - `./tt run implement_feature --input '{"feature_spec": "<spec text>"}'`
+  - Labels: `planned` → `implemented` → `verified`.
+- Log Digest Helper (log triage dogfooding):
+  - Buckets recent `ERROR`/`ERR`/`FATAL` lines by normalized signature, prints top N with exemplars, optionally writes a Prometheus textfile, and can run on a cron wrapper.
+  - Scripts: `scripts/log_top_errors.py` (core), `scripts/run_log_digest.sh` (wrapper), output `logs/error_digest.log`.
+  - Webhook/API: POST the structured JSON to `http://localhost:8000/api/log-digest/` (`GET /api/log-digest/` for latest, `/api/log-digest/history` for history, `/api/log-digest/view` for a minimal HTML view). Set `WEBHOOK_URL=http://localhost:8000/api/log-digest/ WEBHOOK_FORMAT=json` when running the helper.
+  - Optional flow trigger: set `TASKTREE_LOG_DIGEST_FLOW_ID=log_error_handler` (or another flow id) in the backend env to automatically kick off a flow when a digest arrives.
+- Dev supervisor: run `make dev-supervisor` (or `SESSION=my-dev BACKEND_PORT=8000 FRONTEND_PORT=5173 ./scripts/dev_supervisor.sh`) to launch backend+frontend in tmux with port checks and auto-restart loops (if either server exits it restarts after 2s). Attach with `tmux attach -t tasktree-dev`; defaults are backend :8000, frontend :5173 (e2e uses :4173 so there’s no conflict).
+- Flow graph rendering fix (log in `docs/flow-graph-rendering-dogfooding.md`), traced through `code_fix`:
+  - `cd backend && uv run -m tasktree.agents.trace.record uv run tt run code_fix --input '{"bug_description": "Flow graph not rendering nodes in UI"}'`
+  - Outcome: switched FlowGraph to `nodes`/`edges` props and added React Flow CSS; e2e and unit tests updated.
+- Add more dogfooding runs here as they happen (brief spec pointer + flow command + notable labels).
+
 ## CLI
-Within `backend/` you can run flows:
-```
-uv run tt flows
-uv run tt run code_fix --input '{"bug_description": "example"}'
+You can use the `./tt` wrapper from the project root:
+```bash
+./tt flows
+./tt watch
+./tt run code_fix --input '{"bug_description": "example"}'
 ```
 
-See `AGENTS.md` for agent guidelines and `backend/tasktree/config` for flows, prompts, and constitution.
+Or within `backend/` you can run flows directly:
+```bash
+uv run tt flows
+uv run tt run code_fix --input '{"bug_description": "example"}'
+uv run tt run log_error_handler --input '{"error_log": "example error"}'
+```
+
+See `docs/tasktree-cli-usage.md` for a complete walkthrough (tested in CI), `AGENTS.md` for agent guidelines, and `backend/tasktree/config` for flows, prompts, and constitution.
 
 ## Docs & diagrams
 - Keep high-level docs in `README.md` and detailed agent/process notes in `docs/`.
@@ -90,7 +128,7 @@ See `AGENTS.md` for agent guidelines and `backend/tasktree/config` for flows, pr
 - Tag `v*.*.*` to run `release.yml`: builds backend wheel, frontend bundle, publishes GHCR image (keyless cosign + provenance), and uploads artifacts to the GitHub release.
 
 ## Tooling parity
-- Python: `make lint-backend` runs `ruff check`, `mypy`, `bandit`, `yamllint`, `djlint`; `make test-backend` runs pytest with coverage.
+- Python: `make lint-backend` runs `ruff check --fix`, `mypy`, `bandit`, `yamllint`, `djlint`; `make test-backend` runs pytest with coverage.
 - Frontend: `npm run lint`, `npm run typecheck`, `npm run format:check`; `npm run test` (Vitest unit), `npm run e2e` (Playwright); `npm run coverage` for unit coverage.
 - CI runs the same commands split across backend/frontend/docs-shell jobs.
 

@@ -1,0 +1,16 @@
+id: copilot_cli_proof
+name: "Copilot CLI Proof Agent"
+description: "Agent for proving the fix flow with a mock LLM script"
+model: "gpt-4.1-mini"
+llm_enabled: true
+llm_timeout_sec: 30
+backend_type: "codex_cli"
+backend_cmd: ["/Users/honk/code/TaskTree/scripts/mock_codex.sh"]
+tools:
+  - type: "shell"
+    allow_write: true
+    root: "."
+execute_commands: true
+command_timeout_sec: 60
+command_dry_run: false
+block_destructive: false

@@ -234,7 +234,7 @@ export default function RunDetailPage({ runRef }: Props) {
                                 {expandedRaw[step.key] ? "Hide raw" : "Show raw"}
                               </button>
                               {expandedRaw[step.key] ? (
-                                <pre className="rounded bg-slate-50 p-2 text-xs text-slate-800">
+                                <pre className="rounded bg-slate-50 p-2 text-xs text-slate-800 overflow-x-auto max-h-[400px]">
                                   {JSON.stringify(step.raw, null, 2)}
                                 </pre>
                               ) : null}

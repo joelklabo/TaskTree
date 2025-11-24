@@ -30,9 +30,9 @@ describe("FlowGraph", () => {
       id: "log_error_handler",
       start: "assess",
       steps: [
-        { id: "assess", agent: "copilot_cli", transitions: { success: "propose_fix" } },
-        { id: "propose_fix", agent: "copilot_cli", transitions: { success: "test" } },
-        { id: "test", agent: "copilot_cli", transitions: { tests_passed: "end" } },
+        { id: "assess", agent: "codex_cli", transitions: { success: "propose_fix" } },
+        { id: "propose_fix", agent: "codex_cli", transitions: { success: "test" } },
+        { id: "test", agent: "codex_cli", transitions: { tests_passed: "end" } },
       ],
     };
 

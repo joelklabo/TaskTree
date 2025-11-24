@@ -2,14 +2,20 @@ TOOLS_DIR := $(CURDIR)/.bin
 export PATH := $(TOOLS_DIR):$(PATH)
 PY=cd backend && uv
 FE=cd frontend
+PNPM=PNPM_HOME=$${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm
+PNPM_LOG_DIR=$(CURDIR)/logs/npm
+LINT_LOG_DIR=$(CURDIR)/logs/lint
+PNPM_AGG_LOG=$(CURDIR)/logs/npm.log
+LINT_AGG_LOG=$(CURDIR)/logs/lint.log
 
 .PHONY: setup setup-backend setup-frontend setup-tools
 setup-backend:
 	cd backend && uv sync --extra dev
 
 setup-frontend:
-	cd frontend && npm ci
-	cd frontend && npx playwright install --with-deps
+	mkdir -p $(PNPM_LOG_DIR)
+	cd frontend && bash -o pipefail -c 'PNPM_HOME=${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm install 2>&1 | tee ../logs/npm/install-frontend.log'
+	cd frontend && bash -o pipefail -c 'PNPM_HOME=${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm exec playwright install --with-deps 2>&1 | tee ../logs/npm/playwright-install.log'
 
 setup-tools:
 	./scripts/install_tools.sh
@@ -23,10 +29,12 @@ setup-fast:
 
 .PHONY: format format-backend format-frontend
 format-backend:
+	@echo "[RUFF] Formatting Python code..."
 	cd backend && uvx ruff format .
 
 format-frontend:
-	cd frontend && npm run format
+	@echo "[PRETTIER] Formatting frontend code..."
+	cd frontend && $(PNPM) run format
 
 format: format-backend format-frontend
 
@@ -35,10 +43,14 @@ dev-backend:
 	cd backend && uv run uvicorn tasktree.api.app:app --reload --port 8000
 
 dev-frontend:
-	cd frontend && npm run dev
+	cd frontend && $(PNPM) run dev -- --host 127.0.0.1 --port 5173
 
 dev:
 	$(MAKE) -j2 dev-backend dev-frontend
+
+.PHONY: dev-supervisor
+dev-supervisor:
+	./scripts/dev_supervisor.sh
 
 .PHONY: check-backend
 check-backend:
@@ -46,45 +58,130 @@ check-backend:
 
 .PHONY: lint lint-backend lint-frontend
 lint-backend:
-	cd backend && uvx ruff check . && uv run mypy --config-file mypy.ini . && uv run bandit -q -r tasktree && uv run yamllint -c ../.yamllint.yml .
+	mkdir -p $(LINT_LOG_DIR)
+	@echo "[RUFF] Checking Python code style (auto-fix)..."
+	cd backend && bash -o pipefail -c 'uvx ruff check . --fix 2>&1 | tee ../logs/lint/ruff.log | tee -a ../logs/lint.log'
+	@echo "[MYPY] Checking type hints..."
+	cd backend && bash -o pipefail -c 'uv run mypy --config-file mypy.ini . 2>&1 | tee ../logs/lint/mypy.log | tee -a ../logs/lint.log'
+	@echo "[BANDIT] Checking for security issues..."
+	cd backend && bash -o pipefail -c 'uv run bandit -q -r tasktree 2>&1 | tee ../logs/lint/bandit.log | tee -a ../logs/lint.log'
+	@echo "[YAMLLINT] Checking YAML files..."
+	cd backend && bash -o pipefail -c 'uv run yamllint -c ../.yamllint.yml . 2>&1 | tee ../logs/lint/yamllint.log | tee -a ../logs/lint.log'
+
+.PHONY: lint-backend-fix
+lint-backend-fix:
+	@echo "[RUFF] Attempting autofix..."
+	cd backend && uvx ruff check . --fix
+
+.PHONY: lint-frontend-fix
+lint-frontend-fix:
+	@echo "[ESLINT] Attempting autofix..."
+	cd frontend && $(PNPM) run lint -- --fix
+	@echo "[PRETTIER] Attempting autofix..."
+	cd frontend && $(PNPM) run format
 
 lint-frontend:
-	cd frontend && npm run lint && npm run typecheck && npm run format:check
+	mkdir -p $(PNPM_LOG_DIR)
+	@echo "[ESLINT] Checking frontend code style..."
+	cd frontend && bash -o pipefail -c 'PNPM_HOME=$${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm run lint 2>&1 | tee ../logs/npm/lint-frontend.log | tee -a ../logs/npm.log'
+	@echo "[TSC] Checking frontend types..."
+	cd frontend && bash -o pipefail -c 'PNPM_HOME=$${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm run typecheck 2>&1 | tee ../logs/npm/typecheck.log | tee -a ../logs/npm.log'
+	@echo "[PRETTIER] Checking frontend formatting..."
+	cd frontend && bash -o pipefail -c 'PNPM_HOME=$${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm run format:check 2>&1 | tee ../logs/npm/format-frontend.log | tee -a ../logs/npm.log'
 
-lint: lint-backend lint-frontend lint-shellcheck
+.PHONY: lint-knip
+lint-knip:
+	@echo "[KNIP] Checking unused files/exports/deps..."
+	cd frontend && bash -o pipefail -c 'PNPM_HOME=$${PNPM_HOME:-$$HOME/.local/share/pnpm} pnpm knip 2>&1 | tee ../logs/npm/knip.log | tee -a ../logs/npm.log'
+
+lint-deps: lint-deps-py lint-vulture
+
+.PHONY: lint-deps-py
+lint-deps-py:
+	mkdir -p $(LINT_LOG_DIR)
+	@echo "[DEPTRY] Checking Python deps (unused/misplaced)..."
+	cd backend && bash -o pipefail -c 'uvx deptry . 2>&1 | tee ../logs/lint/deptry.log | tee -a ../logs/lint.log'
+
+.PHONY: lint-vulture
+lint-vulture:
+	mkdir -p $(LINT_LOG_DIR)
+	@echo "[VULTURE] Finding dead Python code..."
+	cd backend && bash -o pipefail -c 'uvx vulture tasktree --min-confidence 80 2>&1 | tee ../logs/lint/vulture.log | tee -a ../logs/lint.log'
+
+.PHONY: lint-pip-audit
+lint-pip-audit:
+	@echo "[PIP-AUDIT] Checking Python vulns..."
+	uvx pip-audit || true
+
+lint: lint-backend lint-frontend lint-knip lint-shellcheck lint-log-tailing lint-deps
 	$(MAKE) lint-md lint-djlint lint-shfmt lint-actions
 
-.PHONY: lint-shellcheck
+.PHONY: lint-shellcheck lint-log-tailing
+lint-log-tailing:
+	@echo "[LINT] Checking for direct log tailing..."
+	mkdir -p $(LINT_LOG_DIR)
+	bash -o pipefail -c './scripts/lint_log_tailing.sh 2>&1 | tee logs/lint/log-tailing.log | tee -a logs/lint.log'
+
 lint-shellcheck:
+	@echo "[SHELLCHECK] Checking shell scripts..."
+	mkdir -p $(LINT_LOG_DIR)
 	$(TOOLS_DIR)/shellcheck --version >/dev/null
-	find scripts -name '*.sh' -print0 | xargs -0 $(TOOLS_DIR)/shellcheck
+	bash -o pipefail -c 'find scripts -name \"*.sh\" -print0 | xargs -0 $(TOOLS_DIR)/shellcheck 2>&1 | tee logs/lint/shellcheck.log | tee -a logs/lint.log'
 
 .PHONY: lint-jsonschema
 lint-jsonschema:
 	python3 -c "import json, pathlib; p=pathlib.Path('scripts/tmux/dashboard_state.schema.json'); json.loads(p.read_text()); print('ok: dashboard_state.schema.json is valid JSON')"
 
 .PHONY: lint-md lint-djlint lint-shfmt
+.PHONY: lint-md-fix
+lint-md-fix:
+	@echo "[MARKDOWNLINT] Attempting autofix..."
+	npx markdownlint-cli2-fix "README.md" "docs/**/*.md"
+
 lint-md:
-	npx markdownlint-cli2 "README.md" "docs/**/*.md"
+	@echo "[MARKDOWNLINT] Checking markdown files..."
+	mkdir -p $(LINT_LOG_DIR)
+	bash -o pipefail -c 'npx markdownlint-cli2 "README.md" "docs/**/*.md" 2>&1 | tee logs/lint/markdownlint.log | tee -a logs/lint.log'
+
+.PHONY: lint-djlint-fix
+lint-djlint-fix:
+	@echo "[DJLINT] Attempting autofix..."
+	cd backend && uv run djlint --extension j2 tasktree/config/prompts --fix
 
 lint-djlint:
-	cd backend && uv run djlint --extension j2 tasktree/config/prompts --check
+	@echo "[DJLINT] Checking Jinja2 templates..."
+	mkdir -p $(LINT_LOG_DIR)
+	cd backend && bash -o pipefail -c 'uv run djlint --extension j2 tasktree/config/prompts --check 2>&1 | tee ../logs/lint/djlint.log | tee -a ../logs/lint.log'
+
+.PHONY: lint-shfmt-fix
+lint-shfmt-fix:
+		@echo "[SHFMT] Attempting autofix..."
+		if [ ! -x "$(TOOLS_DIR)/shfmt" ]; then \
+			echo "shfmt missing; run 'make setup-tools' to install to $(TOOLS_DIR)"; \
+			exit 1; \
+		fi
+		$(TOOLS_DIR)/shfmt --version >/dev/null
+		$(TOOLS_DIR)/shfmt -w scripts
 
 lint-shfmt:
-	if [ ! -x "$(TOOLS_DIR)/shfmt" ]; then \
-	  echo "shfmt missing; run 'make setup-tools' to install to $(TOOLS_DIR)"; \
-	  exit 1; \
-	fi
-	$(TOOLS_DIR)/shfmt --version >/dev/null
-	$(TOOLS_DIR)/shfmt -d scripts
+		@echo "[SHFMT] Checking shell script formatting..."
+		if [ ! -x "$(TOOLS_DIR)/shfmt" ]; then \
+			echo "shfmt missing; run 'make setup-tools' to install to $(TOOLS_DIR)"; \
+			exit 1; \
+		fi
+		mkdir -p $(LINT_LOG_DIR)
+		$(TOOLS_DIR)/shfmt --version >/dev/null
+		bash -o pipefail -c '$(TOOLS_DIR)/shfmt -d scripts 2>&1 | tee logs/lint/shfmt.log | tee -a logs/lint.log'
 
 .PHONY: lint-actions
 lint-actions:
-	if [ ! -x "$(TOOLS_DIR)/actionlint" ]; then \
-	  echo "actionlint missing; run 'make setup-tools' to install to $(TOOLS_DIR)"; \
-	  exit 1; \
-	fi
-	$(TOOLS_DIR)/actionlint
+		@echo "[ACTIONLINT] Checking GitHub Actions workflows..."
+		if [ ! -x "$(TOOLS_DIR)/actionlint" ]; then \
+			echo "actionlint missing; run 'make setup-tools' to install to $(TOOLS_DIR)"; \
+			exit 1; \
+		fi
+		mkdir -p $(LINT_LOG_DIR)
+		bash -o pipefail -c '$(TOOLS_DIR)/actionlint 2>&1 | tee logs/lint/actionlint.log | tee -a logs/lint.log'
 
 .PHONY: log-watch
 log-watch:
@@ -99,7 +196,7 @@ test-backend:
 	cd backend && uv run pytest --cov=tasktree --cov-report=xml
 
 test-frontend:
-	cd frontend && npm run test:unit && npm run coverage && npm run e2e
+	cd frontend && $(PNPM) run test:unit && $(PNPM) run coverage && $(PNPM) run e2e
 
 test: test-backend test-frontend
 	@echo "Full suite finished (backend + frontend + Playwright e2e)"
@@ -109,20 +206,20 @@ coverage-backend:
 	cd backend && uv run pytest --cov=tasktree --cov-report=xml
 
 coverage-frontend:
-	cd frontend && npm run coverage
+	cd frontend && $(PNPM) run coverage
 
 coverage: coverage-backend coverage-frontend
 
 .PHONY: test-e2e
 test-e2e:
-	cd frontend && npm run e2e
+	cd frontend && $(PNPM) run e2e
 
 .PHONY: build build-backend build-frontend
 build-backend:
 	cd backend && uv run python -m compileall tasktree
 
 build-frontend:
-	cd frontend && npm run build
+	cd frontend && $(PNPM) run build
 
 build: build-backend build-frontend
 

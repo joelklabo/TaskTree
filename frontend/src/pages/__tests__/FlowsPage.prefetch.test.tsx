@@ -12,11 +12,14 @@ vi.mock("../../api/client", async () => {
 
 describe("FlowsPage prefetch", () => {
   it("renders provided flows without triggering a fetch", async () => {
-    const initial = [{ id: "log_error_handler", description: "Handles log errors" }];
+    const initial = [
+      { id: "log_error_handler", name: "Log Error Handler", description: "Handles log errors" },
+    ];
     const { fetchFlows } = await import("../../api/client");
 
     render(<FlowsPage onRunSelected={() => {}} initialFlows={initial} />);
 
+    expect(screen.getByText("Log Error Handler")).toBeInTheDocument();
     expect(screen.getByText("log_error_handler")).toBeInTheDocument();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const fetchFlowsMock: Mock = fetchFlows as unknown as Mock;

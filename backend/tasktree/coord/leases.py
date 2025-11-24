@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import random
 import time
 from pathlib import Path
@@ -10,6 +11,7 @@ from tasktree.settings import settings
 
 LEASES_DIR = (settings.base_dir / "leases").resolve()
 LEASES_DIR.mkdir(exist_ok=True)
+logger = logging.getLogger(__name__)
 
 
 class LeaseError(Exception):
@@ -57,8 +59,19 @@ def read_lease(path: Path) -> Lease | None:
             issued_at=float(data["issuedAt"]),
             ttl=int(data["ttl"]),
         )
+    except FileNotFoundError:
+        # File disappeared between exists() check and read_text(); treat as missing.
+        return None
     except (json.JSONDecodeError, KeyError, TypeError):
-        # Corrupt or incomplete lease file; treat as missing.
+        # Corrupt or incomplete lease file; log and treat as missing.
+        try:
+            size = path.stat().st_size
+            logger.warning(
+                "Corrupt lease file removed",
+                extra={"lease_path": str(path), "size": size},
+            )
+        except OSError:
+            logger.warning("Corrupt lease file removed", extra={"lease_path": str(path)})
         path.unlink(missing_ok=True)
         return None
 
@@ -83,6 +96,15 @@ def acquire(resource: str, holder: str) -> Lease:
             raise LeaseError(f"failed to acquire lease on {resource} after {retries} retries")
 
         backoff = random.uniform(*c.backoff_seconds)  # nosec B311 - jitter only
+        logger.warning(
+            "Lease held, backing off",
+            extra={
+                "resource": resource,
+                "holder": holder,
+                "retry": retries,
+                "backoff": round(backoff, 2),
+            },
+        )
         time.sleep(backoff)
 
 

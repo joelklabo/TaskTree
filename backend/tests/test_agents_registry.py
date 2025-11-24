@@ -1,7 +1,7 @@
 from tasktree.agents import registry
-from tasktree.agents.copilot_cli import CopilotCLIAgent
+from tasktree.agents.codex_cli import CodexCLIAgent
 
 
-def test_copilot_cli_is_registered() -> None:
-    agent = registry.create("copilot_cli", {})
-    assert isinstance(agent, CopilotCLIAgent)
+def test_codex_cli_is_registered() -> None:
+    agent = registry.create("codex_cli", {})
+    assert isinstance(agent, CodexCLIAgent)

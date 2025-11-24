@@ -1,32 +1,49 @@
 id: log_error_handler
-version: "0.1.0"
-description: "Handle errors detected in logs by summarizing and proposing fixes."
-start: assess
+name: "Log Error Handler"
+version: "0.3.0"
+description: "Autonomous error handler with retry: investigate → implement → test → retry or triage"
+start: investigate
 steps:
-  - id: assess
-    agent: copilot_cli
-    action: plan_bugfix
+  - id: investigate
+    agent: codex_cli
+    action: investigate_error
     resources: []
     transitions:
-      success: propose_fix
-      failure: end
+      success: implement
+      failure: triage
 
-  - id: propose_fix
-    agent: copilot_cli
+  - id: implement
+    agent: codex_cli
     action: implement_fix
     resources:
-      - "src/**"
       - "backend/**"
       - "frontend/**"
     transitions:
       success: test
-      failure: end
+      failure: triage
 
   - id: test
-    agent: copilot_cli
+    agent: codex_cli
     action: run_tests
     resources:
-      - "tests/**"
+      - "backend/tests/**"
+      - "frontend/tests/**"
     transitions:
       tests_passed: end
-      tests_failed: propose_fix
+      tests_failed: retry_or_triage
+
+  - id: retry_or_triage
+    agent: codex_cli
+    action: check_retry_count
+    resources: []
+    transitions:
+      should_retry: investigate
+      should_triage: triage
+
+  - id: triage
+    agent: codex_cli
+    action: triage_failure
+    resources: []
+    transitions:
+      success: end
+      failure: end

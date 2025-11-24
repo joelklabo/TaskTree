@@ -142,6 +142,7 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
               <TableHead>Run ID</TableHead>
               <TableHead>Flow</TableHead>
               <TableHead>Label</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Command</TableHead>
               <TableHead className="w-32">Started</TableHead>
               <TableHead className="w-32 text-right">Actions</TableHead>
@@ -177,6 +178,15 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
                   {r.label ? (
                     <Badge variant="outline" className="text-[11px] font-semibold">
                       {r.label}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-sm">
+                  {r.status ? (
+                    <Badge variant="secondary" className="text-[11px] font-semibold">
+                      {r.status}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground">—</span>

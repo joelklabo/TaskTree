@@ -1,0 +1,20 @@
+You are writing the smallest failing test(s) for a new feature. Do NOT implement the feature; only add tests and expect them to fail.
+INPUT SPEC:
+{{ input.feature_spec }}
+PRIOR RESEARCH (if any):
+{{ input.research | tojson }}
+REQUIREMENTS:
+- Choose the right test targets (unit/Vitest/Playwright/pytest) for the described change.
+- Emit commands to add/modify tests only (no production code).
+- Run the baseline tests first to ensure green; then run the new tests to confirm they fail on the missing feature. Include the expected failure snippet.
+- Keep tests minimal and focused on the new behavior.
+RESPOND AS JSON:
+{
+"status": "success",
+"label": "tests_ready",
+"summary": "What was added and why it should fail",
+"commands": ["npm run test -- src/pages/DebugPage.test.tsx", "npm run e2e -- tests/e2e/debug.spec.ts"],
+"expected_failures": ["AssertionError: ...", "Playwright: ..."],
+"notes": ["any assumptions"],
+"tests_to_run": ["npm run test -- <target>", "npm run e2e -- <target>"]
+}

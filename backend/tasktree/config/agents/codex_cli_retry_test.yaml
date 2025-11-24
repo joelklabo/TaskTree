@@ -1,0 +1,50 @@
+id: codex_cli
+name: "Codex CLI Agent - Retry Test Mode"
+description: "Test configuration that fails tests to trigger retry logic"
+model: "gpt-4.1-mini"
+temperature: 0.2
+max_tokens: 256
+llm_enabled: false
+llm_timeout_sec: 30
+backend_type: "codex_cli"
+backend_cmd: ["codex"]
+tools:
+  - type: "shell"
+    allow_write: true
+    root: "."
+execute_commands: false
+command_timeout_sec:
+command_dry_run: false
+block_destructive: true
+# Mock responses that simulate test failures for retry testing
+mock_responses:
+  # First investigation
+  investigate_error: >-
+    {"status": "success", "summary": "Root cause identified: Missing null check in
+    handler", "commands": [], "learnings": ["Null pointer access detected"]}
+
+  # First implementation attempt
+  implement_fix: >-
+    {"status": "success", "summary": "Added null check to handler", "commands": [],
+    "learnings": ["Defensive programming applied"]}
+
+  # Tests fail on first attempt (triggers retry)
+  run_tests: >-
+    {"status": "success", "label": "tests_failed", "output": "Test failed:
+    NullPointerException in integration test", "metrics": {"time_sec": 1.5},
+    "learnings": ["Integration test revealed edge case"]}
+
+  # Retry decision: should retry (count < max)
+  check_retry_count: >-
+    {"status": "success", "label": "should_retry", "summary": "Retry 1/2 - will
+    attempt fix with more context", "learnings": ["Need to investigate integration
+    test failure"]}
+
+  # Triage (if max retries reached)
+  triage_failure: >-
+    {"status": "success", "summary": "Exhausted 2 retry attempts. Error persists in
+    integration tests. Recommend: 1) Review test environment setup, 2) Check
+    database fixtures, 3) Human debugging session", "commands": ["pytest -v
+    tests/integration", "git log --oneline tests/integration"], "learnings":
+    ["Complex integration issue beyond automated fix", "Test environment may need
+    investigation"]}

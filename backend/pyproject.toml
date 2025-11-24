@@ -34,3 +34,24 @@ tt = "tasktree.cli:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+# Deptry: map package names to import names and ignore expected-but-indirect deps.
+[tool.deptry]
+package_module_name_map = { "pyyaml" = ["yaml"] }
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+  "uvicorn",         # invoked via CLI entrypoint, not imported
+  "alembic",         # migration CLI
+  "pyyaml",          # imported as `yaml`
+  "python-dotenv",   # env loader for dev
+  "pytest",
+  "pytest-cov",
+  "mypy",
+  "ruff",
+  "types-PyYAML",
+  "types-Jinja2",
+  "bandit",
+  "yamllint",
+  "djlint",
+]

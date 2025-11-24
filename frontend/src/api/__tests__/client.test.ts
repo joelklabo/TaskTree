@@ -3,12 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 const mockGet = vi.fn<(path: string) => Promise<{ data: unknown }>>();
 const mockPost =
   vi.fn<(path: string, body?: unknown, config?: unknown) => Promise<{ data: unknown }>>();
+const mockPut = vi.fn<(path: string, body?: unknown) => Promise<{ data: unknown }>>();
 
 vi.mock("axios", () => ({
   default: {
     create: () => ({
       get: mockGet,
       post: mockPost,
+      put: mockPut,
     }),
   },
 }));
@@ -17,17 +19,25 @@ describe("api client wrappers", () => {
   beforeEach(() => {
     mockGet.mockReset();
     mockPost.mockReset();
+    mockPut.mockReset();
   });
 
   it("wraps flow/trace/run endpoints with the correct paths and headers", async () => {
     const {
       fetchFlows,
       fetchFlow,
+      updateFlow,
       runFlow,
       fetchTraces,
       fetchTrace,
       fetchArtifacts,
       fetchConstitution,
+      startControlledRun,
+      resumeRun,
+      fetchRunEvents,
+      fetchLogSources,
+      tailLog,
+      fetchLogEvents,
     } = await import("../client");
 
     mockGet.mockResolvedValueOnce({ data: [{ id: "foo" }] });
@@ -69,5 +79,38 @@ describe("api client wrappers", () => {
     mockGet.mockResolvedValueOnce({ data: { protected: [] } });
     await fetchConstitution();
     expect(mockGet).toHaveBeenLastCalledWith("/constitution/");
+
+    mockPut.mockResolvedValueOnce({ data: { id: "demo" } });
+    await updateFlow("demo", "yaml");
+    expect(mockPut).toHaveBeenLastCalledWith("/flows/demo", { content: "yaml" });
+
+    mockPost.mockResolvedValueOnce({ data: { session_id: "ctrl1" } });
+    await startControlledRun("demo", { a: 1 }, ["step"]);
+    expect(mockPost).toHaveBeenLastCalledWith("/flows/demo/run-controlled", {
+      input: { a: 1 },
+      breakpoints: ["step"],
+    });
+
+    mockPost.mockResolvedValueOnce({ data: { status: "resumed" } });
+    await resumeRun("ctrl1");
+    expect(mockPost).toHaveBeenLastCalledWith("/runs/ctrl1/resume");
+
+    mockGet.mockResolvedValueOnce({ data: [{ type: "paused" }] });
+    await fetchRunEvents("ctrl1");
+    expect(mockGet).toHaveBeenLastCalledWith("/runs/ctrl1/events");
+
+    mockGet.mockResolvedValueOnce({ data: [{ name: "debug.log" }] });
+    await fetchLogSources();
+    expect(mockGet).toHaveBeenLastCalledWith("/logs/sources");
+
+    mockGet.mockResolvedValueOnce({ data: { source: "debug.log", lines: [] } });
+    await tailLog("debug.log", 10);
+    expect(mockGet).toHaveBeenLastCalledWith("/logs/tail", {
+      params: { source: "debug.log", lines: 10 },
+    });
+
+    mockGet.mockResolvedValueOnce({ data: { events: [] } });
+    await fetchLogEvents();
+    expect(mockGet).toHaveBeenLastCalledWith("/logs/events");
   });
 });

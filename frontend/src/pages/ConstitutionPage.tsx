@@ -24,7 +24,7 @@ export default function ConstitutionPage() {
   const taskStates = data?.task_states || {};
   const stateList = Array.isArray(taskStates.states) ? taskStates.states : [];
   const transitions = taskStates.transitions || {};
-  const ownership = isStringRecord(data?.ownership) ? data.ownership : {};
+  const ownership: Record<string, string> = isStringRecord(data?.ownership) ? data.ownership : {};
   const protectedPaths = Array.isArray(data?.protected) ? data.protected : [];
 
   const emptyConstitution =
@@ -54,7 +54,7 @@ export default function ConstitutionPage() {
         </Alert>
       )}
 
-      {!loading && !error && data && (
+      {!loading && !error && (
         <div className="space-y-4">
           {emptyConstitution && (
             <Alert>

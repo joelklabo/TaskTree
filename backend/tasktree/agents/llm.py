@@ -73,3 +73,58 @@ class ExternalCLIBackend:
             raise BackendError(f"CLI backend exited {proc.returncode}: {proc.stderr.strip()}")
 
         return proc.stdout
+
+
+def _extract_codex_response(output: str) -> str:
+    lines = []
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            continue
+        if stripped:
+            lines.append(stripped)
+    for line in lines:
+        if line.startswith("{"):
+            return line
+    return lines[0] if lines else ""
+
+
+@dataclass
+class CodexCLIBackend:
+    command: Sequence[str]
+    model: str | None = None
+    env: Mapping[str, str] | None = None
+    workdir: Path | None = None
+    timeout_sec: float | None = 60.0
+
+    def complete(self, prompt: str) -> str:
+        cmd = list(self.command)
+        if not cmd:
+            raise BackendError("Codex CLI backend requires a command (e.g., ['codex'])")
+
+        cmd.append("exec")
+        if self.model:
+            cmd.extend(["-m", self.model])
+        cmd.append("-")
+
+        try:
+            proc = subprocess.run(  # nosec B603
+                cmd,
+                input=prompt,
+                cwd=self.workdir,
+                env=None if self.env is None else {**os.environ, **self.env},
+                capture_output=True,
+                text=True,
+                timeout=self.timeout_sec,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise BackendError("Codex CLI backend timed out") from exc
+        except Exception as exc:  # pragma: no cover - defensive
+            raise BackendError(f"Codex CLI backend failed to start: {exc}") from exc
+
+        if proc.returncode != 0:
+            raise BackendError(f"Codex CLI backend exited {proc.returncode}: {proc.stderr.strip()}")
+
+        cleaned = _extract_codex_response(proc.stdout)
+        return cleaned or proc.stdout

@@ -1,0 +1,19 @@
+id: copilot_cli
+name: "Copilot CLI Agent - Local Mock (backup)"
+description: "Backup of mock-friendly config for tests and offline dev"
+model: "gpt-4.1-mini"
+temperature: 0.2
+max_tokens: 256
+llm_enabled: false
+llm_timeout_sec: 30
+backend_type: "codex_cli"
+backend_cmd: ["codex"]
+tools:
+  - type: "shell"
+    allow_write: true
+    root: "."
+execute_commands: false
+command_timeout_sec: 60
+command_dry_run: false
+block_destructive: true
+mock_responses: {}

@@ -1,14 +1,17 @@
 import axios from "axios";
 
-export type FlowSummary = { id: string; description?: string };
+export type FlowSummary = { id: string; name?: string; description?: string };
 export type FlowDetail = {
   id: string;
+  name?: string;
   start: string;
+  description?: string;
   steps: Array<{
     id: string;
     agent: string;
     transitions?: Record<string, string>;
   }>;
+  _raw?: string;
 };
 
 export type RunResponse = {
@@ -32,6 +35,30 @@ export type TraceMeta = {
 };
 
 export type ArtifactInfo = { path: string; size: number };
+type ClientErrorPayload = {
+  message: string;
+  name?: string;
+  stack?: string;
+  context?: Record<string, unknown>;
+  user_agent?: string;
+};
+type ClientErrorResponse = { status: string; log_file: string };
+type LogSource = { name: string; size: number };
+type TailLogResponse = { source: string; lines: string[] };
+type LogEventsResponse = { events: Array<Record<string, unknown>> };
+type StreamConfig = {
+  sources?: string[];
+  tags?: string[];
+  contains?: string;
+  interval?: number;
+  tail_lines?: number;
+};
+type PromptSkeletonResponse = {
+  action: string;
+  agent: string;
+  template: string;
+  skeleton: { input: Record<string, unknown> };
+};
 export type Constitution = {
   task_states?: {
     states?: string[];
@@ -50,8 +77,28 @@ export async function fetchFlows(): Promise<FlowSummary[]> {
   return res.data;
 }
 
+export async function createFlow(payload: {
+  id: string;
+  name?: string;
+  description?: string;
+  content?: string;
+}): Promise<FlowDetail> {
+  const res = await api.post<FlowDetail>("/flows/", payload);
+  return res.data;
+}
+
 export async function fetchFlow(flowId: string): Promise<FlowDetail> {
   const res = await api.get<FlowDetail>(`/flows/${flowId}`);
+  return res.data;
+}
+
+export async function updateFlow(flowId: string, content: string): Promise<unknown> {
+  const res = await api.put(`/flows/${flowId}`, { content });
+  return res.data;
+}
+
+export async function deleteFlow(flowId: string): Promise<unknown> {
+  const res = await api.delete(`/flows/${flowId}`);
   return res.data;
 }
 
@@ -83,9 +130,136 @@ export async function fetchArtifacts(runId: string): Promise<ArtifactInfo[]> {
   return res.data;
 }
 
+export async function fetchPromptSkeleton(
+  action: string,
+  agent = "codex_cli",
+): Promise<PromptSkeletonResponse> {
+  const res = await api.get<PromptSkeletonResponse>("/prompts/skeleton", {
+    params: { action, agent },
+  });
+  return res.data;
+}
+
+export async function fetchPromptSkeletonByTemplate(
+  template: string,
+): Promise<PromptSkeletonResponse> {
+  const res = await api.get<PromptSkeletonResponse>("/prompts/skeleton", {
+    params: { template },
+  });
+  return res.data;
+}
+
+export async function startControlledRun(
+  flowId: string,
+  input: Record<string, unknown>,
+  breakpoints?: string[],
+): Promise<RunResponse> {
+  const res = await api.post<RunResponse>(`/flows/${flowId}/run-controlled`, {
+    input,
+    breakpoints,
+  });
+  return res.data;
+}
+
+export async function resumeRun(sessionId: string): Promise<unknown> {
+  const res = await api.post(`/runs/${sessionId}/resume`);
+  return res.data;
+}
+
+export async function fetchRunEvents(sessionId: string): Promise<Array<Record<string, unknown>>> {
+  const res = await api.get<Array<Record<string, unknown>>>(`/runs/${sessionId}/events`);
+  return res.data;
+}
+
+export async function fetchLogSources(): Promise<LogSource[]> {
+  const res = await api.get<LogSource[]>("/logs/sources");
+  return res.data;
+}
+
+export async function tailLog(source: string, lines = 200): Promise<TailLogResponse> {
+  const res = await api.get<TailLogResponse>("/logs/tail", { params: { source, lines } });
+  return res.data;
+}
+
+export async function fetchLogEvents(): Promise<LogEventsResponse> {
+  const res = await api.get<LogEventsResponse>("/logs/events");
+  return res.data;
+}
+
+export function streamLogs(config: StreamConfig = {}): EventSource {
+  const params = new URLSearchParams();
+  if (config.sources && config.sources.length > 0) {
+    params.set("sources", config.sources.join(","));
+  }
+  if (config.tags && config.tags.length > 0) {
+    params.set("tags", config.tags.join(","));
+  }
+  if (config.contains) {
+    params.set("contains", config.contains);
+  }
+  if (config.interval) {
+    params.set("interval", String(config.interval));
+  }
+  if (config.tail_lines) {
+    params.set("tail_lines", String(config.tail_lines));
+  }
+  const url = `/api/logs/stream?${params.toString()}`;
+  return new EventSource(url);
+}
+
+export async function logClientError(payload: ClientErrorPayload): Promise<ClientErrorResponse> {
+  const res = await api.post<ClientErrorResponse>("/debug/log-client-error", payload);
+  return res.data;
+}
+
 export async function fetchConstitution(): Promise<Constitution> {
   const res = await api.get<Constitution>("/constitution/");
   return res.data;
 }
 
-export default api;
+type EditorFile = { name: string; content: string };
+
+export async function listPrompts(): Promise<string[]> {
+  const res = await api.get<string[]>("/editor/prompts");
+  return res.data;
+}
+
+export async function getPrompt(name: string): Promise<EditorFile> {
+  const res = await api.get<EditorFile>(`/editor/prompts/${name}`);
+  return res.data;
+}
+
+export async function updatePrompt(name: string, content: string): Promise<unknown> {
+  const res = await api.put(`/editor/prompts/${name}`, { content });
+  return res.data;
+}
+
+export async function listFlowFiles(): Promise<string[]> {
+  const res = await api.get<string[]>("/editor/flows");
+  return res.data;
+}
+
+export async function getFlowFile(name: string): Promise<EditorFile> {
+  const res = await api.get<EditorFile>(`/editor/flows/${name}`);
+  return res.data;
+}
+
+export async function updateFlowFile(name: string, content: string): Promise<unknown> {
+  const res = await api.put(`/editor/flows/${name}`, { content });
+  return res.data;
+}
+
+export async function listAgents(): Promise<string[]> {
+  const res = await api.get<string[]>("/editor/agents");
+  return res.data;
+}
+
+export async function getAgent(name: string): Promise<EditorFile> {
+  const res = await api.get<EditorFile>(`/editor/agents/${name}`);
+  return res.data;
+}
+
+export async function updateAgent(name: string, content: string): Promise<unknown> {
+  const res = await api.put(`/editor/agents/${name}`, { content });
+  return res.data;
+}

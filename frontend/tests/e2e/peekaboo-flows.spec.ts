@@ -7,7 +7,7 @@ import { capturePeekaboo } from "./support/peekaboo";
 test("peekaboo captures flows list screenshot", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Flows" })).toBeVisible();
-  await expect(page.getByText("code_fix")).toBeVisible();
+  await expect(page.getByRole("button", { name: "code_fix" })).toBeVisible({ timeout: 15000 });
 
   const traceRoot = testInfo.outputPath("trace-root");
   const { capturePath, artifactPath, tracePath } = await capturePeekaboo(testInfo, {

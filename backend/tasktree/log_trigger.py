@@ -13,6 +13,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from tasktree.log_parser import parse_python_traceback
 from tasktree.log_watcher import LogEvent, LogWatcher
 
 FlowRunner = Callable[[dict], None]
@@ -28,6 +29,7 @@ class TriggerConfig:
     dry_run: bool = False
     context_lines: int = 3
     log_destination: Path | None = None
+    agent_config: str | None = None  # Optional: e.g., "codex_cli_codex"
 
 
 class LogTrigger:
@@ -56,17 +58,65 @@ class LogTrigger:
             return
         self._last_trigger[event.path] = now
 
+        # Gather context around the error line
         context = self._gather_context(event.path, event.lineno, self.config.context_lines)
+        # Ensure context is a dict[str, list[str]]
+        if not isinstance(context, dict):
+            context = {"before": [], "after": []}
+
+        # Try to parse as Python traceback
+        before = (
+            context["before"]
+            if "before" in context and isinstance(context["before"], list)
+            else []
+        )
+        after = (
+            context["after"]
+            if "after" in context and isinstance(context["after"], list)
+            else []
+        )
+        log_snippet = "\n".join([
+            *before,
+            event.line,
+            *after
+        ])
+        parsed_error = parse_python_traceback(log_snippet)
+
+        # Build flow input with parsed error details
         payload = {
+            "error_log": event.line,
             "file": str(event.path),
             "lineno": event.lineno,
-            "line": event.line,
             "pattern": event.matched_pattern,
             "context": context,
+            "retry_count": 0,
+            "max_retries": 2,
+            "previous_attempts": [],
         }
-        self._log_local(f"Triggering {self.config.flow_id}: {payload}")
+
+        # Add parsed error details if available
+        if parsed_error:
+            payload["error_details"] = {
+                "error_type": parsed_error.error_type,
+                "error_message": parsed_error.error_message,
+                "file_path": parsed_error.file_path,
+                "line_number": parsed_error.line_number,
+                "function_name": parsed_error.function_name,
+                "full_traceback": parsed_error.full_traceback,
+                "context_before": parsed_error.context_before,
+                "context_after": parsed_error.context_after,
+            }
+
+        error_log = str(payload.get("error_log", event.line))
+        self._log_local(f"Triggering {self.config.flow_id}: {error_log[:100]}")
         if self.config.dry_run:
-            print(f"[dry-run] Would trigger flow {self.config.flow_id} with {payload}")
+            print(f"[dry-run] Would trigger flow {self.config.flow_id}")
+            print(f"  Error: {error_log[:80]}")
+            if parsed_error:
+                print(
+                    f"  Parsed: {parsed_error.error_type} in "
+                    f"{parsed_error.file_path}:{parsed_error.line_number}"
+                )
             return
         self._runner(payload)
 
@@ -139,6 +189,13 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Optional local log file to append trigger summaries to",
     )
+    parser.add_argument(
+        "--agent-config",
+        type=str,
+        default=None,
+        help="Agent config name (e.g., 'codex_cli_codex' for real LLM). "
+        "Note: Currently requires manually copying config to codex_cli.yaml",
+    )
     args = parser.parse_args(argv)
 
     config = TriggerConfig(
@@ -150,6 +207,7 @@ def main(argv: list[str] | None = None) -> int:
         dry_run=args.dry_run,
         context_lines=args.context_lines,
         log_destination=args.log_dest,
+        agent_config=args.agent_config,
     )
     trigger = LogTrigger(config=config)
     trigger.start()

@@ -1,0 +1,44 @@
+id: implement_e2e_tests
+name: "Implement E2E Tests"
+version: "0.1.0"
+description: >-
+  Generate e2e tests from specification using AI - break down spec into
+  scenarios, plan implementation, write test code, and review quality
+start: analyze_spec
+
+steps:
+  - id: analyze_spec
+    agent: codex_cli
+    action: analyze_test_spec
+    description: "Analyze test specification and break down into concrete test scenarios"
+    resources: []
+    transitions:
+      success: plan_tests
+      failure: end
+
+  - id: plan_tests
+    agent: codex_cli
+    action: plan_test_implementation
+    description: "Create detailed implementation plan for test scenarios"
+    resources: []
+    transitions:
+      success: implement_tests
+      failure: end
+
+  - id: implement_tests
+    agent: codex_cli
+    action: implement_test_code
+    description: "Write actual test code based on plan and existing patterns"
+    resources: []
+    transitions:
+      success: review_implementation
+      failure: end
+
+  - id: review_implementation
+    agent: codex_cli
+    action: review_test_code
+    description: "Review generated test code and suggest improvements"
+    resources: []
+    transitions:
+      success: end
+      failure: end

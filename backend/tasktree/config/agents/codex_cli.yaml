@@ -1,0 +1,43 @@
+id: codex_cli
+name: "Codex CLI Agent - Local Mock"
+description: "Mock-friendly default config for tests and offline dev"
+model: "gpt-4.1-mini"
+temperature: 0.2
+max_tokens: 256
+llm_enabled: false
+llm_timeout_sec: 30
+backend_type: "codex_cli"
+backend_cmd: ["codex"]
+tools:
+  - type: "shell"
+    allow_write: true
+    root: "."
+execute_commands: false
+command_timeout_sec: 60
+command_dry_run: false
+block_destructive: true
+# Optional per-action overrides; defaults in codex_cli.py handle core flows.
+mock_responses:
+  analyze_test_spec: |
+    {
+      "status": "success",
+      "summary": "Analyzed test spec (mock).",
+      "label": "planned"
+    }
+  plan_test_implementation: |
+    {
+      "status": "success",
+      "summary": "Planned test implementation (mock)."
+    }
+  implement_test_code: |
+    {
+      "status": "success",
+      "summary": "Implemented test code (mock).",
+      "label": "tests_written"
+    }
+  review_test_code: |
+    {
+      "status": "success",
+      "summary": "Reviewed test code (mock).",
+      "label": "tests_ready"
+    }

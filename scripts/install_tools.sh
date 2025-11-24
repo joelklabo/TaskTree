@@ -173,4 +173,52 @@ install_shellcheck
 install_rg
 install_actionlint
 
+# Convenience: make sure common dev tools are present via Homebrew or pnpm (best-effort).
+ensure_cmd() {
+  local bin="$1" pkg="$2"
+  if command -v "$bin" >/dev/null 2>&1; then
+    echo "[ok] $bin already present"
+    return
+  fi
+  if command -v brew >/dev/null 2>&1; then
+    echo "[brew] installing $pkg"
+    HOMEBREW_NO_AUTO_UPDATE=1 brew install "$pkg"
+  else
+    echo "[warn] $bin missing and Homebrew not available; install $pkg manually" >&2
+  fi
+}
+
+ensure_pnpm_tool() {
+  local bin="$1" pkg="$2"
+  if command -v "$bin" >/dev/null 2>&1; then
+    echo "[ok] $bin already present"
+    return
+  fi
+  if command -v pnpm >/dev/null 2>&1; then
+    echo "[pnpm] installing $pkg globally"
+    PNPM_HOME=${PNPM_HOME:-$HOME/.local/share/pnpm}
+    PATH="$PNPM_HOME:$PATH" pnpm add -g "$pkg"
+  else
+    echo "[warn] $bin missing and pnpm not available; install $pkg manually" >&2
+  fi
+}
+
+# Core search/navigation/view utilities
+ensure_cmd ast-grep ast-grep
+ensure_cmd fd fd
+ensure_cmd rg ripgrep # safeguard even though we install a pinned binary above
+ensure_cmd fzf fzf
+ensure_cmd jq jq
+ensure_cmd yq yq
+ensure_cmd bat bat
+ensure_cmd eza eza
+ensure_cmd zoxide zoxide
+ensure_cmd http httpie
+ensure_cmd delta git-delta
+
+# Frontend/code-quality helpers
+ensure_pnpm_tool jscpd jscpd
+ensure_pnpm_tool knip knip
+ensure_pnpm_tool react-compiler react-compiler
+
 echo "Tools installed to $TOOLS_DIR"

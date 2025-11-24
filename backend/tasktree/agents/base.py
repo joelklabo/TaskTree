@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from tasktree.core.state import TaskResult
@@ -15,6 +15,7 @@ class AgentContext:
     step_name: str
     input: dict[str, Any]
     strategies: list[str]
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

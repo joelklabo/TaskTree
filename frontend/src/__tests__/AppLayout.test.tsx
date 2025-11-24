@@ -8,12 +8,31 @@ describe("App layout polish", () => {
   beforeEach(() => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(() =>
-        Promise.resolve({
+      vi.fn((url: RequestInfo | URL) => {
+        const href = typeof url === "string" ? url : url.toString();
+        if (href.includes("/dashboard_state.json") || href.includes("/tmp/dashboard_state.json")) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(stateFixture),
+          } as Response);
+        }
+        if (href.includes("/api/logs/events")) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ events: [] }),
+          } as Response);
+        }
+        if (href.includes("/api/health")) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ status: "ok" }),
+          } as Response);
+        }
+        return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve(stateFixture),
-        }),
-      ),
+          json: () => Promise.resolve([]),
+        } as Response);
+      }),
     );
   });
 

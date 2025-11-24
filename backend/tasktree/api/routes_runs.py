@@ -3,12 +3,13 @@ import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
 from tasktree.agents.trace.trace import TraceRun
 from tasktree.core.executor import run_flow
 from tasktree.core.state import SessionRecord, StepStatus, step_record_dict
+from tasktree.run_control import run_control
 
 router = APIRouter()
 
@@ -85,3 +86,38 @@ def run(req: RunRequest, x_trace: str | None = Header(default=None)) -> dict[str
             for s in session.steps
         ],
     }
+
+
+class ControlledRunRequest(BaseModel):
+    input: dict[str, Any] = {}
+    breakpoints: list[str] | None = None
+
+
+@router.post("/controlled/{flow_id}")
+def start_controlled_run(flow_id: str, req: ControlledRunRequest) -> dict[str, Any]:
+    pause_after = set(req.breakpoints) if req.breakpoints else set()
+    controlled = run_control.start_run(flow_id, req.input, pause_after)
+    if not controlled.session_id:
+        raise HTTPException(status_code=500, detail="failed to start controlled run")
+    return {
+        "session_id": controlled.session_id,
+        "flow_name": flow_id,
+        "steps": [],
+        "status": "running",
+    }
+
+
+@router.post("/{session_id}/resume")
+def resume_run(session_id: str) -> dict[str, str]:
+    ok = run_control.resume(session_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="session not found")
+    return {"status": "resumed"}
+
+
+@router.get("/{session_id}/events")
+def run_events(session_id: str) -> list[dict[str, Any]]:
+    events = run_control.events(session_id)
+    if not events:
+        return []
+    return events

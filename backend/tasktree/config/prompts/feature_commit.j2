@@ -1,0 +1,20 @@
+You are finalizing a feature that now passes tests. Prepare to commit.
+INPUT SPEC:
+{{ input.feature_spec }}
+CHANGE SUMMARY:
+{{ input.change_summary | default("N/A") }}
+REQUIREMENTS:
+- Ensure tests are run (or queued) and green.
+- Craft a concise commit message (<72 chars) describing the feature.
+- Emit commands to verify status and commit. Do not push.
+RESPOND AS JSON:
+{
+"status": "success",
+"label": "committed",
+"summary": "What you are committing",
+"commands": [
+"make test",
+"git status -sb",
+"git commit -am \"<message>\""
+]
+}

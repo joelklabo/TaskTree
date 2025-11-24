@@ -39,7 +39,7 @@ vi.mock("../../api/client", async () => {
           run_id: "trace1",
           step: {
             step_name: "assess",
-            agent_name: "copilot_cli",
+            agent_name: "codex_cli",
             status: "success",
             label: "tests_passed",
           },
@@ -52,42 +52,46 @@ vi.mock("../../api/client", async () => {
 });
 
 describe("RunDetailPage trace view formatting", () => {
-  it("shows step cards, session timing badges, and toggles raw payloads", async () => {
-    render(<RunDetailPage runRef={{ sessionId: "sess1", traceId: "trace1" }} />);
+  it(
+    "shows step cards, session timing badges, and toggles raw payloads",
+    { timeout: 10000 },
+    async () => {
+      render(<RunDetailPage runRef={{ sessionId: "sess1", traceId: "trace1" }} />);
 
-    await waitFor(() => expect(screen.getByText(/Trace timeline/i)).toBeInTheDocument());
-    expect(screen.getByText(/Start:/i)).toBeInTheDocument();
-    expect(screen.getByText(/End:/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Session summary/i).length).toBeGreaterThan(0);
+      await waitFor(() => expect(screen.getByText(/Trace timeline/i)).toBeInTheDocument());
+      expect(screen.getByText(/Start:/i)).toBeInTheDocument();
+      expect(screen.getByText(/End:/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Session summary/i).length).toBeGreaterThan(0);
 
-    const stepCard = screen.getByTestId("timeline-step-assess");
-    expect(stepCard).toBeInTheDocument();
-    expect(stepCard).toHaveTextContent("assess");
-    expect(stepCard).toHaveTextContent("copilot_cli");
-    expect(stepCard).toHaveTextContent("success");
-    expect(stepCard).toHaveTextContent("tests_passed");
+      const stepCard = screen.getByTestId("timeline-step-assess");
+      expect(stepCard).toBeInTheDocument();
+      expect(stepCard).toHaveTextContent("assess");
+      expect(stepCard).toHaveTextContent("codex_cli");
+      expect(stepCard).toHaveTextContent("success");
+      expect(stepCard).toHaveTextContent("tests_passed");
 
-    expect(screen.queryByText(/"extra": "value"/i)).not.toBeInTheDocument();
-    const toggleRaw = screen.getByRole("button", { name: /Show raw/i });
-    act(() => toggleRaw.click());
-    await waitFor(() =>
+      expect(screen.queryByText(/"extra": "value"/i)).not.toBeInTheDocument();
+      const toggleRaw = screen.getByRole("button", { name: /Show raw/i });
+      act(() => toggleRaw.click());
+      await waitFor(() =>
+        expect(
+          screen.getByText((content) => content.includes('"extra": "value"')),
+        ).toBeInTheDocument(),
+      );
       expect(
-        screen.getByText((content) => content.includes('"extra": "value"')),
-      ).toBeInTheDocument(),
-    );
-    expect(
-      screen.queryByText(/"flow_name": "log_error_handler"/i, {
-        selector: "pre",
-      }),
-    ).not.toBeInTheDocument();
+        screen.queryByText(/"flow_name": "log_error_handler"/i, {
+          selector: "pre",
+        }),
+      ).not.toBeInTheDocument();
 
-    const sessionToggle = screen.getByRole("button", { name: /Show session raw/i });
-    expect(screen.queryByText(/"flow_version": "0.1.0"/i)).not.toBeInTheDocument();
-    act(() => sessionToggle.click());
-    await waitFor(() =>
-      expect(
-        screen.getByText((content) => content.includes('"flow_version": "0.1.0"')),
-      ).toBeInTheDocument(),
-    );
-  });
+      const sessionToggle = screen.getByRole("button", { name: /Show session raw/i });
+      expect(screen.queryByText(/"flow_version": "0.1.0"/i)).not.toBeInTheDocument();
+      act(() => sessionToggle.click());
+      await waitFor(() =>
+        expect(
+          screen.getByText((content) => content.includes('"flow_version": "0.1.0"')),
+        ).toBeInTheDocument(),
+      );
+    },
+  );
 });

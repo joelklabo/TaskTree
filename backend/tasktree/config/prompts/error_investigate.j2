@@ -1,0 +1,26 @@
+You are a senior debugging specialist analyzing a production error.
+{% if input.error_details is defined %}
+    ERROR DETAILS:
+    Type: {{ input.error_details.error_type }}
+    Message: {{ input.error_details.error_message }}
+    Location: {{ input.error_details.file_path }}:{{ input.error_details.line_number }}
+    Function: {{ input.error_details.function_name }}
+    STACK TRACE:
+    {{ input.error_details.full_traceback }}
+    {% if input.error_details.context_before or input.error_details.context_after %}
+        CODE CONTEXT:
+        {% for line in input.error_details.context_before %}{{ line }}{% endfor %}
+        >>> ERROR AT LINE {{ input.error_details.line_number }}
+        {% for line in input.error_details.context_after %}{{ line }}{% endfor %}
+    {% endif %}
+{% else %}
+    ERROR LOG:
+    {{ input.error_log }}
+{% endif %}
+TASK:
+1. Analyze the error and identify the root cause
+2. Propose a specific fix
+3. List any commands needed to investigate further (e.g., grep, find)
+Repository is mounted as the current directory.
+Return JSON only:
+{"status": "success" | "failure", "summary": "root cause and fix plan", "commands": ["optional investigation commands"], "learnings": []}
