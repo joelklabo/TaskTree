@@ -1,5 +1,6 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { DebugPage } from "../pages/DebugPage";
 
@@ -52,8 +53,8 @@ steps:
     render(<DebugPage />);
 
     await waitFor(() => expect(mockListFlowFiles).toHaveBeenCalled());
-    const flowSelect = screen.getAllByRole("combobox")[0];
-    fireEvent.change(flowSelect, { target: { value: "log_error_handler.yaml" } });
+    const flowSelect = screen.getByLabelText("Debug Flow");
+    await userEvent.selectOptions(flowSelect, "log_error_handler.yaml");
     await waitFor(() => expect(mockGetFlowFile).toHaveBeenCalled());
 
     const fetchBtn = await screen.findByTestId("fetch-skeleton-btn");

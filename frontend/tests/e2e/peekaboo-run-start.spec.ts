@@ -14,7 +14,7 @@ test("peekaboo captures run start feedback with toast + run badge", async ({ pag
   });
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Flows" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Flows", exact: true })).toBeVisible();
 
   const flowRow = page.getByRole("row", { name: /code_fix/ });
   await flowRow.getByRole("button", { name: "Run with trace" }).click();

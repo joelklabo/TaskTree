@@ -193,14 +193,9 @@ tmux-log-watch:
 	TMUX_SESSION=$(SESSION) CMD_OVERRIDE="$(CMD)" ./scripts/tmux/log_watch_pane.sh
 
 .PHONY: test test-backend test-frontend
-# Wrapper to run Playwright shards locally when TEST_SHARDS>1.
+# Wrapper to run Playwright once while controlling worker count via TEST_SHARDS.
 define run_playwright
-BASE_CMD="BACKEND_PORT=18000 E2E_BACKEND_PORT=18000 VITE_DISABLE_CHECKER=1 $(PNPM) exec playwright test"; \
-if [ $(TEST_SHARDS) -eq 1 ]; then \
-  eval $$BASE_CMD; \
-else \
-  seq 1 $(TEST_SHARDS) | xargs -P $(TEST_SHARDS) -I{} bash -c "$$BASE_CMD --shard={}/$(TEST_SHARDS)"; \
-fi
+BACKEND_PORT=18000 E2E_BACKEND_PORT=18000 VITE_DISABLE_CHECKER=1 $(PNPM) exec playwright test --workers=$(TEST_SHARDS)
 endef
 
 test-backend:
