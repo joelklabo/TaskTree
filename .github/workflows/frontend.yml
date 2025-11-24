@@ -107,6 +107,7 @@ jobs:
         if: always()
         run: |
           mkdir -p frontend/playwright-report frontend/test-results
+          touch frontend/playwright-report/.keep frontend/test-results/.keep
 
       - name: Upload frontend artifacts
         if: always()

@@ -28,10 +28,13 @@ test.describe("Flows CRUD", () => {
     await page.getByLabel("Description").fill("Demo flow");
     await page.getByRole("button", { name: "Create flow" }).click();
 
-    await expect(page.getByRole("cell", { name: "New Flow" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: "new_flow" })).toBeVisible();
+    const flowNameCell = page.getByRole("cell", { name: "New Flow", exact: true });
+    const flowIdCell = page.getByRole("cell", { name: "new_flow", exact: true });
+
+    await expect(flowNameCell).toBeVisible();
+    await expect(flowIdCell).toBeVisible();
 
     await page.getByRole("button", { name: "Delete" }).click();
-    await expect(page.getByText("new_flow")).not.toBeVisible();
+    await expect(flowIdCell).not.toBeVisible();
   });
 });
