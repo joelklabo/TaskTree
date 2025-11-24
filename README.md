@@ -8,10 +8,10 @@ TaskTree is a scaffold for running simple, traceable task DAGs with agents. This
 <!--status:start-->
 | Check | Status |
 | --- | --- |
-| CI | ![CI](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/ci.yml?branch=main&label=ci) |
-| Pages | ![Pages](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/pages.yml?branch=main&label=pages) |
-| CodeQL | ![CodeQL](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/codeql.yml?branch=main&label=codeql) |
-| Security | ![Security](https://img.shields.io/github/actions/workflow/status/joelklabo/TaskTree/security.yml?branch=main&label=security) |
+| CI | ![CI](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/ci.yml?branch=main&label=ci) |
+| Pages | ![Pages](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/pages.yml?branch=main&label=pages) |
+| CodeQL | ![CodeQL](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/codeql.yml?branch=main&label=codeql) |
+| Security | ![Security](https://img.shields.io/github/actions/workflow/status/honk/TaskTree/security.yml?branch=main&label=security) |
 <!--status:end-->
 
 ## CI timing history
