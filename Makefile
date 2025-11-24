@@ -7,7 +7,7 @@ PNPM_LOG_DIR=$(CURDIR)/logs/npm
 LINT_LOG_DIR=$(CURDIR)/logs/lint
 PNPM_AGG_LOG=$(CURDIR)/logs/npm.log
 LINT_AGG_LOG=$(CURDIR)/logs/lint.log
-TEST_SHARDS ?= 1
+TEST_SHARDS ?= 5
 
 .PHONY: setup setup-backend setup-frontend setup-tools
 setup-backend:
@@ -195,10 +195,11 @@ tmux-log-watch:
 .PHONY: test test-backend test-frontend
 # Wrapper to run Playwright shards locally when TEST_SHARDS>1.
 define run_playwright
+BASE_CMD="BACKEND_PORT=18000 E2E_BACKEND_PORT=18000 VITE_DISABLE_CHECKER=1 $(PNPM) exec playwright test"; \
 if [ $(TEST_SHARDS) -eq 1 ]; then \
-  $(PNPM) run e2e; \
+  eval $$BASE_CMD; \
 else \
-  seq 1 $(TEST_SHARDS) | xargs -P $(TEST_SHARDS) -I{} bash -c '$(PNPM) run e2e -- --shard={}/$(TEST_SHARDS)'; \
+  seq 1 $(TEST_SHARDS) | xargs -P $(TEST_SHARDS) -I{} bash -c "$$BASE_CMD --shard={}/$(TEST_SHARDS)"; \
 fi
 endef
 

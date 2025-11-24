@@ -67,7 +67,10 @@ jobs:
         working-directory: frontend
         env:
           CI: "true"
-        run: pnpm run e2e -- --shard=${{ matrix.shard }}/3
+          BACKEND_PORT: 18000
+          E2E_BACKEND_PORT: 18000
+          VITE_DISABLE_CHECKER: 1
+        run: pnpm exec playwright test --shard=${{ matrix.shard }}/3
 
       - name: Upload frontend artifacts
         if: always()
@@ -78,4 +81,3 @@ jobs:
             frontend/playwright-report/
             frontend/test-results/
           if-no-files-found: warn
-
