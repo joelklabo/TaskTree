@@ -7,6 +7,7 @@ PNPM_LOG_DIR=$(CURDIR)/logs/npm
 LINT_LOG_DIR=$(CURDIR)/logs/lint
 PNPM_AGG_LOG=$(CURDIR)/logs/npm.log
 LINT_AGG_LOG=$(CURDIR)/logs/lint.log
+TEST_SHARDS ?= 1
 
 .PHONY: setup setup-backend setup-frontend setup-tools
 setup-backend:
@@ -192,11 +193,20 @@ tmux-log-watch:
 	TMUX_SESSION=$(SESSION) CMD_OVERRIDE="$(CMD)" ./scripts/tmux/log_watch_pane.sh
 
 .PHONY: test test-backend test-frontend
+# Wrapper to run Playwright shards locally when TEST_SHARDS>1.
+define run_playwright
+if [ $(TEST_SHARDS) -eq 1 ]; then \
+  $(PNPM) run e2e; \
+else \
+  seq 1 $(TEST_SHARDS) | xargs -P $(TEST_SHARDS) -I{} bash -c '$(PNPM) run e2e -- --shard={}/$(TEST_SHARDS)'; \
+fi
+endef
+
 test-backend:
 	cd backend && uv run pytest --cov=tasktree --cov-report=xml
 
 test-frontend:
-	cd frontend && $(PNPM) run test:unit && $(PNPM) run coverage && $(PNPM) run e2e
+	cd frontend && $(PNPM) run test:unit && $(PNPM) run coverage && $(run_playwright)
 
 test: test-backend test-frontend
 	@echo "Full suite finished (backend + frontend + Playwright e2e)"
