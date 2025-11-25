@@ -157,7 +157,8 @@ steps:
     await page.locator('textarea#prompt-override').fill('Custom prompt body');
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('My Scenario')).toBeVisible();
+    // Scope the assertion to the saved-scenario context to avoid duplicate text matches.
+    await expect(page.getByTestId('debug-context').getByText('My Scenario')).toBeVisible();
 
     await page.getByRole('button', { name: 'Start Debugging' }).click();
 

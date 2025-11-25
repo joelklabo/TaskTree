@@ -97,17 +97,26 @@ jobs:
         working-directory: frontend
         env:
           CI: "true"
-        run: ../scripts/ci/retry.sh 2 10 pnpm run e2e
+          PLAYWRIGHT_HTML_REPORT: playwright-report
+        run: ../scripts/ci/retry.sh 2 10 pnpm exec playwright test \
+          --config=playwright.config.ts \
+          --reporter=line,html \
+          --output=test-results
 
       - name: Build
         working-directory: frontend
         run: pnpm run build
 
-      - name: Ensure artifact directories
+      - name: Ensure artifact contents
         if: always()
         run: |
           mkdir -p frontend/playwright-report frontend/test-results
-          touch frontend/playwright-report/.keep frontend/test-results/.keep
+          if [ ! -f frontend/playwright-report/index.html ]; then
+            echo "HTML report not generated (likely reporter override missing)." > frontend/playwright-report/README.txt
+          fi
+          if [ -z "$(ls -A frontend/test-results)" ]; then
+            echo "No traces or attachments were produced for this run." > frontend/test-results/README.txt
+          fi
 
       - name: Upload frontend artifacts
         if: always()

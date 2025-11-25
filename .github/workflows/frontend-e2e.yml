@@ -63,6 +63,12 @@ jobs:
         working-directory: frontend
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: List E2E specs (debugging)
+        working-directory: frontend
+        run: |
+          echo "E2E spec files:"
+          ls -1 tests/e2e || true
+
       - name: E2E shard ${{ matrix.shard }}/3
         working-directory: frontend
         env:
@@ -70,13 +76,22 @@ jobs:
           BACKEND_PORT: 18000
           E2E_BACKEND_PORT: 18000
           VITE_DISABLE_CHECKER: 1
-        run: pnpm exec playwright test --shard=${{ matrix.shard }}/3
+        run: PLAYWRIGHT_HTML_REPORT=playwright-report pnpm exec playwright test \
+          --config=playwright.config.ts \
+          --shard=${{ matrix.shard }}/3 \
+          --reporter=line,html \
+          --output=test-results
 
-      - name: Ensure artifact directories
+      - name: Ensure artifact contents
         if: always()
         run: |
           mkdir -p frontend/playwright-report frontend/test-results
-          touch frontend/playwright-report/.keep frontend/test-results/.keep
+          if [ ! -f frontend/playwright-report/index.html ]; then
+            echo "HTML report not generated (likely reporter override missing)." > frontend/playwright-report/README.txt
+          fi
+          if [ -z "$(ls -A frontend/test-results)" ]; then
+            echo "No traces or attachments were produced for this shard." > frontend/test-results/README.txt
+          fi
 
       - name: Upload frontend artifacts
         if: always()

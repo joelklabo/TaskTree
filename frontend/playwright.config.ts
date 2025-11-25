@@ -1,15 +1,27 @@
+import path from "node:path";
 import { defineConfig } from "@playwright/test";
 
 const baseURL = process.env.E2E_BASE_URL || "http://localhost:4173";
 const useExternalServer = process.env.E2E_EXTERNAL === "1";
+const testDir = path.join(__dirname, "tests", "e2e");
 
 export default defineConfig({
-  testDir: "./tests/e2e",
+  // Using an absolute path avoids any ambiguity if the working directory
+  // changes in CI and makes “no tests found” failures easier to diagnose.
+  testDir,
   timeout: 60_000,
   expect: {
     timeout: 10_000
   },
   globalSetup: "./tests/e2e/global-setup.ts",
+  reporter:
+    process.env.CI === "true"
+      ? [
+          ["line"],
+          ["html", { outputFolder: "playwright-report", open: "never" }]
+        ]
+      : "list",
+  outputDir: "test-results",
   use: {
     baseURL,
     headless: true,
