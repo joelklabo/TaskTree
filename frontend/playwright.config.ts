@@ -1,9 +1,10 @@
-import path from "node:path";
 import { defineConfig } from "@playwright/test";
+import path from "node:path";
 
 const baseURL = process.env.E2E_BASE_URL || "http://localhost:4173";
 const useExternalServer = process.env.E2E_EXTERNAL === "1";
-const testDir = path.join(__dirname, "tests", "e2e");
+// Use the working directory so GitHub Actions + pnpm exec resolve identically.
+const testDir = path.resolve(process.cwd(), "tests", "e2e");
 
 export default defineConfig({
   // Using an absolute path avoids any ambiguity if the working directory
