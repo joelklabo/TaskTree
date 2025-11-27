@@ -80,7 +80,8 @@ jobs:
           --config=playwright.config.ts \
           --shard=${{ matrix.shard }}/3 \
           --reporter=line,html \
-          --output=test-results
+          --output=test-results \
+          tests/e2e
 
       - name: Ensure artifact contents
         if: always()

@@ -101,7 +101,8 @@ jobs:
         run: ../scripts/ci/retry.sh 2 10 pnpm exec playwright test \
           --config=playwright.config.ts \
           --reporter=line,html \
-          --output=test-results
+          --output=test-results \
+          tests/e2e
 
       - name: Build
         working-directory: frontend
