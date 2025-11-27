@@ -6,6 +6,9 @@ const useExternalServer = process.env.E2E_EXTERNAL === "1";
 // Use the working directory so GitHub Actions + pnpm exec resolve identically.
 const testDir = path.resolve(process.cwd(), "tests", "e2e");
 
+// Helpful diagnostics when CI can't discover tests.
+console.log("[playwright-config] cwd:", process.cwd(), "testDir:", testDir);
+
 export default defineConfig({
   // Using an absolute path avoids any ambiguity if the working directory
   // changes in CI and makes “no tests found” failures easier to diagnose.
