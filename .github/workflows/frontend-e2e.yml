@@ -76,7 +76,10 @@ jobs:
           BACKEND_PORT: 18000
           E2E_BACKEND_PORT: 18000
           VITE_DISABLE_CHECKER: 1
-        run: PLAYWRIGHT_HTML_REPORT=playwright-report pnpm exec playwright test \
+        run: |
+          echo "Listing Playwright tests for debugging"
+          pnpm exec playwright list --config=playwright.config.cjs
+          PLAYWRIGHT_HTML_REPORT=playwright-report pnpm exec playwright test \
           --config=playwright.config.cjs \
           --shard=${{ matrix.shard }}/3 \
           --reporter=line,html \

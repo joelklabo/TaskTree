@@ -98,7 +98,10 @@ jobs:
         env:
           CI: "true"
           PLAYWRIGHT_HTML_REPORT: playwright-report
-        run: ../scripts/ci/retry.sh 2 10 pnpm exec playwright test \
+        run: |
+          echo "Listing Playwright tests for debugging"
+          pnpm exec playwright list --config=playwright.config.cjs
+          ../scripts/ci/retry.sh 2 10 pnpm exec playwright test \
           --config=playwright.config.cjs \
           --reporter=line,html \
           --output=test-results

@@ -4,11 +4,13 @@ const { defineConfig } = require('@playwright/test');
 const baseURL = process.env.E2E_BASE_URL || 'http://localhost:4173';
 const useExternalServer = process.env.E2E_EXTERNAL === '1';
 const testDir = path.join(__dirname, 'tests', 'e2e');
+const testMatch = '**/*.spec.ts';
 
-console.log('[playwright-config.cjs] cwd:', process.cwd(), 'testDir:', testDir);
+console.log('[playwright-config.cjs] cwd:', process.cwd(), 'testDir:', testDir, 'testMatch:', testMatch);
 
 module.exports = defineConfig({
   testDir,
+  testMatch,
   timeout: 60_000,
   expect: { timeout: 10_000 },
   globalSetup: './tests/e2e/global-setup.ts',
