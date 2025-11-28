@@ -3,6 +3,8 @@ import { fetchTraces, TraceMeta } from "../api/client";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Input } from "../components/ui/input";
 import { Skeleton } from "../components/ui/skeleton";
 import {
   Table,
@@ -65,31 +67,103 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
     setFlowFilter(null);
   };
 
+  const totalRuns = runs.length;
+  const uniqueFlows = flowNames.length;
+  const completedRuns = runs.filter((r) => r.status === "tests_passed" || r.status === "success");
+  const completionLabel = totalRuns === 0 ? "0" : `${completedRuns.length}/${totalRuns}`;
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Traces</h2>
-          <p className="text-sm text-muted-foreground">
-            Inspect captured trace runs, commands, and start times.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            type="search"
-            placeholder="Filter runs by flow, label, or command"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-9 min-w-[240px] rounded-md border px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label="Filter runs"
-          />
-          {query ? (
-            <Button variant="ghost" size="sm" onClick={() => setQuery("")}>
-              Clear
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">Traces</h1>
+
+      <Card
+        className="border bg-gradient-to-r from-slate-50 via-white to-sky-50"
+        data-testid="traces-hero"
+      >
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Trace Observatory
+            </p>
+            <CardTitle className="text-2xl">Inspect runs and replay evidence</CardTitle>
+            <CardDescription>
+              Filter by flow, label, or command; jump into a run’s trace timeline in one click.
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              disabled={!query && !flowFilter}
+            >
+              Reset filters
             </Button>
-          ) : null}
-        </div>
-      </div>
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Total runs</p>
+            <p className="text-2xl font-semibold">{totalRuns}</p>
+            <p className="text-xs text-muted-foreground">Captured in this workspace</p>
+          </div>
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Unique flows</p>
+            <p className="text-2xl font-semibold">{uniqueFlows}</p>
+            <p className="text-xs text-muted-foreground">Grouped by flow name</p>
+          </div>
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Completed</p>
+            <p className="text-2xl font-semibold">{completionLabel}</p>
+            <p className="text-xs text-muted-foreground">tests_passed / success statuses</p>
+          </div>
+          <div className="md:col-span-3 grid gap-3 md:grid-cols-[1.25fr,1fr]">
+            <div className="space-y-2">
+              <label htmlFor="traces-search" className="text-sm font-medium text-foreground">
+                Filter runs
+              </label>
+              <Input
+                id="traces-search"
+                type="search"
+                placeholder="Filter runs by flow, label, or command"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Filter runs"
+              />
+              <p className="text-xs text-muted-foreground">
+                Type a run id, flow name, or label to narrow the list.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="flow-quick-filters" className="text-sm font-medium text-foreground">
+                Quick filters
+              </label>
+              <div className="flex flex-wrap gap-2" id="flow-quick-filters">
+                {flowNames.length === 0 ? (
+                  <span className="text-xs text-muted-foreground">No flows yet</span>
+                ) : (
+                  flowNames.map((name) => (
+                    <Button
+                      key={name}
+                      type="button"
+                      size="sm"
+                      variant={flowFilter === name ? "default" : "secondary"}
+                      onClick={() => setFlowFilter((prev) => (prev === name ? null : name))}
+                    >
+                      {name}
+                    </Button>
+                  ))
+                )}
+                {(query || flowFilter) && (
+                  <Button type="button" size="sm" variant="ghost" onClick={clearFilters}>
+                    Clear filters
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {error && (
         <Alert variant="destructive">
@@ -97,25 +171,6 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-
-      <div className="flex flex-wrap items-center gap-2">
-        {flowNames.map((name) => (
-          <Button
-            key={name}
-            type="button"
-            size="sm"
-            variant={flowFilter === name ? "default" : "secondary"}
-            onClick={() => setFlowFilter((prev) => (prev === name ? null : name))}
-          >
-            {name}
-          </Button>
-        ))}
-        {(query || flowFilter) && (
-          <Button type="button" size="sm" variant="ghost" onClick={clearFilters}>
-            Clear filters
-          </Button>
-        )}
-      </div>
 
       {loading ? (
         <div className="space-y-3">

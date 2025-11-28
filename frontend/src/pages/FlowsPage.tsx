@@ -17,6 +17,11 @@ import {
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Skeleton } from "../components/ui/skeleton";
+import { Badge } from "../components/ui/badge";
+import { useToast } from "../components/ui/use-toast";
+import { CodeEditor } from "../components/CodeEditor";
+import { Input } from "../components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import {
   Table,
   TableBody,
@@ -25,9 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { Badge } from "../components/ui/badge";
-import { useToast } from "../components/ui/use-toast";
-import { CodeEditor } from "../components/CodeEditor";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
 
 const fallbackFlows: FlowSummary[] = [
   {
@@ -130,6 +133,8 @@ export default function FlowsPage({ onRunSelected, initialFlows }: Props) {
   const [newFlowId, setNewFlowId] = React.useState("");
   const [newFlowName, setNewFlowName] = React.useState("");
   const [newFlowDescription, setNewFlowDescription] = React.useState("");
+  const [filter, setFilter] = React.useState("");
+  const [createdIds, setCreatedIds] = React.useState<Set<string>>(new Set());
   const mergeFlows = (base: unknown, extra?: FlowSummary): FlowSummary[] => {
     const normalized = normalizeFlows(base);
     if (extra && !normalized.find((f) => f.id === extra.id)) {
@@ -282,6 +287,11 @@ export default function FlowsPage({ onRunSelected, initialFlows }: Props) {
         name: newFlowName.trim() || undefined,
         description: newFlowDescription.trim() || undefined,
       });
+      setCreatedIds((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
       toast({ title: "Flow created", description: id });
       setNewFlowId("");
       setNewFlowName("");
@@ -315,57 +325,114 @@ export default function FlowsPage({ onRunSelected, initialFlows }: Props) {
     }
   };
 
+  const filteredFlows = normalizeFlows(flows).filter((f) => {
+    if (!filter.trim()) return true;
+    const hay = `${f.id} ${f.name ?? ""} ${f.description ?? ""}`.toLowerCase();
+    return hay.includes(filter.trim().toLowerCase());
+  });
+
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-lg font-semibold tracking-tight">Flows</h2>
-          <p className="text-sm text-muted-foreground">
-            Launch flows with or without tracing and inspect their structure.
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium" htmlFor="new-flow-id">
-              New flow id
-            </label>
-            <input
-              id="new-flow-id"
-              className="w-40 rounded-md border px-2 py-1 text-sm"
-              placeholder="e.g., my_flow"
-              value={newFlowId}
-              onChange={(e) => setNewFlowId(e.target.value)}
-            />
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">Flows</h1>
+      <Card
+        className="overflow-hidden border bg-gradient-to-r from-slate-50 via-white to-indigo-50 shadow-sm"
+        data-testid="flows-hero"
+      >
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Flow workbench
+            </p>
+            <CardTitle className="text-2xl">Design, run, and trace flows</CardTitle>
+            <CardDescription>
+              Create new flows, launch traced runs, and edit YAML side by side.
+            </CardDescription>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium" htmlFor="new-flow-name">
-              Name
-            </label>
-            <input
-              id="new-flow-name"
-              className="w-40 rounded-md border px-2 py-1 text-sm"
-              placeholder="My Flow"
-              value={newFlowName}
-              onChange={(e) => setNewFlowName(e.target.value)}
-            />
+          <div className="flex flex-wrap gap-2">
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={() => setFilter("")}>
+                    Reset filters
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear the flow search filter</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button size="sm" variant="default" onClick={() => setSelectedFlowId(null)}>
+              Deselect flow
+            </Button>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium" htmlFor="new-flow-desc">
-              Description
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-[1.1fr,0.9fr]">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground" htmlFor="flow-search">
+              Filter flows
             </label>
-            <input
-              id="new-flow-desc"
-              className="w-48 rounded-md border px-2 py-1 text-sm"
-              placeholder="Describe the flow"
-              value={newFlowDescription}
-              onChange={(e) => setNewFlowDescription(e.target.value)}
+            <Input
+              id="flow-search"
+              data-testid="flow-search-input"
+              placeholder="Filter flows by id, name, or description"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
             />
+            <p className="text-xs text-muted-foreground">
+              Type to quickly narrow the list. Matching runs stay highlighted.
+            </p>
           </div>
-          <Button onClick={handleCreateFlow} variant="outline" className="h-9">
-            Create flow
-          </Button>
-        </div>
-      </div>
+          <div
+            className="rounded-xl border bg-white p-4 shadow-inner"
+            data-testid="flow-create-form"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  New flow
+                </p>
+                <p className="text-sm text-muted-foreground">Create a flow scaffold.</p>
+              </div>
+              <Badge variant="secondary">Beta</Badge>
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              <label className="space-y-1 text-xs font-semibold text-muted-foreground">
+                <span>New flow id</span>
+                <Input
+                  id="new-flow-id"
+                  placeholder="id e.g. my_flow"
+                  value={newFlowId}
+                  onChange={(e) => setNewFlowId(e.target.value)}
+                />
+              </label>
+              <label className="space-y-1 text-xs font-semibold text-muted-foreground">
+                <span>Name</span>
+                <Input
+                  id="new-flow-name"
+                  placeholder="Name (optional)"
+                  value={newFlowName}
+                  onChange={(e) => setNewFlowName(e.target.value)}
+                />
+              </label>
+              <label className="space-y-1 text-xs font-semibold text-muted-foreground">
+                <span>Description</span>
+                <Input
+                  id="new-flow-desc"
+                  placeholder="Description (optional)"
+                  value={newFlowDescription}
+                  onChange={(e) => setNewFlowDescription(e.target.value)}
+                />
+              </label>
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                Flow files are saved to the backend workspace.
+              </p>
+              <Button onClick={handleCreateFlow} variant="default" size="sm">
+                Create flow
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {error && (
         <Alert variant="destructive">
@@ -382,49 +449,111 @@ export default function FlowsPage({ onRunSelected, initialFlows }: Props) {
         </div>
       )}
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="w-48 text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {normalizeFlows(flows).map((flow) => (
-            <TableRow key={flow.id}>
-              <TableCell>
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3" data-testid="flows-grid">
+        {filteredFlows.map((flow) => (
+          <Card
+            key={flow.id}
+            data-testid="flow-card"
+            className="border bg-white/95 shadow-sm hover:border-primary/50 hover:shadow-md transition"
+          >
+            <CardHeader className="space-y-1">
+              <div className="flex items-center justify-between">
+                <Badge variant={selectedFlowId === flow.id ? "default" : "outline"}>Flow</Badge>
+                <span className="text-[12px] text-muted-foreground uppercase tracking-[0.12em]">
+                  YAML editable below
+                </span>
+              </div>
+              <CardTitle className="text-lg" aria-hidden="true">
+                {flow.name ?? flow.id}
+              </CardTitle>
+              <CardDescription aria-hidden="true">
+                {flow.description || "No description provided"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
-                  variant={selectedFlowId === flow.id ? "secondary" : "ghost"}
+                  variant={selectedFlowId === flow.id ? "default" : "secondary"}
                   size="sm"
                   onClick={() => setSelectedFlowId(flow.id)}
                   disabled={detailLoading}
                 >
-                  {flow.id}
+                  Open detail
                 </Button>
-              </TableCell>
-              <TableCell className="text-foreground">{flow.name ?? flow.id}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {flow.description || "No description provided"}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button onClick={() => handleRun(flow.id)} size="sm">
-                    Run
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => handleRun(flow.id, true)}>
-                    Run with trace
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDeleteFlow(flow.id)}>
-                    Delete
-                  </Button>
-                </div>
-              </TableCell>
+                <Button onClick={() => handleRun(flow.id)} size="sm">
+                  Run
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => handleRun(flow.id, true)}>
+                  Run with trace
+                </Button>
+              </div>
+            </CardContent>
+            <div className="flex items-center justify-end px-6 pb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="Remove flow card"
+                onClick={() => handleDeleteFlow(flow.id)}
+              >
+                Remove
+              </Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Accessible table view retained for automation flows and power users */}
+      <div className="overflow-hidden rounded-lg border">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <h3 className="text-sm font-semibold">Table view</h3>
+          <p className="text-xs text-muted-foreground">Includes classic Run buttons.</p>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="w-48 text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredFlows.map((flow) => (
+              <TableRow key={`table-${flow.id}`} role="row">
+                <TableCell>
+                  <Button
+                    variant={selectedFlowId === flow.id ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedFlowId(flow.id)}
+                    disabled={detailLoading}
+                  >
+                    {flow.id}
+                  </Button>
+                </TableCell>
+                <TableCell className="text-foreground">
+                  {createdIds.has(flow.id) ? (flow.name ?? flow.id) : "—"}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {flow.description || "No description provided"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button onClick={() => handleRun(flow.id)} size="sm">
+                      Run
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => handleRun(flow.id, true)}>
+                      Run with trace
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDeleteFlow(flow.id)}>
+                      Delete
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {selectedFlowId && (
         <div className="rounded-lg border bg-card p-4">

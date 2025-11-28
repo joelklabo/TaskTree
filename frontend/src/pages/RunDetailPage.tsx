@@ -3,7 +3,8 @@ import axios from "axios";
 import { fetchArtifacts, fetchTrace, ArtifactInfo } from "../api/client";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Badge } from "../components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Skeleton } from "../components/ui/skeleton";
 import { Separator } from "../components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -29,6 +30,7 @@ export default function RunDetailPage({ runRef }: Props) {
   const [artifactsMissing, setArtifactsMissing] = React.useState(false);
   const [expandedRaw, setExpandedRaw] = React.useState<Record<string, boolean>>({});
   const [sessionRawOpen, setSessionRawOpen] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   React.useEffect(() => {
     if (!runRef.traceId) {
@@ -92,6 +94,21 @@ export default function RunDetailPage({ runRef }: Props) {
 
   const sessionStart = (sessionSummary.start_time as string) || null;
   const sessionEnd = (sessionSummary.end_time as string) || null;
+  const stepCount = timelineSteps.length;
+  const artifactCount = artifacts.length;
+
+  const formatDuration = (start?: string | null, end?: string | null) => {
+    if (!start || !end) return "—";
+    const ms = new Date(end).getTime() - new Date(start).getTime();
+    if (Number.isNaN(ms) || ms < 0) return "—";
+    const seconds = Math.round(ms / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const rem = seconds % 60;
+    return `${minutes}m ${rem}s`;
+  };
+
+  const duration = formatDuration(sessionStart, sessionEnd);
 
   const formatBytes = (n: number) => {
     if (n < 1024) return `${n} bytes`;
@@ -102,8 +119,86 @@ export default function RunDetailPage({ runRef }: Props) {
 
   const toggleRaw = (key: string) => setExpandedRaw((prev) => ({ ...prev, [key]: !prev[key] }));
 
+  const refreshData = async () => {
+    setRefreshing(true);
+    try {
+      if (!runRef.traceId) {
+        setTraceMissing(true);
+        setError(null);
+        setArtifactsMissing(true);
+        setArtifacts([]);
+        setRecords([]);
+        return;
+      }
+      setTraceMissing(false);
+      setArtifactsMissing(false);
+      const [traceRes, artifactRes] = await Promise.all([
+        fetchTrace(runRef.traceId),
+        fetchArtifacts(runRef.traceId),
+      ]);
+      setRecords(traceRes);
+      setArtifacts(artifactRes);
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">Session detail</h1>
+
+      <Card
+        className="border bg-gradient-to-r from-slate-50 via-white to-emerald-50"
+        data-testid="run-hero"
+      >
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Trace snapshot
+            </p>
+            <CardTitle className="text-2xl">Session overview</CardTitle>
+            <CardDescription>
+              Run {displayId} · Flow {(sessionSummary.flow_name as string) || "unknown"} · version{" "}
+              {(sessionSummary.flow_version as string) || "?"}
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="font-mono text-xs">
+              {displayId}
+            </Badge>
+            <Button size="sm" variant="secondary" onClick={refreshData} disabled={refreshing}>
+              {refreshing ? "Refreshing…" : "Reload trace"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-4">
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Steps</p>
+            <p className="text-2xl font-semibold">{stepCount}</p>
+            <p className="text-xs text-muted-foreground">Timeline events</p>
+          </div>
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Captured files</p>
+            <p className="text-2xl font-semibold">{artifactCount}</p>
+            <p className="text-xs text-muted-foreground">Files captured</p>
+          </div>
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Duration</p>
+            <p className="text-2xl font-semibold">{duration}</p>
+            <p className="text-xs text-muted-foreground">From start to end</p>
+          </div>
+          <div className="space-y-1 rounded-lg border bg-white p-3 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground">Status</p>
+            <p className="text-2xl font-semibold capitalize">
+              {(sessionSummary.status as string) || "—"}
+            </p>
+            <p className="text-xs text-muted-foreground">From session summary</p>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex flex-wrap items-center gap-3">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Run {displayId}</h2>
