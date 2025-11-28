@@ -115,6 +115,9 @@ See `docs/tasktree-cli-usage.md` for a complete walkthrough (tested in CI), `AGE
 - Log sources config: `logs/log_sources.yaml` lists all globs searched by `log_search.sh`/alerts; defaults include repo logs, traces, and `~/.copilot/**/logs/**`; add entries for VS Code, Copilot CLI, Codex CLI, npm logs, etc.
 - Log discovery/overview: `scripts/discover_logs.sh` suggests globs to add; `scripts/log_sources_overview.sh` summarizes counts/mtimes for configured sources.
 
+## Lightweight archives
+- Use `make zip` (wraps `scripts/zip_repo.sh`) to produce a code-only archive that respects `.gitignore`. Defaults exclude heavy assets (node_modules, logs, caches); see `docs/repo-compression.md` for flags and the full inclusion/exclusion policy.
+
 ## GitHub Pages & previews
 - Marketing site lives in `site/` (bold gradient hero, stat cards, CTA) and publishes with the frontend build to GitHub Pages via `.github/workflows/pages.yml`.
 - PRs touching `site/` or `frontend/` get a Pages preview comment with the preview URL; main publishes to the Pages environment.

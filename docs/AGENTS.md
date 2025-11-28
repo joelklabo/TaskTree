@@ -1,12 +1,12 @@
 # TaskTree Agents
 
-TaskTree treats agents as plugins: small, focused Python classes that turn context + prompts into actions and results. Everything should be implemented in a **TTD workflow: Test-first, Trace, Document**. That means you do **not** write or ship code without tests, traces, and documentation:
+TaskTree treats agents as plugins: small, focused Python classes that turn context + prompts into actions and results. Everything should be implemented in a **TTD workflow: Test-first, Trace, Document** with **all work tracked in Beads (`bd`)**. That means you do **not** write or ship code without tests, traces, documentation, and a Beads issue that captures the work:
 
 1. Start with a failing test or reproduction (unit, integration, or CLI-level). **All logging must flow through TaskTree**: use the `/api/logs/*` endpoints or `tt logs` CLI, not ad-hoc `/tmp` tails or direct file reads.
 2. Make the smallest change to get green.
 3. Capture traces/artifacts when running flows (via the trace wrapper) to keep runs reproducible.
 4. Document the change immediately (README, docs/, comments where needed).
-5. Commit early and often with clear messages.
+5. Commit early and often with clear messages. Tie commits to Beads issues in descriptions/notes when relevant.
 6. Run `make test` (backend + frontend + Playwright e2e) on every change—no skipping e2e even for docs-only or “tiny” edits.
 7. If you cannot add a test/trace (e.g., missing infra), document the gap in the PR/commit message and add a TODO to backfill.
 
@@ -18,6 +18,7 @@ This document covers:
 - YAML configuration
 - Built-in/planned agents
 - Leases & the constitution
+- Beads workflow for agents
 - Adding a new agent
 - Recommended TTD loop for agents
 - ChatOps commands
@@ -109,7 +110,18 @@ The YAML dict is passed to your agent class; define whatever keys you need, but 
 
 ---
 
-## 4. Leases & the constitution
+## 4. Beads workflow for agents
+
+- **Source of truth**: Every work item lives in Beads. Create issues with `bd create "<title>" -d "<context>" [--parent <epic>] [--deps blocks:TaskTree-123]`. Use types/labels for clarity.
+- **Status discipline**: Move issues through `open` → `in-progress` → `closed` via `bd update <id> --status ... --notes "<why>"`. Close after merges; reopen if regressions.
+- **Dependencies & readiness**: Capture blockers with `bd dep add blocks:<child> <parent>` (or during create). Run `bd ready` before starting to respect dependencies.
+- **Context for agents**: Hydrate prompts with `bd prime` or `bd show <id>`; include issue IDs in traces/logs; prefer `bd comment <id> --notes "<update>"` over editing ad-hoc plan docs.
+- **Sync**: Keep `.beads/` committed. Use `bd status` before/after work and `bd sync` when collaborating across machines/branches.
+- **No plan markdowns**: Historical plan files were migrated into Beads; add new work only via `bd`.
+
+---
+
+## 5. Leases & the constitution
 
 Agents are subject to `config/constitution.yaml`.
 
@@ -120,7 +132,7 @@ Agents are subject to `config/constitution.yaml`.
 
 ---
 
-## 5. TTD loop for agents (recommended)
+## 6. TTD loop for agents (recommended)
 
 1. Reproduce the task via flow input or unit test.
 2. Write/adjust tests (pytest, integration, or golden trace) to capture expected behavior.
@@ -138,17 +150,17 @@ Agents are subject to `config/constitution.yaml`.
 7. Update docs/README with what changed and why; attach artifacts where useful.
 8. Commit with a concise message. Commit early and often.
 9. Do not stop the loop early: only stop when work is blocked (`wait`), all tasks are done (`discover`), or a human interrupts. Treat "reporting progress" alone as invalid stop condition.
-10. When updating plan docs or marking tasks done, identify yourself with a **color-based handle** derived from the session start timestamp to avoid collisions across agents. Suggested algorithm: pick a color list (["red","blue","green","amber","teal","violet","gray"]); compute `idx = (timestamp_seconds % len(colors))`; handle = `colors[idx]` + "-" + `last4hex(timestamp_seconds)`. Keep the same handle for the session; do not use plain names like "assistant".
+10. When updating Beads issues, add succinct notes (`bd comment --notes ...`) about test/trace artifacts and status changes; reference trace IDs or log artifacts where useful.
 
 Autonomous loop guardrails:
 
-- Check plan status before/after tasks; if not action=discover/wait, keep going.
+- Check Beads status (`bd status`) before/after tasks; if not action=discover/wait, keep going.
 - Valid stop reasons: discover (no tasks), wait (blocked/lock), human interrupt, unrecoverable error after retries.
 - Invalid stop reasons: "just reporting progress", "task looks hard", stopping without checking status.
 
 ---
 
-## Shell tool rubric (use these by default)
+## 7. Shell tool rubric (use these by default)
 
 - Find files: `fd`
 - Find text: `rg` (ripgrep)
@@ -160,7 +172,7 @@ Autonomous loop guardrails:
 
 ---
 
-## 6. Adding a new agent
+## 8. Adding a new agent
 
 1. Create `config/agents/your_agent_id.yaml` with required params.
 2. Implement `tasktree/agents/your_agent_id.py`:
@@ -207,7 +219,7 @@ Helpers to reuse:
 
 ---
 
-## 7. Tracing & artifacts
+## 9. Tracing & artifacts
 
 Run flows via the trace wrapper to capture runs:
 
@@ -232,7 +244,7 @@ Agents can write artifacts via `tasktree.tracing.Tracer.artifact_path`.
 
 ---
 
-## 8. ChatOps commands (slash commands on PRs)
+## 10. ChatOps commands (slash commands on PRs)
 
 - `/test backend` — run backend lint/tests via `manual-tests.yml`.
 - `/test frontend` — run frontend lint/unit/e2e.
@@ -242,7 +254,7 @@ Agents can write artifacts via `tasktree.tracing.Tracer.artifact_path`.
 
 ---
 
-## 9. Make targets quick reference
+## 11. Make targets quick reference
 
 | Scenario                 | Backend                 | Frontend                 | Tools/notes                                      | All-in-one            |
 | ------------------------ | ----------------------- | ------------------------ | ------------------------------------------------ | --------------------- |
@@ -271,7 +283,7 @@ Notes: `make lint-backend` auto-applies Ruff fixes (`--fix`). `make test` runs b
 
 ---
 
-## 10. Debugger & Editor
+## 12. Debugger & Editor
 
 TaskTree includes a live debugger and configuration editor.
 
