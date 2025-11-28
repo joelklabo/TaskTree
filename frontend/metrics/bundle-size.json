@@ -1,0 +1,22 @@
+{
+  "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "notes": "Post code-splitting of App tabs (React.lazy + Suspense). Vite build with --stats.",
+  "artifacts": [
+    {"file": "dist/assets/index-B8_QaAUf.js", "bytes": 301220, "gzip_bytes": 99700},
+    {"file": "dist/assets/FlowGraph-CTE8jzD_.js", "bytes": 156040, "gzip_bytes": 46180},
+    {"file": "dist/assets/CodeEditor-RxUZjSm4.js", "bytes": 74410, "gzip_bytes": 26130},
+    {"file": "dist/assets/StyleguidePage-zu3hcJi9.js", "bytes": 10210, "gzip_bytes": 3540},
+    {"file": "dist/assets/RunDetailPage-D1wW6w8O.js", "bytes": 10430, "gzip_bytes": 2980},
+    {"file": "dist/assets/FlowsPage-BlHz4dND.js", "bytes": 13710, "gzip_bytes": 3930},
+    {"file": "dist/assets/DebugPage-BWSVKXii.js", "bytes": 14300, "gzip_bytes": 4400},
+    {"file": "dist/assets/TracesPage-2cA-kmNN.js", "bytes": 6110, "gzip_bytes": 1950},
+    {"file": "dist/assets/DashboardPage-BAW8FATv.js", "bytes": 6220, "gzip_bytes": 1820},
+    {"file": "dist/assets/ErrorPlaygroundPage-DsOtRWCR.js", "bytes": 7120, "gzip_bytes": 2580},
+    {"file": "dist/assets/FlowWorkbenchPage-BaMWGfrh.js", "bytes": 5480, "gzip_bytes": 1840},
+    {"file": "dist/assets/LogsPage-oJU8n-8S.js", "bytes": 2000, "gzip_bytes": 930},
+    {"file": "dist/assets/ConstitutionPage-N-ZvobwK.js", "bytes": 3650, "gzip_bytes": 1260},
+    {"file": "dist/assets/EditorPage-dmowBib7.js", "bytes": 3010, "gzip_bytes": 1270},
+    {"file": "dist/assets/scroll-area-Dy2TUFqK.js", "bytes": 12440, "gzip_bytes": 3930},
+    {"file": "dist/assets/index-Bd3NmvOC.css", "bytes": 35980, "gzip_bytes": 7170}
+  ]
+}

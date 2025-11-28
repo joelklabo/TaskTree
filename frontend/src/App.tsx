@@ -1,15 +1,4 @@
 import React from "react";
-import ConstitutionPage from "./pages/ConstitutionPage";
-import ErrorPlaygroundPage from "./pages/ErrorPlaygroundPage";
-import FlowsPage from "./pages/FlowsPage";
-import RunDetailPage from "./pages/RunDetailPage";
-import TracesPage from "./pages/TracesPage";
-import DashboardPage from "./pages/DashboardPage";
-import LogsPage from "./pages/LogsPage";
-import { EditorPage } from "./pages/EditorPage";
-import { DebugPage } from "./pages/DebugPage";
-import { FlowWorkbenchPage } from "./pages/FlowWorkbenchPage";
-import StyleguidePage from "./pages/StyleguidePage";
 import { fetchLogEvents } from "./api/client";
 import { fetchFlows, fetchTraces } from "./api/client";
 import dashboardFixture from "./__tests__/fixtures/dashboard_state.json";
@@ -22,6 +11,25 @@ import { useToast } from "./components/ui/use-toast";
 import { DevServerStatus } from "./components/DevServerStatus";
 import { Input } from "./components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/ui/tooltip";
+import { Skeleton } from "./components/ui/skeleton";
+
+const FlowsPage = React.lazy(() => import("./pages/FlowsPage"));
+const RunDetailPage = React.lazy(() => import("./pages/RunDetailPage"));
+const TracesPage = React.lazy(() => import("./pages/TracesPage"));
+const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
+const LogsPage = React.lazy(() => import("./pages/LogsPage"));
+const ErrorPlaygroundPage = React.lazy(() => import("./pages/ErrorPlaygroundPage"));
+const ConstitutionPage = React.lazy(() => import("./pages/ConstitutionPage"));
+const EditorPage = React.lazy(() =>
+  import("./pages/EditorPage").then((m) => ({ default: m.EditorPage })),
+);
+const DebugPage = React.lazy(() =>
+  import("./pages/DebugPage").then((m) => ({ default: m.DebugPage })),
+);
+const FlowWorkbenchPage = React.lazy(() =>
+  import("./pages/FlowWorkbenchPage").then((m) => ({ default: m.FlowWorkbenchPage })),
+);
+const StyleguidePage = React.lazy(() => import("./pages/StyleguidePage"));
 
 type View =
   | "flows"
@@ -129,6 +137,14 @@ export default function App() {
     setRunRef(ref);
     setView("run");
   };
+
+  const LoadingCard = () => (
+    <div className="space-y-3 rounded-xl border bg-card/80 p-4">
+      <Skeleton className="h-4 w-24" />
+      <Skeleton className="h-6 w-48" />
+      <Skeleton className="h-24 w-full" />
+    </div>
+  );
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-foreground">
@@ -324,44 +340,66 @@ export default function App() {
               </TabsList>
 
               <TabsContent value="flows" className="border-none p-0">
-                <FlowsPage onRunSelected={handleRunSelected} initialFlows={prefetchedFlows} />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <FlowsPage onRunSelected={handleRunSelected} initialFlows={prefetchedFlows} />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="errors" className="border-none p-0">
-                <ErrorPlaygroundPage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <ErrorPlaygroundPage />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="logs" className="border-none p-0">
-                <LogsPage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <LogsPage />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="traces" className="border-none p-0">
-                <TracesPage
-                  initialRuns={prefetchedTraces}
-                  onSelectRun={(id) => handleRunSelected({ sessionId: id, traceId: id })}
-                />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <TracesPage
+                    initialRuns={prefetchedTraces}
+                    onSelectRun={(id) => handleRunSelected({ sessionId: id, traceId: id })}
+                  />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="constitution" className="border-none p-0">
-                <ConstitutionPage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <ConstitutionPage />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="run" className="border-none p-0">
-                {runRef ? (
-                  <RunDetailPage runRef={runRef} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">Select a run to view details.</p>
-                )}
+                <React.Suspense fallback={<LoadingCard />}>
+                  {runRef ? (
+                    <RunDetailPage runRef={runRef} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Select a run to view details.</p>
+                  )}
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="dashboard" className="border-none p-0">
-                <DashboardPage initialState={prefetchedDashboard} />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <DashboardPage initialState={prefetchedDashboard} />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="editor" className="border-none p-0">
-                <EditorPage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <EditorPage />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="debug" className="border-none p-0">
-                <DebugPage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <DebugPage />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="workbench" className="border-none p-0">
-                <FlowWorkbenchPage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <FlowWorkbenchPage />
+                </React.Suspense>
               </TabsContent>
               <TabsContent value="styleguide" className="border-none p-0">
-                <StyleguidePage />
+                <React.Suspense fallback={<LoadingCard />}>
+                  <StyleguidePage />
+                </React.Suspense>
               </TabsContent>
             </Tabs>
           </CardContent>
