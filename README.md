@@ -119,9 +119,12 @@ See `docs/tasktree-cli-usage.md` for a complete walkthrough (tested in CI), `AGE
 - Styling conventions: prefer shared tokens (`--background`, `--primary`, `--radius`) over ad-hoc colors; use utility merges via `cn` from `@/lib/utils`.
 - Testing: run `npm run test` (Vitest) and `npm run e2e` (Playwright) after UI changes; Peekaboo captures live under `frontend/tests/e2e/peekaboo-*.spec.ts`.
 - Docs: see `docs/FE_SHADCN_CONTEXT.md` for design tokens/brand inputs and `docs/FE_SHADCN_GUIDE.md` for quick start + recipes.
+- Theme toggles: press `Cmd/Ctrl + J` to toggle dark mode in the app (uses the `.dark` theme variables in `frontend/src/index.css`).
 - Screenshots: latest UI previews live in `frontend/docs/images` (captured via `pnpm --dir frontend exec playwright test tests/e2e/screenshot.spec.ts --workers=1`).
-  - Workspace hero: ![TaskTree workspace hero](frontend/docs/images/ui-hero.png)
-  - Flows view: ![TaskTree flows view](frontend/docs/images/ui-flows.png)
+  - Workspace hero (light): ![TaskTree workspace hero](frontend/docs/images/ui-hero.png)
+  - Flows view (light): ![TaskTree flows view](frontend/docs/images/ui-flows.png)
+  - Workspace hero (dark): ![TaskTree workspace hero dark](frontend/docs/images/ui-hero-dark.png)
+  - Flows view (dark): ![TaskTree flows view dark](frontend/docs/images/ui-flows-dark.png)
 
 ## Lightweight archives
 - Use `make zip` (wraps `scripts/zip_repo.sh`) to produce a code-only archive that respects `.gitignore`. Defaults exclude heavy assets (node_modules, logs, caches); see `docs/repo-compression.md` for flags and the full inclusion/exclusion policy.
