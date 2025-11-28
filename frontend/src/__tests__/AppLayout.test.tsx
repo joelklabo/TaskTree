@@ -51,6 +51,20 @@ describe("App layout polish", () => {
     expect(main.className).toMatch(/pb-2[024]/); // generous padding for scroll
     expect(main.className).toMatch(/max-w-6xl/);
 
-    await waitFor(() => expect(screen.getByText(/Workspace/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText(/Workspace/).length).toBeGreaterThan(0));
+  });
+
+  it("exposes the upgraded shell toolbar with search and quick actions", async () => {
+    render(<App />);
+
+    const search = await screen.findByPlaceholderText(/search flows, traces/i);
+    expect(search).toBeInTheDocument();
+
+    const commandButton = screen.getByTestId("command-menu-button");
+    expect(commandButton).toHaveTextContent(/Command/i);
+
+    const hero = screen.getByTestId("workspace-hero");
+    expect(hero).toBeInTheDocument();
+    expect(hero.className).toMatch(/gradient|glass|backdrop/i);
   });
 });
