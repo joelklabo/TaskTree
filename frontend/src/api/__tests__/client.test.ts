@@ -4,6 +4,8 @@ const mockGet = vi.fn<(path: string) => Promise<{ data: unknown }>>();
 const mockPost =
   vi.fn<(path: string, body?: unknown, config?: unknown) => Promise<{ data: unknown }>>();
 const mockPut = vi.fn<(path: string, body?: unknown) => Promise<{ data: unknown }>>();
+const mockInterceptorUse = vi.fn();
+const mockInterceptors = { response: { use: mockInterceptorUse } };
 
 vi.mock("axios", () => ({
   default: {
@@ -11,6 +13,7 @@ vi.mock("axios", () => ({
       get: mockGet,
       post: mockPost,
       put: mockPut,
+      interceptors: mockInterceptors,
     }),
   },
 }));
@@ -20,6 +23,7 @@ describe("api client wrappers", () => {
     mockGet.mockReset();
     mockPost.mockReset();
     mockPut.mockReset();
+    mockInterceptorUse.mockReset();
   });
 
   it("wraps flow/trace/run endpoints with the correct paths and headers", async () => {

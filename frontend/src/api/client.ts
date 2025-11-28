@@ -72,6 +72,45 @@ const api = axios.create({
   baseURL: "/api",
 });
 
+// Expose for tests
+export const apiClient = api;
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    try {
+      const url: string | undefined = error?.config?.url;
+      const status: number | undefined = error?.response?.status;
+      const method: string | undefined = error?.config?.method;
+
+      // Avoid recursive logging on the logging endpoint itself
+      const isLoggingEndpoint = typeof url === "string" && url.includes("/debug/log-client-error");
+
+      // Only capture server/transport failures; skip expected 4xx client errors
+      const shouldLog = !isLoggingEndpoint && (!status || status >= 500);
+
+      if (shouldLog) {
+        void logClientErrorFn({
+          message: error?.message || "API request failed",
+          name: "ApiError",
+          stack: error?.stack,
+          context: {
+            url,
+            status,
+            method,
+          },
+          user_agent: navigator.userAgent,
+        }).catch(() => {
+          /* swallow to avoid loops */
+        });
+      }
+    } catch {
+      // never throw from interceptor logging path
+    }
+    return Promise.reject(error);
+  },
+);
+
 export async function fetchFlows(): Promise<FlowSummary[]> {
   const res = await api.get<FlowSummary[]>("/flows/");
   return res.data;
@@ -211,6 +250,12 @@ export async function logClientError(payload: ClientErrorPayload): Promise<Clien
   const res = await api.post<ClientErrorResponse>("/debug/log-client-error", payload);
   return res.data;
 }
+
+// Allow tests to override the logging sink used by the interceptor
+let logClientErrorFn = logClientError;
+export const __setLogClientErrorForTest = (fn: typeof logClientError) => {
+  logClientErrorFn = fn;
+};
 
 export async function fetchConstitution(): Promise<Constitution> {
   const res = await api.get<Constitution>("/constitution/");
