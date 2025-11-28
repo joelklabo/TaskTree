@@ -77,11 +77,10 @@ jobs:
           E2E_BACKEND_PORT: 18000
           VITE_DISABLE_CHECKER: 1
         run: PLAYWRIGHT_HTML_REPORT=playwright-report pnpm exec playwright test \
-          --config=playwright.config.ts \
+          --config=playwright.config.cjs \
           --shard=${{ matrix.shard }}/3 \
           --reporter=line,html \
-          --output=test-results \
-          tests/e2e
+          --output=test-results
 
       - name: Ensure artifact contents
         if: always()

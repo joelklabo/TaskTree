@@ -99,10 +99,9 @@ jobs:
           CI: "true"
           PLAYWRIGHT_HTML_REPORT: playwright-report
         run: ../scripts/ci/retry.sh 2 10 pnpm exec playwright test \
-          --config=playwright.config.ts \
+          --config=playwright.config.cjs \
           --reporter=line,html \
-          --output=test-results \
-          tests/e2e
+          --output=test-results
 
       - name: Build
         working-directory: frontend
