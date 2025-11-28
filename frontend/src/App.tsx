@@ -129,6 +129,12 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-foreground">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-24 top-[-8%] h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute right-[-12%] top-[24%] h-52 w-52 rounded-full bg-indigo-200/60 blur-2xl" />
@@ -170,6 +176,7 @@ export default function App() {
       </header>
 
       <main
+        id="main-content"
         className="relative mx-auto max-w-6xl px-5 py-6 pb-24 lg:px-6 lg:py-10"
         data-testid="workspace-main"
       >
