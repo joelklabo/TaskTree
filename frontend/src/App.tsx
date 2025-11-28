@@ -9,6 +9,7 @@ import LogsPage from "./pages/LogsPage";
 import { EditorPage } from "./pages/EditorPage";
 import { DebugPage } from "./pages/DebugPage";
 import { FlowWorkbenchPage } from "./pages/FlowWorkbenchPage";
+import StyleguidePage from "./pages/StyleguidePage";
 import { fetchLogEvents } from "./api/client";
 import { fetchFlows, fetchTraces } from "./api/client";
 import dashboardFixture from "./__tests__/fixtures/dashboard_state.json";
@@ -32,7 +33,8 @@ type View =
   | "logs"
   | "editor"
   | "debug"
-  | "workbench";
+  | "workbench"
+  | "styleguide";
 type RunRef = { sessionId: string; traceId?: string };
 
 const pathToView = (path: string): View => {
@@ -48,6 +50,7 @@ const pathToView = (path: string): View => {
   if (trimmed === "debug") return "debug";
   if (trimmed === "workbench") return "workbench";
   if (trimmed === "flow-workbench") return "workbench";
+  if (trimmed === "styleguide") return "styleguide";
   return "flows";
 };
 
@@ -317,6 +320,7 @@ export default function App() {
                 <TabsTrigger value="run" disabled={!runRef}>
                   Run detail
                 </TabsTrigger>
+                <TabsTrigger value="styleguide">Styleguide</TabsTrigger>
               </TabsList>
 
               <TabsContent value="flows" className="border-none p-0">
@@ -355,6 +359,9 @@ export default function App() {
               </TabsContent>
               <TabsContent value="workbench" className="border-none p-0">
                 <FlowWorkbenchPage />
+              </TabsContent>
+              <TabsContent value="styleguide" className="border-none p-0">
+                <StyleguidePage />
               </TabsContent>
             </Tabs>
           </CardContent>

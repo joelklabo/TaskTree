@@ -39,14 +39,14 @@ Quick make targets:
 | Coverage | `make coverage-backend` | `make coverage-frontend` | — | `make coverage` |
 | Build | `make build-backend` | `make build-frontend` | — | `make build` |
 | Dev servers | `make dev-backend` | `make dev-frontend` | — | `make dev` (both) |
-| Scripts checks | — | — | `make verify-scripts` (shellcheck + tmux smokes) | — |
-| Dashboard | — | — | `make tmux` (session ttx) / `make tmux-info` | — |
+| Scripts checks | — | — | `make verify-scripts` (shellcheck for scripts) | — |
 
 Notes: `make lint-backend` runs Ruff with `--fix` before mypy/bandit/yamllint. `make test` runs backend pytest plus frontend Vitest **and** Playwright e2e (required for every change). `make ci` runs lint + test + build. `make setup-tools` installs shfmt/shellcheck into `.bin/` (PATH). For e2e-only reruns: `make test-e2e` (frontend Playwright).
 
 ### Dev servers and health
-- Local dev is running in tmux session `tasktree-dev` (backend on :8000 with reload; frontend on :5173 with `--host 127.0.0.1`). Attach with `tmux attach -t tasktree-dev`; detach with `Ctrl-b d`.
-- The UI header shows backend health via `DevServerStatus` (green when `/api/health` succeeds, red when offline). Logs/dev output stream inside the tmux window.
+- Backend: `make dev-backend` (FastAPI on :8000 with reload).
+- Frontend: `make dev-frontend` (Vite on :5173, proxies `/api` to :8000).
+- Health: the UI header shows backend health via `DevServerStatus` (green when `/api/health` succeeds, red when offline). Logs stream in each dev server terminal.
 
 ### Prompt skeleton helper
 - API: `GET /api/prompts/skeleton?action=<action>&agent=codex_cli` returns a JSON skeleton with the input keys referenced by the action’s prompt template (values empty). Useful for showing users what fields to fill.
@@ -82,7 +82,6 @@ Notes: `make lint-backend` runs Ruff with `--fix` before mypy/bandit/yamllint. `
   - Scripts: `scripts/log_top_errors.py` (core), `scripts/run_log_digest.sh` (wrapper), output `logs/error_digest.log`.
   - Webhook/API: POST the structured JSON to `http://localhost:8000/api/log-digest/` (`GET /api/log-digest/` for latest, `/api/log-digest/history` for history, `/api/log-digest/view` for a minimal HTML view). Set `WEBHOOK_URL=http://localhost:8000/api/log-digest/ WEBHOOK_FORMAT=json` when running the helper.
   - Optional flow trigger: set `TASKTREE_LOG_DIGEST_FLOW_ID=log_error_handler` (or another flow id) in the backend env to automatically kick off a flow when a digest arrives.
-- Dev supervisor: run `make dev-supervisor` (or `SESSION=my-dev BACKEND_PORT=8000 FRONTEND_PORT=5173 ./scripts/dev_supervisor.sh`) to launch backend+frontend in tmux with port checks and auto-restart loops (if either server exits it restarts after 2s). Attach with `tmux attach -t tasktree-dev`; defaults are backend :8000, frontend :5173 (e2e uses :4173 so there’s no conflict).
 - Flow graph rendering fix (log in `docs/flow-graph-rendering-dogfooding.md`), traced through `code_fix`:
   - `cd backend && uv run -m tasktree.agents.trace.record uv run tt run code_fix --input '{"bug_description": "Flow graph not rendering nodes in UI"}'`
   - Outcome: switched FlowGraph to `nodes`/`edges` props and added React Flow CSS; e2e and unit tests updated.
@@ -110,10 +109,19 @@ See `docs/tasktree-cli-usage.md` for a complete walkthrough (tested in CI), `AGE
 - Use Mermaid for diagrams where possible; keep source `.md/.mmd` files in `docs/mermaid/` (create as needed). See `docs/DIAGRAMS.md` for the render loop.
 - Current diagram source: `docs/mermaid/flow-overview.mmd` (render to SVG/PNG via mermaid-cli).
 - When behavior changes, update README and relevant docs in the same PR/commit to stay in sync.
-- Tmux dev dashboard: `docs/TMUX_DASHBOARD.md` (see `scripts/tmux_dashboard.sh`, `scripts/tmux_dashboard_smoke.sh`, `scripts/tmux_plugins.sh`, `scripts/log_search.sh`, `scripts/refresh_tmux_dashboard.sh`, `scripts/tmux_refresh_smoke.sh`); agent-facing overview: `docs/TMUX_AGENTS.md`.
-- Scripts: `make test-scripts` runs shellcheck (if installed) plus tmux smokes and the tmux e2e expect; `make tmux-e2e` runs the e2e only. `shfmt` is optional—install if you want POSIX shell formatting checks. Health/watchdog pane + on-demand check: see `docs/TMUX_DASHBOARD.md`. `make setup-tools` installs shfmt, shellcheck, and ripgrep into `.bin/`.
+- Scripts: `make test-scripts` runs shellcheck for our shell helpers. `shfmt` is optional—install if you want POSIX shell formatting checks. `make setup-tools` installs shfmt, shellcheck, and ripgrep into `.bin/`.
 - Log sources config: `logs/log_sources.yaml` lists all globs searched by `log_search.sh`/alerts; defaults include repo logs, traces, and `~/.copilot/**/logs/**`; add entries for VS Code, Copilot CLI, Codex CLI, npm logs, etc.
 - Log discovery/overview: `scripts/discover_logs.sh` suggests globs to add; `scripts/log_sources_overview.sh` summarizes counts/mtimes for configured sources.
+
+## Shadcn/Tailwind UI
+- Stack: Tailwind + Shadcn (Radix-based) lives in `frontend/`. Theme tokens are defined in `frontend/src/index.css`; Shadcn CLI config is in `frontend/components.json`.
+- Add components: `cd frontend && npx shadcn-ui@latest add button input tooltip` (uses aliases `@/components` and `@/lib/utils`). Edit generated components freely—treat them as source.
+- Styling conventions: prefer shared tokens (`--background`, `--primary`, `--radius`) over ad-hoc colors; use utility merges via `cn` from `@/lib/utils`.
+- Testing: run `npm run test` (Vitest) and `npm run e2e` (Playwright) after UI changes; Peekaboo captures live under `frontend/tests/e2e/peekaboo-*.spec.ts`.
+- Docs: see `docs/FE_SHADCN_CONTEXT.md` for design tokens/brand inputs and `docs/FE_SHADCN_GUIDE.md` for quick start + recipes.
+- Screenshots: latest UI previews live in `frontend/docs/images` (captured via `pnpm --dir frontend exec playwright test tests/e2e/screenshot.spec.ts --workers=1`).
+  - Workspace hero: ![TaskTree workspace hero](frontend/docs/images/ui-hero.png)
+  - Flows view: ![TaskTree flows view](frontend/docs/images/ui-flows.png)
 
 ## Lightweight archives
 - Use `make zip` (wraps `scripts/zip_repo.sh`) to produce a code-only archive that respects `.gitignore`. Defaults exclude heavy assets (node_modules, logs, caches); see `docs/repo-compression.md` for flags and the full inclusion/exclusion policy.

@@ -54,6 +54,8 @@ steps:
 
     await waitFor(() => expect(mockListFlowFiles).toHaveBeenCalled());
     const flowSelect = screen.getByLabelText("Debug Flow");
+    // Wait for the flow option to appear to avoid racing the async state update.
+    await screen.findByRole("option", { name: "log_error_handler.yaml" });
     await userEvent.selectOptions(flowSelect, "log_error_handler.yaml");
     await waitFor(() => expect(mockGetFlowFile).toHaveBeenCalled());
 

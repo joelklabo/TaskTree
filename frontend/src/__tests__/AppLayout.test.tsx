@@ -67,4 +67,11 @@ describe("App layout polish", () => {
     expect(hero).toBeInTheDocument();
     expect(hero.className).toMatch(/gradient|glass|backdrop/i);
   });
+
+  it("includes the styleguide tab", async () => {
+    render(<App />);
+
+    const styleguideTab = await screen.findByRole("tab", { name: /Styleguide/i });
+    expect(styleguideTab).toBeInTheDocument();
+  });
 });
