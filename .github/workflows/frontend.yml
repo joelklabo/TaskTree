@@ -100,11 +100,11 @@ jobs:
           PLAYWRIGHT_HTML_REPORT: playwright-report
         run: |
           echo "Listing Playwright tests for debugging"
-          pnpm exec playwright list --config=playwright.config.cjs
+          pnpm exec playwright test --config=playwright.config.cjs --list || true
           ../scripts/ci/retry.sh 2 10 pnpm exec playwright test \
-          --config=playwright.config.cjs \
-          --reporter=line,html \
-          --output=test-results
+            --config=playwright.config.cjs \
+            --reporter=line,html \
+            --output=test-results
 
       - name: Build
         working-directory: frontend

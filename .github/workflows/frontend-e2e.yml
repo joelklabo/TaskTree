@@ -78,12 +78,12 @@ jobs:
           VITE_DISABLE_CHECKER: 1
         run: |
           echo "Listing Playwright tests for debugging"
-          pnpm exec playwright list --config=playwright.config.cjs
+          pnpm exec playwright test --config=playwright.config.cjs --list || true
           PLAYWRIGHT_HTML_REPORT=playwright-report pnpm exec playwright test \
-          --config=playwright.config.cjs \
-          --shard=${{ matrix.shard }}/3 \
-          --reporter=line,html \
-          --output=test-results
+            --config=playwright.config.cjs \
+            --shard=${{ matrix.shard }}/3 \
+            --reporter=line,html \
+            --output=test-results
 
       - name: Ensure artifact contents
         if: always()
