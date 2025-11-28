@@ -73,6 +73,11 @@ Notes: `make lint-backend` runs Ruff with `--fix` before mypy/bandit/yamllint. `
 - Capture flow runs with the trace wrapper to keep artifacts reproducible.
 - For commits, install hooks (`bash scripts/git_hooks/install_hooks.sh`) and use `scripts/runner.sh "<message>"` (serializes commits with .git/context-runner.lock, rebases on origin/<branch>, runs `make ci`, then pushes).
 
+### Feature conveyor (Beads-first)
+- Generate an epic + tasks from a spec: `./scripts/feature_to_beads.py --title "<feature>" --description-file spec.md --apply` (defaults to Discovery/Design/Implementation/Testing/Docs tasks; uses templates under `docs/templates/`).
+- Every task keeps the **Retry Log (min 3 attempts on failure)**; log each failed attempt (date/change/tests) before escalating.
+- Close tasks only after the listed validation commands pass (always include `make test`). Capture traces when flows are executed. See `docs/feature-conveyor.md` for the full recipe.
+
 ## Dogfooding examples
 - Scenario Debugger / Variant Runner (spec in `docs/scenario-debugger-spec.md`), run via `implement_feature`:
   - `./tt run implement_feature --input '{"feature_spec": "<spec text>"}'`

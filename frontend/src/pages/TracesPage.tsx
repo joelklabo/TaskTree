@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchTraces, TraceMeta } from "../api/client";
+import { fetchTraces, fetchTraceCompare, TraceCompareResponse, TraceMeta } from "../api/client";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -26,6 +26,11 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
   const [error, setError] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [flowFilter, setFlowFilter] = React.useState<string | null>(null);
+  const [compareA, setCompareA] = React.useState("");
+  const [compareB, setCompareB] = React.useState("");
+  const [compareResult, setCompareResult] = React.useState<TraceCompareResponse | null>(null);
+  const [compareError, setCompareError] = React.useState<string | null>(null);
+  const [compareLoading, setCompareLoading] = React.useState(false);
 
   React.useEffect(() => {
     if (initialRuns) return;
@@ -65,6 +70,24 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
   const clearFilters = () => {
     setQuery("");
     setFlowFilter(null);
+  };
+
+  const handleCompare = async () => {
+    setCompareError(null);
+    setCompareResult(null);
+    if (!compareA || !compareB) {
+      setCompareError("Select two run IDs to compare");
+      return;
+    }
+    setCompareLoading(true);
+    try {
+      const res = await fetchTraceCompare(compareA.trim(), compareB.trim());
+      setCompareResult(res);
+    } catch (err) {
+      setCompareError(err instanceof Error ? err.message : "Failed to compare traces");
+    } finally {
+      setCompareLoading(false);
+    }
   };
 
   const totalRuns = runs.length;
@@ -161,9 +184,77 @@ export default function TracesPage({ onSelectRun, initialRuns }: Props) {
                 )}
               </div>
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Compare two runs</label>
+              <div className="grid gap-2 sm:grid-cols-[1fr,1fr,auto]">
+                <Input
+                  placeholder="Run A id"
+                  value={compareA}
+                  onChange={(e) => setCompareA(e.target.value)}
+                  data-testid="compare-run-a"
+                />
+                <Input
+                  placeholder="Run B id"
+                  value={compareB}
+                  onChange={(e) => setCompareB(e.target.value)}
+                  data-testid="compare-run-b"
+                />
+                <Button onClick={handleCompare} disabled={compareLoading}>
+                  {compareLoading ? "Comparing…" : "Compare"}
+                </Button>
+              </div>
+              {compareError && <p className="text-xs text-destructive">{compareError}</p>}
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {compareResult && (
+        <Card data-testid="compare-result">
+          <CardHeader>
+            <CardTitle className="text-lg">Comparison</CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
+              {compareResult.runs.a.run_id} vs {compareResult.runs.b.run_id} ·{" "}
+              {compareResult.summary.mismatched} mismatched · {compareResult.summary.missing_in_a}{" "}
+              missing in A · {compareResult.summary.missing_in_b} missing in B
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Step</TableHead>
+                  <TableHead className="w-32">Run A status</TableHead>
+                  <TableHead className="w-32">Run B status</TableHead>
+                  <TableHead className="w-28 text-right">Δ duration (ms)</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {compareResult.steps.map((step) => (
+                  <TableRow
+                    key={step.step_name}
+                    data-testid={`compare-row-${step.step_name}`}
+                    className={
+                      step.delta.status_changed ? "bg-amber-50 dark:bg-amber-950/40" : undefined
+                    }
+                  >
+                    <TableCell className="font-medium">{step.step_name}</TableCell>
+                    <TableCell>
+                      {step.a?.status || <Badge variant="outline">missing</Badge>}
+                    </TableCell>
+                    <TableCell>
+                      {step.b?.status || <Badge variant="outline">missing</Badge>}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-xs">
+                      {step.delta.duration_ms ?? "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       {error && (
         <Alert variant="destructive">

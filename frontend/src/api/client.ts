@@ -35,6 +35,21 @@ export type TraceMeta = {
 };
 
 export type ArtifactInfo = { path: string; size: number };
+export type TraceCompareResponse = {
+  runs: { a: TraceMeta; b: TraceMeta };
+  steps: Array<{
+    step_name: string;
+    a: { status?: string | null; label?: string | null; duration_ms?: number | null } | null;
+    b: { status?: string | null; label?: string | null; duration_ms?: number | null } | null;
+    delta: { status_changed?: boolean; duration_ms?: number | null };
+  }>;
+  summary: {
+    total: number;
+    mismatched: number;
+    missing_in_a: number;
+    missing_in_b: number;
+  };
+};
 type ClientErrorPayload = {
   message: string;
   name?: string;
@@ -166,6 +181,13 @@ export async function fetchTrace(runId: string): Promise<unknown[]> {
 
 export async function fetchArtifacts(runId: string): Promise<ArtifactInfo[]> {
   const res = await api.get<ArtifactInfo[]>(`/trace/runs/${runId}/artifacts`);
+  return res.data;
+}
+
+export async function fetchTraceCompare(runA: string, runB: string): Promise<TraceCompareResponse> {
+  const res = await api.get<TraceCompareResponse>("/trace/compare", {
+    params: { run_a: runA, run_b: runB },
+  });
   return res.data;
 }
 

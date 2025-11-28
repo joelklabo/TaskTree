@@ -19,6 +19,7 @@ This document covers:
 - Built-in/planned agents
 - Leases & the constitution
 - Beads workflow for agents
+- Feature conveyor (describe→decompose→implement→retry)
 - Adding a new agent
 - Recommended TTD loop for agents
 - ChatOps commands
@@ -118,6 +119,11 @@ The YAML dict is passed to your agent class; define whatever keys you need, but 
 - **Context for agents**: Hydrate prompts with `bd prime` or `bd show <id>`; include issue IDs in traces/logs; prefer `bd comment <id> --notes "<update>"` over editing ad-hoc plan docs.
 - **Sync**: Keep `.beads/` committed. Use `bd status` before/after work and `bd sync` when collaborating across machines/branches.
 - **No plan markdowns**: Historical plan files were migrated into Beads; add new work only via `bd`.
+
+## 4.1 Feature conveyor (describe→decompose→implement→retry)
+- **Generate issues**: Use `./scripts/feature_to_beads.py --title "<feature>" --description-file spec.md --apply` to create a Beads epic and child tasks prefilled with our templates (includes the mandatory Retry Log).
+- **Retry policy**: Every task keeps the Retry Log (min 3 attempts on failure). When tests fail, record the attempt (date, change, test output) and retry up to three times before escalating with added detail in the epic.
+- **Validation**: Tasks must list concrete test commands; always run `make test` before closing. Capture traces for flows with the trace recorder. See `docs/feature-conveyor.md` for the full recipe and quick commands.
 
 ---
 

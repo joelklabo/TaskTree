@@ -5,15 +5,17 @@ import TracesPage from "../TracesPage";
 import type { TraceMeta } from "../../api/client";
 
 const mockFetchTraces = vi.hoisted(() => vi.fn<() => Promise<TraceMeta[]>>());
+const mockFetchCompare = vi.hoisted(() => vi.fn<(a: string, b: string) => Promise<any>>());
 
 vi.mock("../../api/client", async () => {
   const actual = await vi.importActual<typeof import("../../api/client")>("../../api/client");
-  return { ...actual, fetchTraces: mockFetchTraces };
+  return { ...actual, fetchTraces: mockFetchTraces, fetchTraceCompare: mockFetchCompare };
 });
 
 describe("TracesPage interactions", () => {
   beforeEach(() => {
     mockFetchTraces.mockReset();
+    mockFetchCompare.mockReset();
   });
 
   it("loads traces, supports quick filters, and invokes selection", async () => {
@@ -76,5 +78,36 @@ describe("TracesPage interactions", () => {
 
     fireEvent.change(search, { target: { value: "nope" } });
     expect(screen.getByText(/No runs match filter/)).toBeInTheDocument();
+  });
+
+  it("compares two runs and shows summary", async () => {
+    mockFetchTraces.mockResolvedValue([
+      { run_id: "a", flow_name: "code_fix", start_time: "now" },
+      { run_id: "b", flow_name: "code_fix", start_time: "now" },
+    ]);
+    mockFetchCompare.mockResolvedValue({
+      runs: { a: { run_id: "a" }, b: { run_id: "b" } },
+      summary: { total: 2, mismatched: 1, missing_in_a: 0, missing_in_b: 0 },
+      steps: [
+        {
+          step_name: "plan",
+          a: { status: "success", duration_ms: 100 },
+          b: { status: "failure", duration_ms: 120 },
+          delta: { status_changed: true, duration_ms: 20 },
+        },
+      ],
+    });
+
+    render(<TracesPage onSelectRun={() => {}} />);
+    await screen.findByText("a");
+
+    fireEvent.change(screen.getByTestId("compare-run-a"), { target: { value: "a" } });
+    fireEvent.change(screen.getByTestId("compare-run-b"), { target: { value: "b" } });
+    fireEvent.click(screen.getByRole("button", { name: "Compare" }));
+
+    expect(await screen.findByTestId("compare-result")).toBeInTheDocument();
+    expect(screen.getByText(/1 mismatched/)).toBeInTheDocument();
+    expect(screen.getByTestId("compare-row-plan")).toBeInTheDocument();
+    expect(mockFetchCompare).toHaveBeenCalledWith("a", "b");
   });
 });

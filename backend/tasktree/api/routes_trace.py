@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
@@ -106,3 +106,89 @@ def get_artifact(run_id: str, artifact_path: str) -> FileResponse:
     if not target.exists() or not target.is_file():
         raise HTTPException(404, "Artifact not found")
     return FileResponse(target)
+
+
+def _load_trace_records(run_id: str) -> list[dict[str, Any]]:
+    trace_file = TRACE_ROOT / run_id / "trace.jsonl"
+    if not trace_file.exists():
+        if run_id in DEFAULT_TRACES:
+            return DEFAULT_TRACES[run_id]
+        raise HTTPException(404, f"Trace not found: {run_id}")
+    lines = trace_file.read_text().splitlines()
+    return cast(list[dict[str, Any]], [json.loads(line) for line in lines if line])
+
+
+def _extract_session(records: list[dict[str, Any]]) -> dict[str, Any]:
+    for rec in records:
+        session = rec.get("session")
+        if session:
+            session_dict = cast(dict[str, Any], session)
+            result = dict(session_dict)
+            result["run_id"] = rec.get("run_id")
+            return result
+    return {"run_id": records[0].get("run_id") if records else None}
+
+
+def _extract_steps(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    steps: dict[str, dict[str, Any]] = {}
+    for rec in records:
+        step = rec.get("step")
+        if not step:
+            continue
+        name = step.get("step_name")
+        if not name or name in steps:
+            continue
+        steps[name] = {
+            "status": step.get("status"),
+            "label": step.get("label"),
+            "duration_ms": step.get("duration_ms"),
+            "agent": step.get("agent_name") or step.get("agent"),
+        }
+    return steps
+
+
+@router.get("/compare")
+def compare_traces(run_a: str, run_b: str) -> dict[str, Any]:
+    a_records = _load_trace_records(run_a)
+    b_records = _load_trace_records(run_b)
+
+    a_steps = _extract_steps(a_records)
+    b_steps = _extract_steps(b_records)
+
+    all_step_names = sorted(set(a_steps) | set(b_steps))
+    rows: list[dict[str, Any]] = []
+    mismatched = 0
+    missing_a = 0
+    missing_b = 0
+
+    for name in all_step_names:
+        a = a_steps.get(name)
+        b = b_steps.get(name)
+        delta: dict[str, Any] = {"status_changed": False, "duration_ms": None}
+        if a and b:
+            delta["status_changed"] = a.get("status") != b.get("status")
+            a_dur = a.get("duration_ms")
+            b_dur = b.get("duration_ms")
+            if isinstance(a_dur, (int, float)) and isinstance(b_dur, (int, float)):
+                delta["duration_ms"] = b_dur - a_dur
+            if delta["status_changed"]:
+                mismatched += 1
+        elif a and not b:
+            missing_b += 1
+        elif b and not a:
+            missing_a += 1
+
+        rows.append({"step_name": name, "a": a, "b": b, "delta": delta})
+
+    summary = {
+        "total": len(all_step_names),
+        "mismatched": mismatched,
+        "missing_in_a": missing_a,
+        "missing_in_b": missing_b,
+    }
+
+    return {
+        "runs": {"a": _extract_session(a_records), "b": _extract_session(b_records)},
+        "steps": rows,
+        "summary": summary,
+    }
