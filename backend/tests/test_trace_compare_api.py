@@ -5,8 +5,8 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from tasktree.api.app import app
 from tasktree.api import routes_trace
+from tasktree.api.app import app
 
 
 def _write_trace(run_dir: Path, steps: list[dict[str, object]]) -> None:
