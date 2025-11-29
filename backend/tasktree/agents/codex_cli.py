@@ -471,6 +471,8 @@ class CodexCLIAgent(Agent):
             section = f"$ {cmd}\n{result.stdout}".rstrip()
             if result.stderr:
                 section = f"{section}\n{result.stderr}".rstrip()
+            if result.returncode != 0:
+                section = f"{section}\n(exit={result.returncode})"
             outputs.append(section)
         return "\n\n".join(outputs)
 

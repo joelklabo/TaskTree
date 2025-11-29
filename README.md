@@ -90,6 +90,7 @@ Notes: `make lint-backend` runs Ruff with `--fix` before mypy/bandit/yamllint. `
 - Flow graph rendering fix (log in `docs/flow-graph-rendering-dogfooding.md`), traced through `code_fix`:
   - `cd backend && uv run -m tasktree.agents.trace.record uv run tt run code_fix --input '{"bug_description": "Flow graph not rendering nodes in UI"}'`
   - Outcome: switched FlowGraph to `nodes`/`edges` props and added React Flow CSS; e2e and unit tests updated.
+- Flow error→branch push e2e: `backend/tests/test_flow_error_branch_push_e2e.py` spins up a temporary origin/worktree, hits a real failing command, then commits and pushes a branch to that origin—proving the flow path without touching the main repo remote.
 - Add more dogfooding runs here as they happen (brief spec pointer + flow command + notable labels).
 
 ## CLI
