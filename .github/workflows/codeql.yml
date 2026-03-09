@@ -22,7 +22,7 @@ jobs:
         language: [ "python", "javascript" ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@901f0fdebfadabaa0664a07bd572cbd2ff90b07e # v3
