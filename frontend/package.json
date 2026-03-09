@@ -34,7 +34,7 @@
     "react-dom": "^18.3.0",
     "react-flow-renderer": "^10.3.17",
     "react-simple-code-editor": "^0.14.1",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
